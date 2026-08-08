@@ -1,0 +1,2410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bullet Line: Scripture Pursuit (KJV)</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,700;0,900;1,900&family=Playfair+Display:ital,wght@0,600;0,700;1,400;1,600&display=swap');
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Montserrat', 'Segoe UI', sans-serif;
+    }
+
+    body {
+      background: radial-gradient(circle at 50% 20%, #0a1322 0%, #02050a 85%);
+      color: #e0e6ed;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      width: 100vw;
+      padding: 20px 15px 90px 15px;
+      overflow-x: hidden;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    #fog-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .fog-layer-1, .fog-layer-2 {
+      position: fixed;
+      top: -20%;
+      left: -50%;
+      width: 200%;
+      height: 140%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .fog-layer-1 {
+      background: radial-gradient(circle at 30% 50%, rgba(0, 150, 255, 0.08) 0%, rgba(0, 80, 180, 0.04) 45%, transparent 70%);
+      animation: fogFast 20s linear infinite alternate;
+      filter: blur(40px);
+    }
+
+    .fog-layer-2 {
+      background: radial-gradient(ellipse at 70% 40%, rgba(70, 130, 180, 0.12) 0%, rgba(0, 50, 120, 0.15) 55%, transparent 80%);
+      animation: fogSlow 35s ease-in-out infinite alternate;
+      filter: blur(60px);
+    }
+
+    @keyframes fogFast {
+      0% { transform: translateX(-8%) translateY(-4%) rotate(0deg); }
+      100% { transform: translateX(6%) translateY(5%) rotate(1.5deg); }
+    }
+
+    @keyframes fogSlow {
+      0% { transform: translateX(4%) scale(1); }
+      100% { transform: translateX(-8%) scale(1.15); }
+    }
+
+    /* --- IDLE FLOATING BIBLE VERSES IN FOG (SCALED UP FOR PC/TABLET) --- */
+    #idle-verse-overlay {
+      position: fixed;
+      top: 40vh;
+      left: 0;
+      width: 100vw;
+      height: 55vh;
+      pointer-events: none;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .floating-verse-card {
+      position: absolute;
+      width: 95%;
+      max-width: 860px;
+      background: rgba(12, 22, 36, 0.92);
+      backdrop-filter: blur(15px);
+      border: 2px solid rgba(212, 175, 55, 0.55);
+      border-radius: 18px;
+      padding: 34px 42px;
+      text-align: center;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.88), inset 0 0 30px rgba(212, 175, 55, 0.15);
+      opacity: 0;
+      will-change: transform, opacity;
+    }
+
+    .floating-verse-card .f-label {
+      font-size: 0.95rem;
+      font-weight: 800;
+      letter-spacing: 4px;
+      color: #d4af37;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .floating-verse-card .f-ref {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.1rem;
+      font-weight: 700;
+      color: #f7e7a1;
+      margin-bottom: 16px;
+      text-shadow: 0 0 18px rgba(212, 175, 55, 0.5);
+    }
+
+    .floating-verse-card .f-text {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem;
+      line-height: 1.85;
+      color: #f0f4f8;
+      font-style: italic;
+      font-weight: 400;
+    }
+
+    @media (max-width: 768px) {
+      .floating-verse-card {
+        max-width: 92%;
+        padding: 24px 26px;
+      }
+      .floating-verse-card .f-ref { font-size: 1.6rem; }
+      .floating-verse-card .f-text { font-size: 1.25rem; }
+    }
+
+    /* Directional Float Animations */
+    @keyframes floatFromLeft {
+      0% { transform: translateX(-110vw) translateY(20px) rotate(-5deg); opacity: 0; }
+      15% { transform: translateX(0) translateY(0) rotate(0deg); opacity: 1; }
+      85% { transform: translateX(0) translateY(0) rotate(0deg); opacity: 1; }
+      100% { transform: translateX(110vw) translateY(-20px) rotate(5deg); opacity: 0; }
+    }
+
+    @keyframes floatFromRight {
+      0% { transform: translateX(110vw) translateY(-20px) rotate(5deg); opacity: 0; }
+      15% { transform: translateX(0) translateY(0) rotate(0deg); opacity: 1; }
+      85% { transform: translateX(0) translateY(0) rotate(0deg); opacity: 1; }
+      100% { transform: translateX(-110vw) translateY(20px) rotate(-5deg); opacity: 0; }
+    }
+
+    @keyframes floatFromTop {
+      0% { transform: translateY(-60vh) scale(0.8); opacity: 0; }
+      15% { transform: translateY(0) scale(1); opacity: 1; }
+      85% { transform: translateY(0) scale(1); opacity: 1; }
+      100% { transform: translateY(60vh) scale(0.8); opacity: 0; }
+    }
+
+    @keyframes floatZoomIn {
+      0% { transform: scale(0.6); opacity: 0; }
+      15% { transform: scale(1); opacity: 1; }
+      85% { transform: scale(1); opacity: 1; }
+      100% { transform: scale(1.3); opacity: 0; }
+    }
+
+    .anim-left { animation: floatFromLeft 10s ease-in-out forwards; }
+    .anim-right { animation: floatFromRight 10s ease-in-out forwards; }
+    .anim-top { animation: floatFromTop 10s ease-in-out forwards; }
+    .anim-zoom { animation: floatZoomIn 10s ease-in-out forwards; }
+
+    /* --- DISCLAIMER FOOTER --- */
+    #disclaimer-footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100vw;
+      background: rgba(4, 10, 20, 0.94);
+      backdrop-filter: blur(10px);
+      border-top: 1px solid rgba(212, 175, 55, 0.3);
+      padding: 10px 15px;
+      text-align: center;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #f7e7a1;
+      letter-spacing: 0.8px;
+      z-index: 999;
+      text-shadow: 0 0 8px rgba(212, 175, 55, 0.3);
+      transition: opacity 0.3s ease;
+    }
+
+    #app-container {
+      width: 100%;
+      max-width: 950px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      z-index: 3;
+    }
+
+    .logo-container {
+      text-align: center;
+      margin-bottom: 15px;
+      width: 100%;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    .train-logo-wrapper {
+      width: 100%;
+      max-width: 720px;
+      height: auto;
+      will-change: transform, opacity;
+      filter: drop-shadow(0 0 25px rgba(0, 210, 255, 0.45));
+      position: relative;
+    }
+
+    .train-logo-wrapper.run-chase {
+      animation: trainArrival 1.8s cubic-bezier(0.05, 0.7, 0.1, 1) forwards;
+    }
+
+    @keyframes trainArrival {
+      0% { transform: translateX(0) scale(1); opacity: 1; }
+      20% { transform: translateX(120vw) skewX(-20deg) scale(0.9); opacity: 0.9; }
+      21% { transform: translateX(-120vw) skewX(-20deg) scale(0.9); opacity: 0; }
+      25% { opacity: 1; }
+      100% { transform: translateX(0) scale(1); opacity: 1; }
+    }
+
+    .logo-subtitle {
+      margin-top: 4px;
+      font-size: 0.85rem;
+      font-weight: 900;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      position: relative;
+      display: inline-block;
+      animation: bibleBlink 1.2s steps(1, end) infinite;
+    }
+
+    @keyframes bibleBlink {
+      0%, 100% {
+        color: #ff2a4b;
+        text-shadow: 0 0 10px rgba(255, 42, 75, 0.9), 0 0 20px rgba(255, 42, 75, 0.6);
+      }
+      33% {
+        color: #ffffff;
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.9), 0 0 20px rgba(255, 255, 255, 0.6);
+      }
+      66% {
+        color: #0088ff;
+        text-shadow: 0 0 10px rgba(0, 136, 255, 0.9), 0 0 20px rgba(0, 136, 255, 0.6);
+      }
+    }
+
+    .logo-subtitle.active-game {
+      animation: none !important;
+      color: #8da4c4 !important;
+      text-shadow: none !important;
+      font-weight: 700;
+      font-size: 0.8rem;
+      letter-spacing: 2px;
+    }
+
+    .main-game-layout {
+      display: flex;
+      gap: 20px;
+      width: 100%;
+      flex-direction: column;
+    }
+
+    @media (min-width: 768px) {
+      .main-game-layout {
+        flex-direction: row;
+        align-items: stretch;
+      }
+    }
+
+    .card-container {
+      background: rgba(8, 14, 25, 0.88);
+      backdrop-filter: blur(20px);
+      flex: 1;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.9), inset 0 0 2px rgba(0, 180, 255, 0.3);
+      border: 1px solid rgba(0, 150, 255, 0.35);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 45px;
+      transition: flex 0.3s ease;
+    }
+
+    .verse-side-panel {
+      flex: 1;
+      background: rgba(12, 22, 36, 0.95);
+      backdrop-filter: blur(20px);
+      border: 1.5px solid rgba(212, 175, 55, 0.45);
+      border-radius: 16px;
+      padding: 32px 26px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.9), inset 0 0 25px rgba(212, 175, 55, 0.1);
+      margin-bottom: 45px;
+      min-height: 320px;
+      position: relative;
+    }
+
+    .verse-side-panel.hidden {
+      display: none !important;
+    }
+
+    .verse-timer-badge {
+      position: absolute;
+      bottom: 14px;
+      right: 18px;
+      font-family: 'Playfair Display', serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #f7e7a1;
+      text-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
+      background: none;
+      border: none;
+      padding: 0;
+      letter-spacing: 0.5px;
+      opacity: 0.85;
+      transition: opacity 0.3s ease;
+    }
+
+    @media (max-width: 767px) {
+      .verse-side-panel {
+        position: fixed;
+        bottom: 40px;
+        left: 0;
+        width: 100vw;
+        max-height: 75vh;
+        z-index: 999;
+        margin: 0;
+        border-radius: 20px 20px 0 0;
+        box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.95), 0 0 25px rgba(212, 175, 55, 0.5);
+        transform: translateY(100%);
+        animation: slideUpMobile 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        overflow-y: auto;
+      }
+
+      @keyframes slideUpMobile {
+        from {
+          transform: translateY(100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+    }
+
+    .verse-label {
+      font-size: 0.85rem;
+      font-weight: 800;
+      letter-spacing: 3.5px;
+      color: #d4af37;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+
+    .verse-ref {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      font-weight: 700;
+      color: #f7e7a1;
+      margin-bottom: 18px;
+      text-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+      letter-spacing: 0.5px;
+    }
+
+    .verse-text {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      line-height: 1.85;
+      color: #f0f4f8;
+      font-style: italic;
+      font-weight: 400;
+      position: relative;
+      padding: 0 10px;
+    }
+
+    .status-bar {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(5, 10, 18, 0.85);
+      padding: 10px 15px;
+      border-radius: 10px;
+      margin-bottom: 16px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      border: 1px solid rgba(0, 180, 255, 0.15);
+    }
+
+    .bank-text { color: #00ffaa; text-shadow: 0 0 10px rgba(0,255,170,0.4); }
+    .timer-text { 
+      font-family: 'Playfair Display', serif;
+      color: #f7e7a1; 
+      text-shadow: 0 0 10px rgba(212, 175, 55, 0.4); 
+      font-size: 1.05rem;
+    }
+    .diff-badge {
+      font-size: 0.7rem;
+      padding: 3px 7px;
+      border-radius: 4px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .diff-easy { background: rgba(0, 255, 170, 0.2); color: #00ffaa; border: 1px solid #00ffaa; }
+    .diff-medium { background: rgba(255, 170, 0, 0.2); color: #ffaa00; border: 1px solid #ffaa00; }
+    .diff-hard { background: rgba(255, 42, 75, 0.2); color: #ff2a4b; border: 1px solid #ff2a4b; }
+
+    /* --- REALISTIC TRACKS CHASE BOARD STYLING --- */
+    .board-container {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 20px;
+      background: linear-gradient(180deg, #050a12 0%, #0b1424 100%);
+      padding: 18px 10px;
+      border-radius: 12px;
+      border: 1.5px solid rgba(0, 210, 255, 0.3);
+      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8), 0 10px 25px rgba(0, 0, 0, 0.5);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .board-container::before {
+      content: '';
+      position: absolute;
+      top: 0; bottom: 0; left: 32%; right: 32%;
+      background: repeating-linear-gradient(
+        0deg,
+        rgba(255, 255, 255, 0.08),
+        rgba(255, 255, 255, 0.08) 6px,
+        transparent 6px,
+        transparent 22px
+      );
+      border-left: 2px dashed rgba(0, 210, 255, 0.25);
+      border-right: 2px dashed rgba(0, 210, 255, 0.25);
+      pointer-events: none;
+    }
+
+    .step {
+      height: 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 14px;
+      background: linear-gradient(90deg, rgba(16, 26, 43, 0.95) 0%, rgba(24, 38, 62, 0.95) 50%, rgba(16, 26, 43, 0.95) 100%);
+      border: 1.5px solid #2d4a75;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      transition: all 0.3s ease;
+      position: relative;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+    }
+
+    .step span { 
+      font-size: 0.72rem; 
+      color: #9ab4d0; 
+      transition: all 0.3s ease;
+      z-index: 1;
+    }
+
+    .step.chaser-active-step span .step-num {
+      color: #ff2a4b !important;
+      text-shadow: 0 0 12px #ff2a4b, 0 0 22px #ff2a4b;
+      font-weight: 900;
+    }
+
+    .step.player-active-step span .step-num {
+      color: #00d2ff !important;
+      text-shadow: 0 0 12px #00d2ff, 0 0 22px #00d2ff;
+      font-weight: 900;
+    }
+
+    .step[data-step="7"] { width: 100%; }
+    .step[data-step="6"] { width: 94%; }
+    .step[data-step="5"] { width: 88%; }
+    .step[data-step="4"] { width: 82%; }
+    .step[data-step="3"] { width: 76%; }
+    .step[data-step="2"] { width: 70%; }
+    .step[data-step="1"] { width: 64%; }
+    .step[data-step="0"] { width: 58%; background: linear-gradient(90deg, #003322 0%, #005538 50%, #003322 100%); border-color: #00ffaa; box-shadow: 0 0 15px rgba(0,255,170,0.5); }
+
+    .token-space { 
+      display: flex; 
+      gap: 5px; 
+      align-items: center;
+      justify-content: flex-end;
+      width: 100%;
+      position: relative;
+      height: 100%;
+      z-index: 3;
+    }
+
+    .chaser-text-badge, .player-token {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 125px;
+      height: 30px;
+      padding: 0 6px;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      font-size: 0.72rem;
+      font-weight: 900;
+      letter-spacing: 1.2px;
+      text-shadow: 0 0 6px rgba(0, 0, 0, 0.9);
+      z-index: 5;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .chaser-text-badge {
+      background: linear-gradient(135deg, #4d0012 0%, #ff1e42 50%, #800a1d 100%);
+      color: #ffffff;
+      border: 1.5px solid #ff8597;
+      box-shadow: 0 0 16px rgba(255, 30, 66, 0.9), inset 0 0 8px rgba(255, 255, 255, 0.5);
+      animation: derailmentVibe 0.8s ease-in-out infinite alternate;
+    }
+
+    @keyframes derailmentVibe {
+      0% { transform: translateX(-50%) scale(0.94) rotate(-2deg); box-shadow: 0 0 8px rgba(255, 30, 66, 0.6); }
+      100% { transform: translateX(-50%) scale(1.08) rotate(2deg); box-shadow: 0 0 22px rgba(255, 30, 66, 1), 0 0 10px rgba(255, 255, 255, 0.8); }
+    }
+
+    .player-token { 
+      background: linear-gradient(135deg, #002244 0%, #00d2ff 50%, #004499 100%); 
+      color: #ffffff; 
+      box-shadow: 0 0 16px #00d2ff, inset 0 0 8px rgba(255, 255, 255, 0.7); 
+      border: 1.5px solid #80dfff;
+      animation: bulletTrainRush 1.1s ease-in-out infinite alternate;
+      z-index: 6;
+    }
+
+    @keyframes bulletTrainRush {
+      0% { transform: translateX(-50%) translateY(0px) scale(0.96); box-shadow: 0 0 10px #00d2ff; }
+      100% { transform: translateX(-50%) translateY(-3px) scale(1.06); box-shadow: 0 0 22px #00d2ff, 0 0 12px #ffffff; }
+    }
+
+    .token-space.swallowed-state { justify-content: center; }
+    .token-space.swallowed-state .chaser-text-badge {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, #8a0015 0%, #ff1e42 50%, #40010c 100%);
+      border: 1.5px solid #ffff00;
+      box-shadow: 0 0 30px rgba(255, 42, 75, 1), 0 0 15px rgba(255, 255, 0, 0.9);
+      z-index: 8;
+      animation: crashExplosion 0.35s ease-in-out infinite alternate;
+    }
+
+    @keyframes crashExplosion {
+      0% { transform: translateX(-50%) scale(1) rotate(-4deg); filter: brightness(1); }
+      100% { transform: translateX(-50%) scale(1.18) rotate(4deg); filter: brightness(1.4); }
+    }
+
+    .token-space.victory-state { justify-content: center; }
+    .token-space.victory-state .player-token {
+      background: linear-gradient(135deg, #001a4d 0%, #0099ff 50%, #003399 100%);
+      border: 1.5px solid #a6e4ff;
+      box-shadow: 0 0 30px rgba(0, 153, 255, 1), 0 0 15px rgba(255, 255, 255, 0.9);
+      z-index: 8;
+      animation: victoryTrainPulse 0.55s ease-in-out infinite alternate;
+    }
+
+    @keyframes victoryTrainPulse {
+      0% { transform: translateX(-50%) scale(1); filter: brightness(1); }
+      100% { transform: translateX(-50%) scale(1.14); filter: brightness(1.4); }
+    }
+
+    .question-box {
+      width: 100%;
+      text-align: center;
+      font-size: 1.1rem;
+      line-height: 1.45;
+      color: #33b5ff;
+      font-weight: 700;
+      min-height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-shadow: 0 0 8px rgba(0, 162, 255, 0.25);
+      background: rgba(5, 10, 18, 0.5);
+      border: 1px solid rgba(0, 150, 255, 0.2);
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 20px;
+    }
+
+    .countdown-display {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.4rem;
+      font-weight: 700;
+      color: #f7e7a1;
+      text-shadow: 0 0 15px rgba(212, 175, 55, 0.6);
+      letter-spacing: 2px;
+      animation: pulseCount 0.9s ease-in-out infinite alternate;
+      width: 100%;
+      text-align: center;
+    }
+
+    @keyframes pulseCount {
+      from { transform: scale(1); opacity: 0.85; }
+      to { transform: scale(1.08); opacity: 1; }
+    }
+
+    .controls {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn-cyan {
+      background: linear-gradient(180deg, #00d2ff 0%, #0088cc 100%);
+      color: #05131a;
+      border: none;
+      padding: 13px 24px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      cursor: pointer;
+      box-shadow: 0 0 18px rgba(0, 210, 255, 0.4);
+      transition: all 0.2s ease;
+      width: 100%;
+      max-width: 300px;
+    }
+
+    .btn-cyan:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 25px rgba(0, 210, 255, 0.7);
+    }
+
+    .audio-hint-text {
+      margin-top: 10px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #7a8ba3;
+      letter-spacing: 1px;
+      text-align: center;
+      text-transform: uppercase;
+      text-shadow: 0 0 6px rgba(0, 210, 255, 0.2);
+    }
+
+    .sticky-bottom-actions {
+      position: fixed;
+      bottom: 35px;
+      left: 0;
+      width: 100vw;
+      background: rgba(4, 10, 20, 0.92);
+      backdrop-filter: blur(15px);
+      border-top: 1.5px solid rgba(0, 210, 255, 0.4);
+      padding: 12px 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      z-index: 1000;
+      box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.8);
+      animation: slideUpBar 0.3s ease-out forwards;
+    }
+
+    @keyframes slideUpBar {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+
+    .sticky-actions-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      max-width: 500px;
+    }
+
+    .btn-restart-sticky {
+      background: linear-gradient(180deg, #00d2ff 0%, #0066cc 100%);
+      color: #ffffff;
+      border: 1.5px solid #66e5ff;
+      padding: 12px 28px;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 900;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      cursor: pointer;
+      box-shadow: 0 0 20px rgba(0, 210, 255, 0.5);
+      transition: all 0.2s ease;
+      width: 100%;
+      max-width: 320px;
+      text-align: center;
+    }
+
+    .btn-restart-sticky:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 30px rgba(0, 210, 255, 0.85);
+      background: linear-gradient(180deg, #1ae0ff 0%, #0077e6 100%);
+    }
+
+    .stats-display-text {
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: #8da4c4;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      text-align: center;
+    }
+
+    .stats-display-text span {
+      color: #00ffaa;
+      text-shadow: 0 0 8px rgba(0, 255, 170, 0.3);
+    }
+
+    .options-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
+    }
+
+    .option-btn {
+      background: #101928;
+      border: 1px solid #1f314d;
+      color: #e0e6ed;
+      padding: 13px 16px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .option-btn.btn-correct {
+      background: #005a36 !important;
+      border-color: #00ffaa !important;
+      color: #ffffff !important;
+      box-shadow: 0 0 12px rgba(0, 255, 170, 0.5);
+      font-weight: 700;
+    }
+
+    .option-btn.btn-wrong {
+      background: #6b0c1a !important;
+      border-color: #ff2a4b !important;
+      color: #ffffff !important;
+      box-shadow: 0 0 12px rgba(255, 42, 75, 0.5);
+    }
+
+    .offers-row {
+      display: flex;
+      gap: 10px;
+      width: 100%;
+      flex-direction: column;
+    }
+
+    @media (min-width: 480px) {
+      .offers-row {
+        flex-direction: row;
+      }
+    }
+
+    .offer-card {
+      flex: 1;
+      background: #0d1522;
+      border: 1px solid #1f314d;
+      border-radius: 10px;
+      padding: 14px;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .offer-card:hover {
+      transform: translateY(-3px);
+      border-color: #00d2ff;
+    }
+
+    .offer-title { font-size: 0.75rem; color: #7a8ba3; margin-bottom: 4px; font-weight: 700; text-transform: uppercase; }
+    .offer-amount { font-size: 1rem; font-weight: 900; color: #00ffaa; }
+
+    .summary-score-banner {
+      width: 100%;
+      background: rgba(0, 210, 255, 0.15);
+      border: 1.5px solid rgba(0, 210, 255, 0.5);
+      border-radius: 10px;
+      padding: 14px 18px;
+      text-align: center;
+      font-size: 1.05rem;
+      font-weight: 900;
+      color: #00ffaa;
+      margin-top: 15px;
+      letter-spacing: 1px;
+      box-shadow: 0 0 18px rgba(0, 210, 255, 0.25);
+      line-height: 1.5;
+    }
+
+    .summary-box {
+      width: 100%;
+      background: rgba(5, 10, 18, 0.95);
+      border: 1.5px solid rgba(0, 210, 255, 0.3);
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 12px;
+      max-height: 520px;
+      overflow-y: auto;
+      text-align: left;
+    }
+
+    .summary-title {
+      font-size: 1.25rem;
+      font-weight: 900;
+      color: #00d2ff;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 16px;
+      text-align: center;
+      border-bottom: 1px solid #1f314d;
+      padding-bottom: 10px;
+    }
+
+    .summary-item {
+      background: #0a1322;
+      border: 1.5px solid #1b2a40;
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 14px;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+      transition: border-color 0.2s ease;
+    }
+
+    .summary-item.item-correct {
+      border-color: rgba(0, 255, 170, 0.35);
+      background: rgba(0, 255, 170, 0.03);
+    }
+
+    .summary-item.item-wrong {
+      border-color: rgba(255, 42, 75, 0.35);
+      background: rgba(255, 42, 75, 0.03);
+    }
+
+    .summary-item .q-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .summary-item .q-txt {
+      font-weight: 800;
+      font-size: 1.05rem;
+      color: #33b5ff;
+      line-height: 1.4;
+      text-shadow: 0 0 8px rgba(0, 162, 255, 0.2);
+    }
+
+    .summary-item .q-round-tag {
+      font-size: 0.72rem;
+      font-weight: 800;
+      color: #8da4c4;
+      background: #132238;
+      border: 1px solid #233857;
+      padding: 3px 8px;
+      border-radius: 4px;
+      white-space: nowrap;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .summary-item .ans-info {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      color: #cfd8e3;
+      font-size: 0.92rem;
+      margin-top: 8px;
+    }
+
+    .summary-item .ans-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .summary-item .summary-scripture {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      color: #f7e7a1;
+      font-size: 1.15rem;
+      margin-top: 8px;
+      padding: 10px 14px;
+      background: rgba(212, 175, 55, 0.08);
+      border-left: 3px solid #d4af37;
+      border-radius: 0 6px 6px 0;
+      line-height: 1.6;
+    }
+
+    .status-correct {
+      color: #00ffaa;
+      font-weight: 900;
+      background: rgba(0, 255, 170, 0.15);
+      border: 1px solid #00ffaa;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      letter-spacing: 1px;
+    }
+
+    .status-wrong {
+      color: #ff2a4b;
+      font-weight: 900;
+      background: rgba(255, 42, 75, 0.15);
+      border: 1px solid #ff2a4b;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      letter-spacing: 1px;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(2, 5, 10, 0.85);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      animation: fadeIn 0.3s ease-out;
+      padding: 15px;
+    }
+
+    .modal-box {
+      background: #0a1424;
+      border: 2px solid #00d2ff;
+      border-radius: 12px;
+      padding: 24px 20px;
+      max-width: 380px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 0 30px rgba(0, 210, 255, 0.4);
+    }
+
+    .modal-title {
+      font-size: 1.1rem;
+      font-weight: 900;
+      color: #00ffaa;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .modal-msg {
+      font-size: 0.88rem;
+      color: #cfd8e3;
+      line-height: 1.4;
+      margin-bottom: 18px;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+  <canvas id="fog-canvas"></canvas>
+  <div class="fog-layer-1"></div>
+  <div class="fog-layer-2"></div>
+
+  <!-- IDLE FLOATING VERSES CONTAINER (MID TO BOTTOM) -->
+  <div id="idle-verse-overlay"></div>
+
+  <!-- DISCLAIMER FOOTER -->
+  <div id="disclaimer-footer">
+    This bible quiz game is not a substitute for reading your King James BIBLE.
+  </div>
+
+  <div id="shuffle-modal" class="modal-overlay hidden">
+    <div class="modal-box">
+      <div class="modal-title">🔀 Deck Reset</div>
+      <div class="modal-msg">All 400 questions in the bank have been played! The tracking history has been completely reshuffled for a fresh deck.</div>
+      <button class="btn-cyan" onclick="closeShuffleModal()" style="max-width: 160px; padding: 10px 16px;">CONTINUE</button>
+    </div>
+  </div>
+
+  <div id="app-container">
+    <div id="logo-header-box" class="logo-container">
+      <div id="main-title" class="train-logo-wrapper">
+        <svg viewBox="0 0 1600 220" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="trainHull" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#ffffff"/>
+              <stop offset="10%" stop-color="#80d8ff"/>
+              <stop offset="50%" stop-color="#0066cc"/>
+              <stop offset="90%" stop-color="#80d8ff"/>
+              <stop offset="100%" stop-color="#ffffff"/>
+            </linearGradient>
+            <linearGradient id="chromeText" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#ffffff"/>
+              <stop offset="35%" stop-color="#e0f4ff"/>
+              <stop offset="55%" stop-color="#00a2ff"/>
+              <stop offset="100%" stop-color="#003366"/>
+            </linearGradient>
+            <linearGradient id="speedGlow" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="transparent"/>
+              <stop offset="20%" stop-color="#00d2ff"/>
+              <stop offset="80%" stop-color="#00a2ff"/>
+              <stop offset="100%" stop-color="transparent"/>
+            </linearGradient>
+            
+            <filter id="neonBlue" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="6" result="blur"/>
+              <feMerge>
+                <feMergeNode in="blur"/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
+          </defs>
+
+          <path d="M 10 185 L 1590 185" stroke="url(#speedGlow)" stroke-width="4.5" filter="url(#neonBlue)" />
+          <path d="M 40 198 L 1560 198" stroke="#00d2ff" stroke-width="2" opacity="0.6" />
+          <path d="M 100 208 L 1500 208" stroke="#00a2ff" stroke-width="2.5" opacity="0.75" filter="url(#neonBlue)" />
+
+          <g transform="skewX(-16) translate(10, 10)">
+            <path d="M 30 145 C 70 145, 140 70, 230 70 L 785 70 C 792 70, 795 145, 795 145 C 795 175, 780 175, 230 175 C 140 175, 60 170, 30 145 Z" fill="url(#trainHull)" opacity="0.38" />
+            <path d="M 28 145 C 68 145, 138 72, 228 72 L 787 72" stroke="#00d2ff" stroke-width="4.5" fill="none" filter="url(#neonBlue)" />
+            <path d="M 40 175 L 787 175" stroke="#00a2ff" stroke-width="3.5" fill="none" filter="url(#neonBlue)" />
+
+            <path d="M 65 135 C 95 135, 135 90, 185 90 L 225 90 C 165 90, 115 135, 65 135 Z" fill="#002244" opacity="0.85" />
+            <ellipse cx="50" cy="145" rx="16" ry="6" fill="#ffffff" filter="url(#neonBlue)" />
+
+            <rect x="795" y="80" width="10" height="90" rx="2" fill="#0088cc" opacity="0.9" filter="url(#neonBlue)" />
+
+            <path d="M 805 145 C 805 70, 808 70, 815 70 L 1370 70 C 1460 70, 1530 145, 1570 145 C 1540 170, 1460 175, 1370 175 L 815 175 C 808 175, 805 145, 805 145 Z" fill="url(#trainHull)" opacity="0.38" />
+            <path d="M 813 72 L 1372 72 C 1462 72, 1532 145, 1572 145" stroke="#00d2ff" stroke-width="4.5" fill="none" filter="url(#neonBlue)" />
+            <path d="M 813 175 L 1560 175" stroke="#00a2ff" stroke-width="3.5" fill="none" filter="url(#neonBlue)" />
+
+            <path d="M 1535 135 C 1505 135, 1465 90, 1415 90 L 1375 90 C 1435 90, 1485 135, 1535 135 Z" fill="#002244" opacity="0.85" />
+            <ellipse cx="1550" cy="145" rx="16" ry="6" fill="#00d2ff" filter="url(#neonBlue)" />
+
+            <g transform="translate(425, 148)">
+              <text x="4" y="4" font-family="'Montserrat', sans-serif" font-size="75" font-weight="900" font-style="italic" text-anchor="middle" fill="#000e1a">BULLET</text>
+              <text x="0" y="0" font-family="'Montserrat', sans-serif" font-size="75" font-weight="900" font-style="italic" text-anchor="middle" fill="url(#chromeText)" stroke="#004477" stroke-width="2" filter="url(#neonBlue)">BULLET</text>
+            </g>
+
+            <g transform="translate(1125, 150)">
+              <text x="5" y="5" font-family="'Montserrat', sans-serif" font-size="80" font-weight="900" text-anchor="middle" fill="#001a33">LINE</text>
+              <text x="0" y="0" font-family="'Montserrat', sans-serif" font-size="80" font-weight="900" text-anchor="middle" fill="url(#chromeText)" stroke="#004477" stroke-width="2.5" filter="url(#neonBlue)">LINE</text>
+            </g>
+          </g>
+        </svg>
+      </div>
+      <div><span id="logo-subtitle" class="logo-subtitle">The Bullet Line: Scripture Pursuit — 400 Q BANK (KJV)</span></div>
+    </div>
+
+    <!-- Main Game Layout -->
+    <div class="main-game-layout">
+      <!-- Left Box: Game Controls, Board, and Questions -->
+      <div class="card-container">
+        <div class="status-bar">
+          <div>TREASURY: <span id="bank-val" class="bank-text">0 Shekels</span></div>
+          <div id="difficulty-indicator" class="diff-badge diff-easy hidden">EASY</div>
+          <div id="timer-wrap" class="hidden">TIME: <span id="timer-val" class="timer-text">60</span>S</div>
+        </div>
+
+        <div id="board-container" class="board-container hidden">
+          <div class="step" data-step="7" id="step-7"><span>Step <span class="step-num">7</span></span><div class="token-space" id="slot-7"></div></div>
+          <div class="step" data-step="6" id="step-6"><span>Step <span class="step-num">6</span></span><div class="token-space" id="slot-6"></div></div>
+          <div class="step" data-step="5" id="step-5"><span>Step <span class="step-num">5</span></span><div class="token-space" id="slot-5"></div></div>
+          <div class="step" data-step="4" id="step-4"><span>Step <span class="step-num">4</span></span><div class="token-space" id="slot-4"></div></div>
+          <div class="step" data-step="3" id="step-3"><span>Step <span class="step-num">3</span></span><div class="token-space" id="slot-3"></div></div>
+          <div class="step" data-step="2" id="step-2"><span>Step <span class="step-num">2</span></span><div class="token-space" id="slot-2"></div></div>
+          <div class="step" data-step="1" id="step-1"><span>Step <span class="step-num">1</span></span><div class="token-space" id="slot-1"></div></div>
+          <div class="step" data-step="0" id="step-0"><span>TRAIN STATION</span><div class="token-space" id="slot-0"></div></div>
+        </div>
+
+        <div class="question-box">
+          <div id="question-display">
+            Welcome to The Bullet Line: Scripture Pursuit (400 Q Bank - KJV)! Press START GAME below to begin.
+          </div>
+        </div>
+
+        <div id="summary-score-banner" class="summary-score-banner hidden"></div>
+        <div id="summary-wrap" class="summary-box hidden">
+          <div class="summary-title">📜 Game Summary Report (KJV)</div>
+          <div id="summary-list"></div>
+        </div>
+
+        <div class="controls">
+          <button id="start-game-btn" class="btn-cyan">START GAME</button>
+          <div id="audio-hint" class="audio-hint-text">Touch anywhere to hear the bullet train (Shinkansen).</div>
+          <div id="builder-options" class="options-grid hidden"></div>
+
+          <div id="offers-wrap" class="offers-row hidden">
+            <div class="offer-card" id="low-offer">
+              <div class="offer-title">Low Offer</div>
+              <div class="offer-amount" id="low-val">0 Shekels</div>
+            </div>
+            <div class="offer-card" id="med-offer" style="border-color: #00d2ff;">
+              <div class="offer-title">Your Treasury</div>
+              <div class="offer-amount" id="med-val">0 Shekels</div>
+            </div>
+            <div class="offer-card" id="high-offer">
+              <div class="offer-title">High Offer</div>
+              <div class="offer-amount" id="high-val">0 Shekels</div>
+            </div>
+          </div>
+
+          <div id="chase-options" class="options-grid hidden"></div>
+        </div>
+      </div>
+
+      <!-- Right Box: Big Dedicated Scripture Panel -->
+      <div id="verse-container" class="verse-side-panel hidden">
+        <div class="verse-label">📖 King James Bible (KJV)</div>
+        <div id="verse-ref" class="verse-ref">--</div>
+        <div id="verse-text" class="verse-text">--</div>
+        <div id="verse-timer-badge" class="verse-timer-badge hidden">3</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STICKY BOTTOM ACTION BAR -->
+  <div id="sticky-bottom-bar" class="sticky-bottom-actions hidden">
+    <div class="sticky-actions-row">
+      <button class="btn-restart-sticky" onclick="resetGame()">RESTART GAME</button>
+    </div>
+    <div class="stats-display-text" id="stats-display-text">
+      GAMES PLAYED: <span id="stat-played">0</span> | WON: <span id="stat-won">0</span> | LOST: <span id="stat-lost">0</span>
+    </div>
+  </div>
+
+  <script>
+    // --- BALANCED 400 Q BANK (200 OLD TESTAMENT + 200 NEW TESTAMENT) ---
+    const pdfRawQuestions = [
+      // === OLD TESTAMENT QUESTIONS (200) ===
+      { q: "How many days did it take God to create the heavens and the earth?", a: "Seven", d: ["Six", "Forty"], ref: "Genesis 2:2", text: "And on the seventh day God ended his work which he had made; and he rested on the seventh day from all his work which he had made.", testament: "OT" },
+      { q: "What did God create on the first day?", a: "Light", d: ["Atmosphere", "Sun and Moon"], ref: "Genesis 1:3", text: "And God said, Let there be light: and there was light.", testament: "OT" },
+      { q: "What did God create on the fourth day?", a: "The sun, moon, and stars", d: ["Birds/Sea animals", "Light"], ref: "Genesis 1:16", text: "And God made two great lights; the greater light to rule the day, and the lesser light to rule the night: he made the stars also.", testament: "OT" },
+      { q: "What did God use the rib of Adam to do?", a: "Create Eve", d: ["Form the first altar", "Build the Garden of Eden"], ref: "Genesis 2:22", text: "And the rib, which the Lord God had taken from man, made he a woman, and brought her unto the man.", testament: "OT" },
+      { q: "What did the serpent tempt Eve to do in the Garden of Eden?", a: "Eat the fruit from the trees that God forbid them to eat", d: ["Leave the Garden of Eden", "Build an altar to herself"], ref: "Genesis 3:4", text: "And the serpent said unto the woman, Ye shall not surely die:", testament: "OT" },
+      { q: "Who were Adam & Eve's first children?", a: "Cain & Abel", d: ["Seth & Enoch", "Jacob & Esau"], ref: "Genesis 4:1-2", text: "And Adam knew Eve his wife; and she conceived, and bare Cain... And she again bare his brother Abel.", testament: "OT" },
+      { q: "What did God divide when He created Earth?", a: "The light from the darkness", d: ["The mountains from the valleys", "The fire from the earth"], ref: "Genesis 1:4", text: "And God saw the light, that it was good: and God divided the light from the darkness.", testament: "OT" },
+      { q: "Who is Abraham's wife?", a: "Sarah", d: ["Rebekah", "Rachel"], ref: "Genesis 11:29", text: "And Abram and Nahor took them wives: the name of Abram's wife was Sarai...", testament: "OT" },
+      { q: "How many books are in the Old Testament?", a: "39", d: ["27", "46"], ref: "Canon of Scripture", text: "Total historical and prophetic books of the Old Covenant.", testament: "OT" },
+      { q: "Where did God send Moses to deliver the children of Israel out of Egypt?", a: "Pharaoh", d: ["Babylon", "Midian"], ref: "Exodus 3:10", text: "Come now therefore, and I will send thee unto Pharaoh, that thou mayest bring forth my people the children of Israel out of Egypt.", testament: "OT" },
+      { q: "How did God appear to Moses in the book of Exodus?", a: "Through a burning bush on the mountain of God", d: ["In a pillar of cloud", "In a still small voice"], ref: "Exodus 3:2", text: "And the angel of the Lord appeared unto him in a flame of fire out of the midst of a bush...", testament: "OT" },
+      { q: "How many plagues are in Exodus?", a: "Ten", d: ["Seven", "Twelve"], ref: "Exodus 7-12", text: "The sequence of divine judgments sent upon Egypt by God through Moses.", testament: "OT" },
+      { q: "Why did God send the ten plagues?", a: "Pharaoh refused to set the Israelites free", d: ["The Israelites stopped worshipping Him", "To test Moses' faith"], ref: "Exodus 7:4", text: "But Pharaoh shall not hearken unto you, that I may lay my hand upon Egypt...", testament: "OT" },
+      { q: "Who did Moses drown by closing the Red Sea?", a: "The Egyptians", d: ["The Philistines", "The Moabites"], ref: "Exodus 14:27", text: "And Moses stretched forth his hand over the sea... and the Lord overthrew the Egyptians in the midst of the sea.", testament: "OT" },
+      { q: "What is the first commandment out of the Ten Commandments?", a: "\"You shall have no other gods before me\"", d: ["\"Honor thy mother and father\"", "\"Thou shalt not steal\""], ref: "Exodus 20:3", text: "Thou shalt have no other gods before me.", testament: "OT" },
+      { q: "What is the fourth commandment out of the Ten Commandments?", a: "\"Remember the Sabbath day, to keep it holy.\"", d: ["\"Honor thy father and mother\"", "\"Thou shalt not kill\""], ref: "Exodus 20:8", text: "Remember the sabbath day, to keep it holy.", testament: "OT" },
+      { q: "What is the sixth commandment out of the Ten Commandments?", a: "\"Thou shalt not kill\"", d: ["\"Thou shalt not bear false witness\"", "\"Thou shalt not covet\""], ref: "Exodus 20:13", text: "Thou shalt not kill.", testament: "OT" },
+      { q: "Who is the first murderer in the Bible?", a: "Cain", d: ["Lamech", "Nimrod"], ref: "Genesis 4:8", text: "And Cain talked with Abel his brother: and it came to pass... that Cain rose up against Abel his brother, and slew him.", testament: "OT" },
+      { q: "Which place is called \"Zion\" and \"the city of David\"?", a: "Jerusalem", d: ["Bethlehem", "Nazareth"], ref: "2 Samuel 5:7", text: "Nevertheless David took the strong hold of Zion: the same is the city of David.", testament: "OT" },
+      { q: "At which mountain did Moses receive the Ten Commandments?", a: "Mount Sinai", d: ["Mount Horeb", "Mount Nebo"], ref: "Exodus 19:20", text: "And the Lord came down upon mount Sinai, on the top of the mount: and the Lord called Moses up...", testament: "OT" },
+      { q: "Who does God tell Abraham to sacrifice to prove his loyalty to Him?", a: "Isaac", d: ["Ishmael", "Lot"], ref: "Genesis 22:2", text: "And he said, Take now thy son, thine only son Isaac, whom thou lovest...", testament: "OT" },
+      { q: "Who was the mother of King Solomon?", a: "Bathsheba", d: ["Abigail", "Hagar"], ref: "2 Samuel 12:24", text: "And David comforted Bathsheba his wife... and she bare a son, and he called his name Solomon...", testament: "OT" },
+      { q: "What prophet succeeded Elijah?", a: "Elisha", d: ["Samuel", "Isaiah"], ref: "2 Kings 2:15", text: "And when the sons of the prophets which were to view at Jericho saw him, they said, The spirit of Elijah doth rest on Elisha.", testament: "OT" },
+      { q: "Who was thrown into the pit by his brothers before being sold into Egypt?", a: "Joseph", d: ["Benjamin", "Reuben"], ref: "Genesis 37:24", text: "And they took him, and cast him into a pit: and the pit was empty, there was no water in it.", testament: "OT" },
+      { q: "What was the name of Abraham's first son born through Hagar?", a: "Ishmael", d: ["Isaac", "Midian"], ref: "Genesis 16:15", text: "And Hagar bare Abram a son: and Abram called his son's name, which Hagar bare, Ishmael.", testament: "OT" },
+      { q: "What miraculous food did God provide for the Israelites in the wilderness?", a: "Manna", d: ["Quail", "Locusts"], ref: "Exodus 16:31", text: "And the house of Israel called the name thereof Manna: and it was like coriander seed, white...", testament: "OT" },
+      { q: "Who was the king of Persia who issued a decree allowing the Jews to return to Jerusalem?", a: "Cyrus", d: ["Darius", "Artaxerxes"], ref: "Ezra 1:1", text: "Now in the first year of Cyrus king of Persia, that the word of the Lord by the mouth of Jeremiah might be fulfilled...", testament: "OT" },
+      { q: "Who was the mother of Jacob and Esau?", a: "Rebekah", d: ["Rachel", "Leah"], ref: "Genesis 25:21", text: "And Isaac intreated the Lord for his wife, because she was barren... and Rebekah his wife conceived.", testament: "OT" },
+      { q: "What city was destroyed by fire and brimstone along with Gomorrah?", a: "Sodom", d: ["Zoar", "Admah"], ref: "Genesis 19:24", text: "Then the Lord rained upon Sodom and upon Gomorrah brimstone and fire from the Lord out of heaven;", testament: "OT" },
+      { q: "What king of Judah instituted major religious reforms after finding the Book of the Law in the Temple?", a: "Josiah", d: ["Hezekiah", "Jehoshaphat"], ref: "2 Kings 22:8", text: "And Hilkiah the high priest said unto Shaphan the scribe, I have found the book of the law in the house of the Lord.", testament: "OT" },
+      { q: "Who was the high priest when Samuel was serving in the tabernacle at Shiloh?", a: "Eli", d: ["Zadok", "Abiathar"], ref: "1 Samuel 1:9", text: "So Hannah rose up after they had eaten in Shiloh... Now Eli the priest sat upon a seat by a post of the temple of the Lord.", testament: "OT" },
+      { q: "What was the name of the valley where David fought Goliath?", a: "Elah", d: ["Kidron", "Acol"], ref: "1 Samuel 17:2", text: "And Saul and the men of Israel were gathered together, and pitched by the valley of Elah...", testament: "OT" },
+      { q: "Who was the prophet that confronted King Ahab and the prophets of Baal on Mount Carmel?", a: "Elijah", d: ["Elisha", "Micaiah"], ref: "1 Kings 18:21", text: "And Elijah came unto all the people, and said, How long halt ye between two opinions? if the Lord be God, follow him...", testament: "OT" },
+      { q: "Who interpreted Pharaoh's dreams concerning the seven years of plenty and seven years of famine?", a: "Joseph", d: ["Daniel", "Moses"], ref: "Genesis 41:25", text: "And Joseph said unto Pharaoh, The dream of Pharaoh is one: God hath shewed Pharaoh what he is about to do.", testament: "OT" },
+      { q: "What king of Babylon threw Shadrach, Meshach, and Abednego into the fiery furnace?", a: "Nebuchadnezzar", d: ["Belshazzar", "Darius"], ref: "Daniel 3:19", text: "Then was Nebuchadnezzar full of fury, and the form of his visage was changed against Shadrach, Meshach, and Abednego...", testament: "OT" },
+      { q: "Who wrote the majority of the Psalms?", a: "David", d: ["Asaph", "Solomon"], ref: "Book of Psalms", text: "Comprising sacred songs and prayers largely composed by King David of Israel.", testament: "OT" },
+      { q: "What was the name of the giant Philistine champion whom David defeated with a sling and a stone?", a: "Goliath", d: ["Ishbi-benob", "Lahmi"], ref: "1 Samuel 17:4", text: "And there went out a champion out of the camp of the Philistines, named Goliath, of Gath...", testament: "OT" },
+      { q: "Which prophet was swallowed by a great fish after fleeing from the Lord's command?", a: "Jonah", d: ["Amos", "Hosea"], ref: "Jonah 1:17", text: "Now the Lord had prepared a great fish to swallow up Jonah. And Jonah was in the belly of the fish three days and three nights.", testament: "OT" },
+      { q: "Who was the queen that risked her life to save the Jewish people from Haman's plot?", a: "Esther", d: ["Vashti", "Ruth"], ref: "Esther 4:16", text: "Go, gather together all the Jews that are present in Shushan... and so will I go in unto the king... and if I perish, I perish.", testament: "OT" },
+      { q: "What prophet saw a vision of a valley of dry bones coming back to life?", a: "Ezekiel", d: ["Jeremiah", "Daniel"], ref: "Ezekiel 37:4", text: "Again he said unto me, Prophesy upon these bones, and say unto them, O ye dry bones, hear the word of the Lord.", testament: "OT" },
+      { q: "Who was the faithful Moabite woman who chose to stay with her mother-in-law Naomi?", a: "Ruth", d: ["Orpah", "Rahab"], ref: "Ruth 1:16", text: "And Ruth said, Entreat me not to leave thee... thy people shall be my people, and thy God my God:", testament: "OT" },
+      { q: "Which judge of Israel made a rash vow that resulted in sacrificing his only daughter?", a: "Jephthah", d: ["Gideon", "Samson"], ref: "Judges 11:30", text: "And Jephthah vowed a vow unto the Lord, and said, If thou shalt without fail deliver the children of Ammon into mine hands...", testament: "OT" },
+      { q: "Who was the wise king who asked God for an understanding heart to judge His people?", a: "Solomon", d: ["Rehoboam", "Hezekiah"], ref: "1 Kings 3:9", text: "Give therefore thy servant an understanding heart to judge thy people, that I may discern between good and bad...", testament: "OT" },
+      { q: "What city's walls collapsed after the Israelites marched around them for seven days?", a: "Jericho", d: ["Ai", "Jerusalem"], ref: "Joshua 6:20", text: "So the people shouted when the priests blew with the trumpets... and the wall fell down flat...", testament: "OT" },
+      { q: "Who was the king of Babylon who saw a handwriting on the wall during a feast?", a: "Belshazzar", d: ["Nebuchadnezzar", "Darius"], ref: "Daniel 5:5", text: "In the same hour came forth fingers of a man's hand, and wrote over against the candlestick upon the plaster of the wall...", testament: "OT" },
+      { q: "What physical ailment did Job suffer from during his trials?", a: "Boils from the sole of his foot unto his crown", d: ["Blindness", "Leprosy"], ref: "Job 2:7", text: "So went Satan forth from the presence of the Lord, and smote Job with sore boils from the sole of his foot unto his crown.", testament: "OT" },
+      { q: "Who was the prophet that anointed David as king of Israel?", a: "Samuel", d: ["Nathan", "Gad"], ref: "1 Samuel 16:13", text: "Then Samuel took the horn of oil, and anointed him in the midst of his brethren...", testament: "OT" },
+      { q: "What was the name of the wicked queen who promoted the worship of Baal in Israel?", a: "Jezebel", d: ["Athaliah", "Maachah"], ref: "1 Kings 16:31", text: "...he took to wife Jezebel the daughter of Ethbaal king of the Zidonians, and went and served Baal, and worshipped him.", testament: "OT" },
+      { q: "Which prophet was fed by ravens during a drought near the brook Cherith?", a: "Elijah", d: ["Elisha", "Isaiah"], ref: "1 Kings 17:6", text: "And the ravens brought him bread and flesh in the morning, and bread and flesh in the evening; and he drank of the brook.", testament: "OT" },
+      { q: "Who was the commander of Israel's army under Deborah who hesitated to go into battle without her?", a: "Barak", d: ["Gideon", "Jephthah"], ref: "Judges 4:8", text: "And Barak said unto her, If thou wilt go with me, then I will go: but if thou wilt not go with me, then I will not go.", testament: "OT" },
+      { q: "What is the last book of the Old Testament?", a: "Malachi", d: ["Zechariah", "Revelation"], ref: "Malachi 1:1", text: "The burden of the word of the Lord to Israel by Malachi.", testament: "OT" },
+      { q: "How many people boarded Noah's Ark?", a: "Eight", d: ["Six", "Twelve"], ref: "1 Peter 3:20", text: "Which sometime were disobedient... in the days of Noah, while the ark was a preparing, wherein few, that is, eight souls were saved by water.", testament: "OT" },
+      { q: "Which prophet is known for turning his rod into a bronze snake?", a: "Moses", d: ["Aaron", "Elijah"], ref: "Numbers 21:9", text: "And Moses made a serpent of brass, and put it upon a pole, and it came to pass, that if a serpent had bitten any man, when he beheld the serpent of brass, he lived.", testament: "OT" },
+      { q: "What did Joshua command to stay still?", a: "Moon & Sun", d: ["The Red Sea", "The Jordan River"], ref: "Joshua 10:12", text: "Then spake Joshua to the Lord... Sun, stand thou still upon Gibeon; and thou, Moon, in the valley of Ajalon.", testament: "OT" },
+      { q: "How many books are in the Bible?", a: "66", d: ["72", "54"], ref: "Canon of Scripture", text: "Total inspired books comprising the Old and New Testaments.", testament: "OT" },
+      { q: "What is the longest chapter of the Bible?", a: "Psalm 119", d: ["Psalm 23", "Isaiah 53"], ref: "Psalm 119:1", text: "Blessed are the undefiled in the way, who walk in the law of the Lord.", testament: "OT" },
+      { q: "What was Jesus' crown made of?", a: "Thorns", d: ["Gold", "Olive branches"], ref: "Matthew 27:29", text: "And when they had platted a crown of thorns, they put it upon his head, and a reed in his right hand...", testament: "NT" },
+      { q: "What is the shortest verse in the Bible?", a: "\"Jesus wept.\"", d: ["\"Pray without ceasing.\"", "\"Rejoice evermore.\""], ref: "John 11:35", text: "Jesus wept.", testament: "NT" },
+      { q: "How is Jezebel killed?", a: "She is thrown from a window.", d: ["She is struck down by Elijah", "She is poisoned"], ref: "2 Kings 9:33", text: "And he said, Throw her down. So they threw her down: and some of her blood was sprinkled on the wall...", testament: "OT" },
+      { q: "What was the name of the mountain where Moses died after viewing the Promised Land?", a: "Mount Nebo", d: ["Mount Sinai", "Mount Horeb"], ref: "Deuteronomy 34:1", text: "And Moses went up from the plains of Moab unto the mountain of Nebo, to the top of Pisgah...", testament: "OT" },
+      { q: "Who was the king of Judah who became leprous after unlawfully burning incense in the temple?", a: "Uzziah", d: ["Jotham", "Ahaz"], ref: "2 Chronicles 26:19", text: "Then Uzziah was wroth, and had a censer in his hand to burn incense... and the leprosy even broke out in his forehead...", testament: "OT" },
+      { q: "What artisan was filled with the spirit of God to craft the items of the tabernacle alongside Oholiab?", a: "Bezaleel", d: ["Aaron", "Phinehas"], ref: "Exodus 31:2", text: "See, I have called by name Bezaleel the son of Uri, the son of Hur, of the tribe of Judah:", testament: "OT" },
+      { q: "Who was the mother of King Hezekiah?", a: "Abijah", d: ["Athaliah", "Maachah"], ref: "2 Chronicles 29:1", text: "Hezekiah began to reign when he was five and twenty years old... and his mother's name was Abijah, the daughter of Zechariah.", testament: "OT" },
+      { q: "What prophet foretold that Jesus would be born in Bethlehem?", a: "Micah", d: ["Isaiah", "Jeremiah"], ref: "Micah 5:2", text: "But thou, Bethlehem Ephratah, though thou be little among the thousands of Judah, yet out of thee shall he come forth unto me...", testament: "OT" },
+      { q: "Who was the king of Israel who reigned for only seven days before setting the royal palace on fire and dying?", a: "Zimri", d: ["Elah", "Nadab"], ref: "1 Kings 16:18", text: "And it came to pass, when Zimri saw that the city was taken, that he went into the palace... and burnt the king's house over him...", testament: "OT" },
+      { q: "What was the name of the place where Jacob wrestled with God and was renamed Israel?", a: "Peniel", d: ["Bethel", "Mahanaim"], ref: "Genesis 32:30", text: "And Jacob called the name of the place Peniel: for I have seen God face to face, and my life is preserved.", testament: "OT" },
+      { q: "What was the name of the river Israel crossed on dry ground to enter Canaan?", a: "Jordan River", d: ["Nile River", "Euphrates River"], ref: "Joshua 3:17", text: "And the priests that bare the ark of the covenant of the Lord stood firm on dry ground in the midst of Jordan...", testament: "OT" },
+      { q: "What did Samson find inside the carcass of the lion he had killed?", a: "A swarm of bees and honey", d: ["A golden cup", "A scroll"], ref: "Judges 14:8", text: "...and, behold, there was a swarm of bees and honey in the carcase of the lion.", testament: "OT" },
+      { q: "What was the name of the king of Moab who hired Balaam to curse Israel?", a: "Balak", d: ["Eglon", "Sihon"], ref: "Numbers 22:2-6", text: "And Balak the son of Zippor saw all that Israel had done... Come now therefore, I pray thee, curse me this people...", testament: "OT" },
+      { q: "Who was the prophet that confronted King David about numbering the people of Israel?", a: "Gad", d: ["Nathan", "Samuel"], ref: "2 Samuel 24:11", text: "For when David was up in the morning, the word of the Lord came unto the prophet Gad, David's seer...", testament: "OT" },
+      { q: "What was the name of Abraham's home city in Chaldea?", a: "Ur", d: ["Haran", "Babylon"], ref: "Genesis 11:31", text: "...and they went forth with them from Ur of the Chaldees, to go into the land of Canaan...", testament: "OT" },
+      { q: "Who was the judge of Israel who made a fleece test to confirm God's call?", a: "Gideon", d: ["Barak", "Jephthah"], ref: "Judges 6:36-37", text: "And Gideon said unto God, If thou wilt save Israel by mine hand... Behold, I will put a fleece of wool in the floor...", testament: "OT" },
+      { q: "Who was the prophet that lived during the reign of Josiah and prophesied the destruction of Jerusalem?", a: "Jeremiah", d: ["Isaiah", "Ezekiel"], ref: "Jeremiah 1:1-3", text: "The words of Jeremiah the son of Hilkiah... To whom the word of the Lord came in the days of Josiah...", testament: "OT" },
+      { q: "What animal's skin was used to cover the tabernacle?", a: "Badger skins (or rams' skins dyed red)", d: ["Goatskin", "Linen"], ref: "Exodus 26:14", text: "And thou shalt make a covering for the tent of rams' skins dyed red, and a covering above of badgers' skins.", testament: "OT" },
+      { q: "Who was the priest who anointed Saul as the first king of Israel?", a: "Samuel", d: ["Eli", "Ahimelech"], ref: "1 Samuel 10:1", text: "Then Samuel took a vial of oil, and poured it upon his head... Is it not because the Lord hath anointed thee to be captain...", testament: "OT" },
+      { q: "What was the name of the place where Abraham went to sacrifice Isaac?", a: "Moriah", d: ["Sinai", "Hebron"], ref: "Genesis 22:2", text: "And he said, Take now thy son... and get thee into the land of Moriah; and offer him there for a burnt offering...", testament: "OT" },
+      { q: "Who was the king who threw Daniel into the lions' den?", a: "Darius", d: ["Nebuchadnezzar", "Cyrus"], ref: "Daniel 6:16", text: "Then the king commanded, and they brought Daniel, and cast him into the den of lions.", testament: "OT" },
+      { q: "Which OT book contains the prayer of Habakkuk?", a: "Habakkuk", d: ["Zephaniah", "Haggai"], ref: "Habakkuk 3:1", text: "A prayer of Habakkuk the prophet upon Shigionoth.", testament: "OT" },
+      { q: "What was the name of the queen of Sheba who visited King Solomon?", a: "Queen of Sheba", d: ["Candace", "Vashti"], ref: "1 Kings 10:1", text: "And when the queen of Sheba heard of the fame of Solomon concerning the name of the Lord, she came to prove him with hard questions.", testament: "OT" },
+      { q: "Who was the son of Saul who was a close friend to David?", a: "Jonathan", d: ["Ishbosheth", "Abner"], ref: "1 Samuel 18:1", text: "...the soul of Jonathan was knit with the soul of David, and Jonathan loved him as his own soul.", testament: "OT" },
+      { q: "What did Moses throw into the bitter waters of Marah to make them sweet?", a: "A tree (wood)", d: ["A stone", "Salt"], ref: "Exodus 15:25", text: "And he cried unto the Lord; and the Lord shewed him a tree, which when he had cast into the waters, the waters were made sweet...", testament: "OT" },
+      { q: "Which Old Testament book contains the prophecy about a child named Immanuel?", a: "Isaiah", d: ["Jeremiah", "Micah"], ref: "Isaiah 7:14", text: "Therefore the Lord himself shall give you a sign; Behold, a virgin shall conceive, and bear a son, and shall call his name Immanuel.", testament: "OT" },
+      { q: "Who was the father of King Saul?", a: "Kish", d: ["Abner", "Ner"], ref: "1 Samuel 9:1-2", text: "Now there was a man of Benjamin, whose name was Kish... And he had a son, whose name was Saul...", testament: "OT" },
+      { q: "What was the name of the woman who judged Israel under a palm tree?", a: "Deborah", d: ["Jael", "Miriam"], ref: "Judges 4:4-5", text: "And Deborah, a prophetess... she dwelt under the palm tree of Deborah between Ramah and Beth-el in mount Ephraim...", testament: "OT" },
+      { q: "Who was the king who built a golden image sixty cubits high in the plain of Dura?", a: "Nebuchadnezzar", d: ["Belshazzar", "Darius"], ref: "Daniel 3:1", text: "Nebuchadnezzar the king made an image of gold, whose height was threescore cubits, and the breadth thereof six cubits...", testament: "OT" },
+      { q: "Who was the mother of Samuel?", a: "Hannah", d: ["Peninnah", "Rachel"], ref: "1 Samuel 1:20", text: "Wherefore it came to pass... that she bare a son, and called his name Samuel, saying, Because I have asked him of the Lord.", testament: "OT" },
+      { q: "Which Old Testament king had his life extended by 15 years after praying to God?", a: "Hezekiah", d: ["Josiah", "Uzziah"], ref: "2 Kings 20:5-6", text: "I have heard thy prayer, I have seen thy tears: behold, I will heal thee... And I will add unto thy days fifteen years...", testament: "OT" },
+      { q: "Who was the king of Moab whom Ehud assassinated with a two-edged dagger?", a: "Eglon", d: ["Balak", "Sihon"], ref: "Judges 3:17-21", text: "And he brought the present unto Eglon king of Moab: and Eglon was a very fat man... And Ehud... thrust it into his belly.", testament: "OT" },
+      { q: "What city was Jonah instructed to preach against?", a: "Nineveh", d: ["Tarshish", "Babylon"], ref: "Jonah 1:2", text: "Arise, go to Nineveh, that great city, and cry against it; for their wickedness is come up before me.", testament: "OT" },
+      { q: "Who was the prophet that made the axe-head float on water?", a: "Elisha", d: ["Elijah", "Isaiah"], ref: "2 Kings 6:6", text: "And the man of God said, Where fell it?... he cut down a stick, and cast it in thither; and the iron did float.", testament: "OT" },
+      { q: "Which Old Testament book records the story of Shadrach, Meshach, and Abednego?", a: "Daniel", d: ["Ezekiel", "Isaiah"], ref: "Daniel 3:12", text: "There are certain Jews whom thou hast set over the affairs of the province of Babylon, Shadrach, Meshach, and Abed-nego...", testament: "OT" },
+      { q: "What was the name of the place where the Tower of Babel was built?", a: "Plain of Shinar", d: ["Ur", "Babylon"], ref: "Genesis 11:2", text: "And it came to pass, as they journeyed from the east, that they found a plain in the land of Shinar; and they dwelt there.", testament: "OT" },
+      { q: "What weapon did David use to kill Goliath after hitting him with a sling stone?", a: "Goliath's own sword", d: ["A spear", "A bow and arrow"], ref: "1 Samuel 17:51", text: "Therefore David ran, and stood upon the Philistine, and took his sword, and drew it out of the sheath thereof, and slew him...", testament: "OT" },
+      { q: "Who was the king who tried to kill David by throwing a javelin at him?", a: "Saul", d: ["Achish", "Absalom"], ref: "1 Samuel 18:11", text: "And Saul cast the javelin; for he said, I will smite David even to the wall with it. And David avoided out of his presence twice.", testament: "OT" },
+      { q: "What city was known as the 'City of Palm Trees' in the Old Testament?", a: "Jericho", d: ["Engedi", "Zoar"], ref: "Deuteronomy 34:3", text: "...and the plain of the valley of Jericho, the city of palm trees, unto Zoar.", testament: "OT" },
+      { q: "Which Old Testament book contains the vision of the valley of dry bones?", a: "Ezekiel", d: ["Daniel", "Isaiah"], ref: "Ezekiel 37:1", text: "The hand of the Lord was upon me... and set me down in the midst of the valley which was full of bones,", testament: "OT" },
+      { q: "Who was the father of Rehoboam?", a: "Solomon", d: ["David", "Jeroboam"], ref: "1 Kings 11:43", text: "And Solomon slept with his fathers... and Rehoboam his son reigned in his stead.", testament: "OT" },
+      { q: "What was the name of the woman who turned into a pillar of salt?", a: "Lot's wife", d: ["Sarah", "Hagar"], ref: "Genesis 19:26", text: "But his wife looked back from behind him, and she became a pillar of salt.", testament: "OT" },
+      { q: "Who was the prophet that confronted King Ahab about Naboth's vineyard?", a: "Elijah", d: ["Elisha", "Micaiah"], ref: "1 Kings 21:17-18", text: "And the word of the Lord came to Elijah the Tishbite, saying, Arise, go down to meet Ahab king of Israel...", testament: "OT" },
+      { q: "Who was the king of Judah who destroyed the bronze serpent made by Moses because people were worshipping it?", a: "Hezekiah", d: ["Josiah", "Asa"], ref: "2 Kings 18:4", text: "He removed the high places... and brake in pieces the brasen serpent that Moses had made...", testament: "OT" },
+      { q: "What was the name of the place where Elijah defeated the 450 prophets of Baal?", a: "Mount Carmel", d: ["Mount Sinai", "Mount Horeb"], ref: "1 Kings 18:19", text: "Now therefore send, and gather to me all Israel unto mount Carmel, and the prophets of Baal four hundred and fifty...", testament: "OT" },
+      { q: "Which Old Testament book contains the phrase 'there is a time for everything'?", a: "Ecclesiastes", d: ["Proverbs", "Psalms"], ref: "Ecclesiastes 3:1", text: "To every thing there is a season, and a time to every purpose under the heaven:", testament: "OT" },
+      { q: "Who was the mother of Ishmael?", a: "Hagar", d: ["Sarah", "Keturah"], ref: "Genesis 16:15", text: "And Hagar bare Abram a son: and Abram called his son's name, which Hagar bare, Ishmael.", testament: "OT" },
+      { q: "Who was the first king of the Northern Kingdom of Israel after the kingdom split?", a: "Jeroboam", d: ["Rehoboam", "Ahab"], ref: "1 Kings 12:20", text: "...they sent and called him unto the congregation, and made him king over all Israel...", testament: "OT" },
+      { q: "What was the name of the priest who blessed Abram after he rescued Lot?", a: "Melchizedek", d: ["Aaron", "Eli"], ref: "Genesis 14:18", text: "And Melchizedek king of Salem brought forth bread and wine: and he was the priest of the most high God.", testament: "OT" },
+      { q: "Who was the judge of Israel who defeated the Ammonites after making a rash vow?", a: "Jephthah", d: ["Gideon", "Samson"], ref: "Judges 11:30-32", text: "And Jephthah vowed a vow unto the Lord... So Jephthah passed over unto the children of Ammon...", testament: "OT" },
+      { q: "What was the name of Isaac's wife?", a: "Rebekah", d: ["Rachel", "Leah"], ref: "Genesis 24:67", text: "And Isaac brought her into his mother Sarah's tent, and took Rebekah, and she became his wife...", testament: "OT" },
+      { q: "Which Old Testament prophet married a prostitute named Gomer as a sign to Israel?", a: "Hosea", d: ["Amos", "Joel"], ref: "Hosea 1:2-3", text: "And the Lord said to Hosea, Go, take unto thee a wife of whoredoms... So he went and took Gomer...", testament: "OT" },
+      { q: "What was the name of the place where the Israelites drank water from a rock struck by Moses?", a: "Rephidim (Massah and Meribah)", d: ["Marah", "Kadesh"], ref: "Exodus 17:6-7", text: "Thou shalt smite the rock, and there shall come water out of it... And he called the name of the place Massah, and Meribah...", testament: "OT" },
+      { q: "What was the name of the mountain where Noah's ark came to rest after the flood?", a: "Mount Ararat", d: ["Mount Sinai", "Mount Nebo"], ref: "Genesis 8:4", text: "And the ark rested in the seventh month, on the seventeenth day of the month, upon the mountains of Ararat.", testament: "OT" },
+      { q: "Which king had the sun dial turn back ten degrees as a sign of healing?", a: "Hezekiah", d: ["Josiah", "David"], ref: "2 Kings 20:8-11", text: "And Isaiah the prophet cried unto the Lord: and he brought the shadow ten degrees backward...", testament: "OT" },
+      { q: "What was the occupation of Hosea's wife, Gomer?", a: "Harlot", d: ["Tentmaker", "Weaver"], ref: "Hosea 1:2", text: "And the Lord said to Hosea, Go, take unto thee a wife of whoredoms and children of whoredoms...", testament: "OT" },
+      { q: "What city was Abraham originally from?", a: "Ur of the Chaldees", d: ["Haran", "Babylon"], ref: "Genesis 11:31", text: "And Terah took Abram his son... and they went forth with them from Ur of the Chaldees, to go into the land of Canaan...", testament: "OT" },
+      { q: "Which Old Testament book contains the phrase 'vanity of vanities; all is vanity'?", a: "Ecclesiastes", d: ["Proverbs", "Psalms"], ref: "Ecclesiastes 1:2", text: "Vanity of vanities, saith the Preacher, vanity of vanities; all is vanity.", testament: "OT" },
+      { q: "What did the Israelites put on their doorposts during the first Passover?", a: "Lamb's blood", d: ["Oil", "Wine"], ref: "Exodus 12:7", text: "And they shall take of the blood, and strike it on the two side posts and on the upper door post of the houses...", testament: "OT" },
+      { q: "Who killed Sisera by driving a tent peg through his temple?", a: "Jael", d: ["Deborah", "Delilah"], ref: "Judges 4:21", text: "Then Jael Heber's wife took a nail of the tent, and took an hammer in her hand... and smote the nail into his temples...", testament: "OT" },
+      { q: "What weapon did Samson use to slay a thousand Philistines?", a: "Jawbone of a donkey", d: ["Sling", "Bronze sword"], ref: "Judges 15:15", text: "And he found a new jawbone of an ass, and put forth his hand, and took it, and slew a thousand men therewith.", testament: "OT" },
+      { q: "Which river did Naaman dip in seven times to cure his leprosy?", a: "Jordan River", d: ["Nile River", "Abana River"], ref: "2 Kings 5:14", text: "Then went he down, and dipped himself seven times in Jordan, according to the saying of the man of God...", testament: "OT" },
+      { q: "What was the first plague God sent upon Egypt?", a: "River turned to blood", d: ["Frogs", "Flies"], ref: "Exodus 7:20", text: "...and all the waters that were in the river were turned to blood.", testament: "OT" },
+      { q: "How many total chapters are in the Book of Psalms?", a: "150", d: ["119", "100"], ref: "Book of Psalms", text: "Comprising 150 distinct psalms and hymns of praise.", testament: "OT" },
+      { q: "Which tribe was set apart to serve as priests in Israel?", a: "Levi", d: ["Judah", "Benjamin"], ref: "Numbers 3:6", text: "Bring the tribe of Levi near, and present them before Aaron the priest, that they may minister unto him.", testament: "OT" },
+      { q: "What was the name of the woman who hid the two Israelite spies in Jericho?", a: "Rahab", d: ["Ruth", "Tamar"], ref: "Joshua 2:1", text: "...and came into an harlot's house, named Rahab, and lodged there.", testament: "OT" },
+      { q: "Who was Abraham's nephew who chose to live in the plain of Jordan near Sodom?", a: "Lot", d: ["Laban", "Esau"], ref: "Genesis 13:11", text: "Then Lot chose him all the plain of Jordan; and Lot journeyed east...", testament: "OT" },
+      { q: "What did Jacob give Joseph that made his brothers jealous?", a: "A coat of many colours", d: ["A golden signet ring", "A double inheritance"], ref: "Genesis 37:3", text: "Now Israel loved Joseph more than all his children, because he was the son of his old age...", testament: "OT" },
+      { q: "How old was Abraham when Isaac was born?", a: "100", d: ["90", "75"], ref: "Genesis 21:5", text: "And Abraham was an hundred years old, when his son Isaac was born unto him.", testament: "OT" },
+      { q: "What sign did God place in the sky after the flood as a covenant?", a: "Rainbow", d: ["Pillar of fire", "Bright star"], ref: "Genesis 9:13", text: "I do set my bow in the cloud, and it shall be for a token of a covenant between me and the earth.", testament: "OT" },
+      { q: "Who was the youngest son of Jacob?", a: "Benjamin", d: ["Joseph", "Judah"], ref: "Genesis 35:18", text: "...and she called his name Benoni: but his father called him Benjamin.", testament: "OT" },
+      { q: "What fruit did Adam and Eve eat from in the Garden of Eden?", a: "Forbidden fruit from the Tree of Knowledge", d: ["Apple", "Fig"], ref: "Genesis 2:17", text: "But of the tree of the knowledge of good and evil, thou shalt not eat of it...", testament: "OT" },
+      { q: "Who was the priest that trained young Samuel in the house of the Lord?", a: "Eli", d: ["Phinehas", "Hophni"], ref: "1 Samuel 3:1", text: "And the child Samuel ministered unto the Lord before Eli.", testament: "OT" },
+      { q: "Who was the king who built the first Temple in Jerusalem?", a: "Solomon", d: ["David", "Hezekiah"], ref: "1 Kings 6:1", text: "And it came to pass... that he began to build the house of the Lord.", testament: "OT" },
+      { q: "What valley was filled with dry bones in Ezekiel's vision?", a: "Valley of Dry Bones", d: ["Valley of Elah", "Valley of Hinnom"], ref: "Ezekiel 37:1", text: "...and set me down in the midst of the valley which was full of bones,", testament: "OT" },
+      { q: "Who was the cousin of Esther who raised her and uncovered a plot against the king?", a: "Mordecai", d: ["Haman", "Nehemiah"], ref: "Esther 2:7", text: "And he brought up Hadassah, that is, Esther, his uncle's daughter... and, when her father and mother were dead...", testament: "OT" },
+      { q: "What did God rain down from heaven to feed the Israelites in the desert?", a: "Manna", d: ["Locusts", "Olives"], ref: "Exodus 16:14-15", text: "...behold, upon the face of the wilderness there lay a small round thing... This is the bread which the Lord hath given you...", testament: "OT" },
+      { q: "What was the name of Abraham's wife who laughed when promised a child in old age?", a: "Sarah", d: ["Hagar", "Keturah"], ref: "Genesis 18:12", text: "Therefore Sarah laughed within herself, saying, After I am waxed old shall I have pleasure...", testament: "OT" },
+      { q: "Who was thrown into a den of lions for praying to God?", a: "Daniel", d: ["Shadrach", "Jeremiah"], ref: "Daniel 6:16", text: "Then the king commanded, and they brought Daniel, and cast him into the den of lions.", testament: "OT" },
+      { q: "Which Psalm begins with 'The LORD is my shepherd; I shall not want'?", a: "Psalm 23", d: ["Psalm 91", "Psalm 100"], ref: "Psalm 23:1", text: "The Lord is my shepherd; I shall not want.", testament: "OT" },
+      { q: "What was the reason that Jacob and his family began a new life in Egypt?", a: "Famine in Canaan", d: ["Persecution by Philistines", "A divine command to conquer Egypt"], ref: "Genesis 47:4", text: "They said moreover unto Pharaoh, For to sojourn in the land are we come... for the famine is sore in the land of Canaan...", testament: "OT" },
+      { q: "How was Isaac's wife chosen?", a: "His father sent a servant back to Mesopotamia to choose a wife from his own family", d: ["She was selected by a contest among local maidens", "Isaac traveled to Egypt to find a bride"], ref: "Genesis 24:3-4", text: "And I will make thee swear by the Lord... that thou shalt not take a wife unto my son of the daughters of the Canaanites...", testament: "OT" },
+      { q: "Who was Solomon's successor as king of Israel?", a: "Rehoboam", d: ["Jeroboam", "Asa"], ref: "1 Kings 11:43", text: "And Solomon slept with his fathers, and was buried in the city of David his father: and Rehoboam his son reigned in his stead.", testament: "OT" },
+      { q: "What did God place on the east side of the Garden of Eden to guard the way to the Tree of Life?", a: "Cherubim and a flaming sword", d: ["A wall of fire", "Legions of angels"], ref: "Genesis 3:24", text: "So he drove out the man; and he placed at the east of the garden of Eden Cherubims, and a flaming sword...", testament: "OT" },
+      { q: "Who was the priest of Bethel who told Amos to stop prophesying against Israel?", a: "Amaziah", d: ["Pashhur", "Caiaphas"], ref: "Amos 7:10-12", text: "Then Amaziah the priest of Beth-el sent to Jeroboam king of Israel... O thou seer, go, flee thee away into the land of Judah...", testament: "OT" },
+      { q: "Which king had a dream about a large statue made of four metals with feet of iron and clay?", a: "Nebuchadnezzar", d: ["Belshazzar", "Darius"], ref: "Daniel 2:31-33", text: "Thou, O king, sawest, and behold a great image... His head was of fine gold, his breast and his arms of silver...", testament: "OT" },
+      { q: "What was the name of Abraham's second wife, whom he married after Sarah died?", a: "Keturah", d: ["Hagar", "Milcah"], ref: "Genesis 25:1", text: "Then again Abraham took a wife, and her name was Keturah.", testament: "OT" },
+      { q: "Which city did Jonah flee toward when he disobeyed God?", a: "Tarshish", d: ["Damascus", "Nineveh"], ref: "Jonah 1:3", text: "But Jonah rose up to flee unto Tarshish from the presence of the Lord, and went down to Joppa...", testament: "OT" },
+      { q: "What did the Israelites eat each morning in the wilderness?", a: "Manna", d: ["Quail", "Wild herbs"], ref: "Exodus 16:15", text: "And when the children of Israel saw it, they said one to another, It is manna: for they wist not what it was.", testament: "OT" },
+      { q: "What was the primary language in which most of the Old Testament was written?", a: "Hebrew", d: ["Greek", "Aramaic"], ref: "Biblical Languages", text: "The ancient text of the Old Covenant was preserved predominantly in Biblical Hebrew.", testament: "OT" },
+      { q: "Who was the father of King David?", a: "Jesse", d: ["Boaz", "Obed"], ref: "1 Samuel 16:11-13", text: "And Samuel said unto Jesse, Are here all thy children?... Then Samuel took the horn of oil, and anointed him...", testament: "OT" },
+      { q: "What gift did King Solomon ask God for when he became king?", a: "Wisdom and understanding heart", d: ["Long life and health", "Victory over all enemies"], ref: "1 Kings 3:9", text: "Give therefore thy servant an understanding heart to judge thy people, that I may discern between good and bad...", testament: "OT" },
+      { q: "Who was taken up to heaven in a whirlwind with a chariot and horses of fire?", a: "Elijah", d: ["Elisha", "Enoch"], ref: "2 Kings 2:11", text: "And it came to pass... there appeared a chariot of fire, and horses of fire... and Elijah went up by a whirlwind into heaven.", testament: "OT" },
+      { q: "Who was the wife of Uriah whom David took after having Uriah killed in battle?", a: "Bathsheba", d: ["Abigail", "Michal"], ref: "2 Samuel 11:27", text: "And when the mourning was past, David sent and fetched her to his house, and she became his wife, and bare him a son.", testament: "OT" },
+      { q: "What animal spoke to Balaam after being struck three times?", a: "Donkey", d: ["Camels", "Sheep"], ref: "Numbers 22:28", text: "And the Lord opened the mouth of the ass, and she said unto Balaam, What have I done unto thee, that thou hast smitten me these three times?", testament: "OT" },
+      { q: "Which OT book tells the story of a faithful husband remaining loving to an unfaithful wife as a picture of God's love for Israel?", a: "Hosea", d: ["Malachi", "Joel"], ref: "Hosea 1:2", text: "And the Lord said to Hosea, Go, take unto thee a wife of whoredoms... for the land hath committed great whoredom...", testament: "OT" },
+      { q: "Who hid the spies in Jericho beneath stalks of flax on her roof?", a: "Rahab", d: ["Ruth", "Deborah"], ref: "Joshua 2:6", text: "But she had brought them up to the roof of the house, and hid them with the stalks of flax, which she had laid in order...", testament: "OT" },
+      { q: "What pestilence or plague struck the Philistines when they captured the Ark of the Covenant?", a: "Emerods (tumors)", d: ["Boils", "Locusts"], ref: "1 Samuel 5:6", text: "But the hand of the Lord was heavy upon them of Ashdod, and he destroyed them, and smote them with emerods...", testament: "OT" },
+      { q: "What was the name of Isaac's brother born to Hagar?", a: "Ishmael", d: ["Esau", "Midian"], ref: "Genesis 16:15", text: "And Hagar bare Abram a son: and Abram called his son's name, which Hagar bare, Ishmael.", testament: "OT" },
+      { q: "Which tribe did not receive an inheritance of land in Canaan because the Lord was their inheritance?", a: "Levi", d: ["Benjamin", "Judah"], ref: "Deuteronomy 18:1-2", text: "The priests the Levites, and all the tribe of Levi, shall have no part nor inheritance with Israel... the Lord is their inheritance...", testament: "OT" },
+      { q: "Who cut Samson's hair, causing him to lose his strength?", a: "A man called by Delilah", d: ["Delilah herself", "A Philistine soldier"], ref: "Judges 16:19", text: "And she made him sleep upon her knees; and she called for a man, and she caused him to shave off the seven locks of his head...", testament: "OT" },
+      { q: "Which prophet confronted King David after he committed adultery with Bathsheba?", a: "Nathan", d: ["Gad", "Samuel"], ref: "2 Samuel 12:7", text: "And Nathan said to David, Thou art the man.", testament: "OT" },
+      { q: "How many people were saved in Noah's ark during the Great Flood?", a: "Eight", d: ["Six", "Ten"], ref: "1 Peter 3:20", text: "Which sometime were disobedient... in the days of Noah, while the ark was a preparing, wherein few, that is, eight souls were saved by water.", testament: "OT" },
+      { q: "What was the sign given to Noah that God would never destroy the earth with a flood again?", a: "Rainbow", d: ["A shining star", "Pillar of cloud"], ref: "Genesis 9:13", text: "I do set my bow in the cloud, and it shall be for a token of a covenant between me and the earth.", testament: "OT" },
+      { q: "Which king of Israel married Jezebel and promoted Baal worship across the kingdom?", a: "Ahab", d: ["Omri", "Jeroboam"], ref: "1 Kings 16:30-31", text: "And Ahab the son of Omri did evil in the sight of the Lord above all that were before him... he took to wife Jezebel...", testament: "OT" },
+      { q: "Who was the brother of Moses who spoke on his behalf before Pharaoh?", a: "Aaron", d: ["Hur", "Joshua"], ref: "Exodus 4:14-16", text: "Is not Aaron the Levite thy brother?... he shall be thy spokesman unto the people...", testament: "OT" },
+      { q: "What city was conquered when its walls crumbled after Israel marched around them for seven days?", a: "Jericho", d: ["Ai", "Gibeon"], ref: "Joshua 6:20", text: "So the people shouted when the priests blew with the trumpets... and the wall fell down flat...", testament: "OT" },
+      { q: "Who was the apostle that replaced Judas Iscariot?", a: "Matthias", d: ["Barnabas", "Barsabas"], ref: "Acts 1:26", text: "And they gave forth their lots; and the lot fell upon Matthias; and he was numbered with the eleven apostles.", testament: "NT" },
+      { q: "Who was the Persian king who issued a decree allowing Jews to rebuild the temple in Jerusalem?", a: "Cyrus", d: ["Darius", "Xerxes"], ref: "Ezra 1:1-2", text: "Now in the first year of Cyrus king of Persia... The Lord God of heaven hath given me all the kingdoms of the earth...", testament: "OT" },
+      { q: "Who led the Israelites across the Jordan River into the Promised Land?", a: "Joshua", d: ["Moses", "Caleb"], ref: "Joshua 3:17", text: "And the priests that bare the ark of the covenant of the Lord stood firm on dry ground in the midst of Jordan...", testament: "OT" },
+      { q: "Who was the king of Israel known for his extreme wisdom and wealth?", a: "Solomon", d: ["David", "Saul"], ref: "1 Kings 4:30", text: "And Solomon's wisdom excelled the wisdom of all the children of the east country...", testament: "OT" },
+      { q: "Which OT book tells of a woman who lost her husband and sons, then returned to Bethlehem with her daughter-in-law?", a: "Ruth", d: ["Esther", "Judith"], ref: "Ruth 1:19", text: "So they two went until they came to Bethlehem...", testament: "OT" },
+      { q: "Who were the two spies who gave a good report about taking the Promised Land?", a: "Joshua and Caleb", d: ["Moses and Aaron", "Gideon and Barak"], ref: "Numbers 14:6-7", text: "And Joshua the son of Nun, and Caleb the son of Jephunneh... spake unto all the company of the children of Israel...", testament: "OT" },
+      { q: "What was the name of the mountain where Mount Sinai is located?", a: "Mount Horeb", d: ["Mount Carmel", "Mount Zion"], ref: "Exodus 3:1", text: "...and came to the mountain of God, even to Horeb.", testament: "OT" },
+      { q: "What did Esau sell his birthright to Jacob for?", a: "A bowl of stew (pottage)", d: ["Thirty pieces of silver", "A flock of sheep"], ref: "Genesis 25:34", text: "Then Jacob gave Esau bread and pottage of lentiles; and he did eat and drink...", testament: "OT" },
+      { q: "Who was the judge of Israel who defeated the Midianites with only 300 men?", a: "Gideon", d: ["Samson", "Jephthah"], ref: "Judges 7:7", text: "And the Lord said unto Gideon, By the three hundred men that lapped will I save you...", testament: "OT" },
+      { q: "Who was the king who sought to kill the baby Jesus in Bethlehem?", a: "Herod the Great", d: ["Herod Antipas", "Caesar Augustus"], ref: "Matthew 2:16", text: "Then Herod, when he saw that he was mocked of the wise men, was exceeding wroth, and sent forth, and slew all the children...", testament: "NT" },
+      { q: "Who was the wife of Jacob whom he loved more than Leah?", a: "Rachel", d: ["Rebekah", "Bilhah"], ref: "Genesis 29:30", text: "...and he loved also Rachel more than Leah...", testament: "OT" },
+      { q: "What was the name of the garden planted by God where He placed the first man?", a: "Garden of Eden", d: ["Gethsemane", "Paradise"], ref: "Genesis 2:8", text: "And the Lord God planted a garden eastward in Eden; and there he put the man whom he had formed.", testament: "OT" },
+      { q: "What was the name of the feast celebrated to remember God delivering Israel from Egyptian bondage?", a: "Passover", d: ["Pentecost", "Feast of Tabernacles"], ref: "Exodus 12:11", text: "...it is the Lord's passover.", testament: "OT" },
+
+      // === NEW TESTAMENT QUESTIONS (200) ===
+      { q: "Where was Jesus born?", a: "Bethlehem", d: ["Nazareth", "Jerusalem"], ref: "Micah 5:2", text: "But thou, Bethlehem Ephratah, though thou be little among the thousands of Judah, yet out of thee shall he come forth unto me...", testament: "NT" },
+      { q: "How many books are in the New Testament?", a: "27", d: ["39", "66"], ref: "Canon of Scripture", text: "Comprising twenty-seven inspired historical, epistle, and prophetic books of the New Covenant.", testament: "NT" },
+      { q: "Paul was shipwrecked on what island?", a: "Malta", d: ["Patmos", "Cyprus"], ref: "Acts 28:1", text: "And when they were escaped, then they knew that the island was called Melita.", testament: "NT" },
+      { q: "Who recognized Jesus as the Messiah when he was presented to the Temple as a baby?", a: "Simeon", d: ["Zechariah", "Nicodemus"], ref: "Luke 2:25", text: "And, behold, there was a man in Jerusalem, whose name was Simeon; and the same man was just and devout...", testament: "NT" },
+      { q: "After Jesus fed the 5,000, how many baskets were left over?", a: "12", d: ["7", "3"], ref: "Matthew 14:20", text: "And they did all eat, and were filled: and they took up of the fragments that remained twelve baskets full.", testament: "NT" },
+      { q: "In the Gospel of Mark, how does the Virgin Mary learn of her pregnancy?", a: "From the angel Gabriel", d: ["In a dream", "From Elizabeth"], ref: "Luke 1:26-31", text: "And in the sixth month the angel Gabriel was sent from God unto a city of Galilee... thou shalt conceive in thy womb...", testament: "NT" },
+      { q: "Who is the high priest of Jerusalem that put Jesus on trial?", a: "Caiaphas", d: ["Annas", "Gamaliel"], ref: "Matthew 26:57", text: "And they that had laid hold on Jesus led him away to Caiaphas the high priest, where the scribes and the elders were assembled.", testament: "NT" },
+      { q: "According to the Gospel of Matthew, where does Jesus give his first public sermon?", a: "On the mount", d: ["In the synagogue of Nazareth", "By the Sea of Galilee"], ref: "Matthew 5:1", text: "And seeing the multitudes, he went up into a mountain: and when he was set, his disciples came unto him:", testament: "NT" },
+      { q: "How does Judas notify the Roman Officials of Jesus' identity?", a: "Judas kisses Jesus", d: ["Judas points at Jesus", "Judas calls Jesus by name"], ref: "Matthew 26:49", text: "And forthwith he came to Jesus, and said, Hail, master; and kissed him.", testament: "NT" },
+      { q: "Which insect did John the Baptist eat in the desert?", a: "Locusts", d: ["Grasshoppers", "Crickets"], ref: "Matthew 3:4", text: "And the same John had his raiment of camel's hair, and a leathern girdle about his loins; and his meat was locusts and wild honey.", testament: "NT" },
+      { q: "Who were the first apostles called to follow Jesus?", a: "Peter & Andrew", d: ["James & John", "Philip & Bartholomew"], ref: "Matthew 4:18", text: "And Jesus, walking by the sea of Galilee, saw two brethren, Simon called Peter, and Andrew his brother...", testament: "NT" },
+      { q: "After Jesus was arrested, which apostle disowned him three times?", a: "Peter", d: ["Judas", "John"], ref: "Matthew 26:75", text: "And Peter remembered the word of Jesus... Before the cock crow, thou shalt deny me thrice. And he went out, and wept bitterly.", testament: "NT" },
+      { q: "Who wrote the book of Revelation?", a: "John", d: ["Paul", "Peter"], ref: "Revelation 1:1", text: "The Revelation of Jesus Christ, which God gave unto him, to shew unto his servants things which must shortly come to pass...", testament: "NT" },
+      { q: "Who asked Pilate for Jesus' body after he was crucified?", a: "Joseph of Arimathea", d: ["Nicodemus", "Simon of Cyrene"], ref: "Matthew 27:57-58", text: "When the even was come, there came a rich man of Arimathaea, named Joseph... He went to Pilate, and begged the body of Jesus.", testament: "NT" },
+      { q: "What is the shortest book in the New Testament?", a: "2 John", d: ["3 John", "Jude"], ref: "2 John 1:1", text: "The elder unto the elect lady and her children, whom I love in the truth; and not I only, but also all they that have known the truth;", testament: "NT" },
+      { q: "Who worked as a tax collector prior to preaching the word of God?", a: "Matthew", d: ["Luke", "Zacchaeus"], ref: "Matthew 9:9", text: "And as Jesus passed forth from thence, he saw a man, named Matthew, sitting at the receipt of custom: and he saith unto him, Follow me.", testament: "NT" },
+      { q: "Paul says Christians should follow whose example? (Ephesians 5)", a: "Christ's example", d: ["Moses' example", "Abraham's example"], ref: "Ephesians 5:1-2", text: "Be ye therefore followers of God, as dear children; And walk in love, as Christ also hath loved us...", testament: "NT" },
+      { q: "What did Saul encounter when he was traveling to Damascus?", a: "A great and blinding light", d: ["A fiery chariot", "A mighty rushing wind"], ref: "Acts 9:3", text: "And as he journeyed, he came near Damascus: and suddenly there shined round about him a light from heaven:", testament: "NT" },
+      { q: "What tribe is Paul from?", a: "Benjamin", d: ["Judah", "Levi"], ref: "Philippians 3:5", text: "Circumcised the eighth day, of the stock of Israel, of the tribe of Benjamin, an Hebrew of the Hebrews; as touching the law, a Pharisee;", testament: "NT" },
+      { q: "What was Simon Peter's profession prior to becoming an apostle?", a: "Fisherman", d: ["Tentmaker", "Tax Collector"], ref: "Matthew 4:18", text: "And Jesus, walking by the sea of Galilee, saw two brethren... Simon called Peter, and Andrew his brother... for they were fishers.", testament: "NT" },
+      { q: "In the Acts of the Apostles, who is Stephen?", a: "The first Christian martyr", d: ["The first Gentile convert", "The bishop of Antioch"], ref: "Acts 7:59-60", text: "And they stoned Stephen, calling upon God, and saying, Lord Jesus, receive my spirit... And when he had said this, he fell asleep.", testament: "NT" },
+      { q: "In 1 Corinthians, which is the greatest of the imperishable qualities?", a: "Love", d: ["Faith", "Hope"], ref: "1 Corinthians 13:13", text: "And now abideth faith, hope, charity, these three; but the greatest of these is charity.", testament: "NT" },
+      { q: "In the Gospel According to John, which apostle doubts Jesus' resurrection until he sees Jesus with his own eyes?", a: "Thomas", d: ["Philip", "Andrew"], ref: "John 20:25", text: "The other disciples therefore said unto him, We have seen the Lord. But he said unto them, Except I shall see...", testament: "NT" },
+      { q: "Which Gospel mostly speaks on the mystery and identity of the person of Jesus?", a: "The Gospel According to John", d: ["The Gospel According to Mark", "The Gospel According to Matthew"], ref: "John 20:31", text: "But these are written, that ye might believe that Jesus is the Christ, the Son of God; and that believing ye might have life through his name.", testament: "NT" },
+      { q: "According to the Gospels, which literary genre does Jesus implement to help preach his message?", a: "The parable", d: ["The proverb", "The allegory"], ref: "Matthew 13:34", text: "All these things spake Jesus unto the multitude in parables; and without a parable spake he not unto them:", testament: "NT" },
+      { q: "Which biblical narrative is connected to Palm Sunday?", a: "Jesus' entry into Jerusalem before his death", d: ["The Last Supper", "The Sermon on the Mount"], ref: "Matthew 21:9", text: "And the multitudes that went before, and that followed, cried, saying, Hosanna to the Son of David...", testament: "NT" },
+      { q: "Which Gospel is written by a doctor?", a: "Luke", d: ["Matthew", "Mark"], ref: "Colossians 4:14", text: "Luke, the beloved physician, and Demas, greet you.", testament: "NT" },
+      { q: "Who baptizes Jesus?", a: "John the Baptizer", d: ["Peter", "Nicodemus"], ref: "Matthew 3:13", text: "Then cometh Jesus from Galilee to Jordan unto John, to be baptized of him.", testament: "NT" },
+      { q: "Which group of people are righteous enough to inherit the Kingdom of God?", a: "The Gentiles", d: ["The Pharisees", "The Sadducees"], ref: "Romans 9:30", text: "What shall we say then? That the Gentiles, which followed not after righteousness, have attained to righteousness...", testament: "NT" },
+      { q: "What is the name of the village where Christ turned water into wine?", a: "Cana of Galilee", d: ["Bethany", "Capernaum"], ref: "John 2:11", text: "This beginning of miracles did Jesus in Cana of Galilee, and manifested forth his glory; and his disciples believed on him.", testament: "NT" },
+      { q: "Who wore clothing made of camel hair?", a: "John the Baptist", d: ["Elijah", "Elisha"], ref: "Matthew 3:4", text: "And the same John had his raiment of camel's hair...", testament: "NT" },
+      { q: "What is the river where John the Baptist did most of his baptizing?", a: "Jordan River", d: ["Nile River", "Euphrates River"], ref: "Matthew 3:6", text: "And were baptized of him in Jordan, confessing their sins.", testament: "NT" },
+      { q: "Who cried after hearing a rooster crow?", a: "Peter", d: ["Judas", "Paul"], ref: "Matthew 26:75", text: "And Peter remembered the word of Jesus... And he went out, and wept bitterly.", testament: "NT" },
+      { q: "Who took Judas Iscariot's place as an apostle?", a: "Matthias", d: ["Barnabas", "Stephen"], ref: "Acts 1:26", text: "And they gave forth their lots; and the lot fell upon Matthias; and he was numbered with the eleven apostles.", testament: "NT" },
+      { q: "Which apostle walked on water?", a: "Peter", d: ["John", "James"], ref: "Matthew 14:29", text: "And he said, Come. And when Peter was come down out of the ship, he walked on the water, to go to Jesus.", testament: "NT" },
+      { q: "At what age did Jesus start his ministry?", a: "30", d: ["33", "12"], ref: "Luke 3:23", text: "And Jesus himself began to be about thirty years of age, being (as was supposed) the son of Joseph...", testament: "NT" },
+      { q: "What miracle did Jesus perform on the Sabbath?", a: "Healing the man who was born blind", d: ["Turning water into wine", "Walking on water"], ref: "John 9:14", text: "And it was the sabbath day when Jesus made the clay, and opened his eyes.", testament: "NT" },
+      { q: "King Herod promised what to his daughter on his birthday?", a: "John the Baptist's head", d: ["Half of his kingdom", "A golden crown"], ref: "Matthew 14:7", text: "Whereupon he promised with an oath to give her whatsoever she would ask.", testament: "NT" },
+      { q: "What Roman Governor presided over Judea during the trial of Jesus?", a: "Pontius Pilate", d: ["Felix", "Festus"], ref: "Matthew 27:2", text: "And when they had bound him, they led him away, and delivered him to Pontius Pilate the governor.", testament: "NT" },
+      { q: "Which New Testament book features the seven letters to the churches of Asia Minor?", a: "Revelation", d: ["Hebrews", "Romans"], ref: "Revelation 1:11", text: "Saying, I am Alpha and Omega, the first and the last: and, What thou seest, write in a book, and send it unto the seven churches...", testament: "NT" },
+      { q: "Who was the captain of the host of the king of Syria who was cured of his leprosy?", a: "Naaman", d: ["Sennacherib", "Nebuchadnezzar"], ref: "2 Kings 5:1", text: "Now Naaman, captain of the host of the king of Syria, was a great man with his master, and honourable...", testament: "OT" },
+      { q: "Which New Testament epistle emphasizes that 'faith without works is dead'?", a: "James", d: ["1 Peter", "Hebrews"], ref: "James 2:26", text: "For as the body without the spirit is dead, so faith without works is dead also.", testament: "NT" },
+      { q: "What was the name of the pool where Jesus told the blind man to wash his eyes?", a: "Siloam", d: ["Bethesda", "Gihon"], ref: "John 9:7", text: "And said unto him, Go, wash in the pool of Siloam... He went his way therefore, and washed, and came seeing.", testament: "NT" },
+      { q: "What was the name of the garden where Jesus prayed earnestly before his arrest?", a: "Gethsemane", d: ["Eden", "Gethemane"], ref: "Matthew 26:36", text: "Then cometh Jesus with them unto a place called Gethsemane, and saith unto the disciples, Sit ye here, while I go and pray yonder.", testament: "NT" },
+      { q: "Who was the Roman centurion in Caesarea who became one of the first gentile converts to Christianity?", a: "Cornelius", d: ["Julius", "Claudius"], ref: "Acts 10:1", text: "There was a man in Caesarea called Cornelius, a centurion of the band called the Italian band...", testament: "NT" },
+      { q: "What prophetic book contains the vision of the four living creatures and wheels within wheels?", a: "Ezekiel", d: ["Daniel", "Revelation"], ref: "Ezekiel 1:16", text: "The appearance of the wheels and their work was like unto the colour of a beryl: and they four had one likeness...", testament: "OT" },
+      { q: "Who was the high priest that condemned Jesus during the religious trial before handing him over to Pilate?", a: "Caiaphas", d: ["Annas", "Gamaliel"], ref: "Matthew 26:65", text: "Then the high priest rent his clothes, saying, He hath spoken blasphemy; what further need have we of witnesses?", testament: "NT" },
+      { q: "Who was the disciple known as 'Didymus' or the twin?", a: "Thomas", d: ["Philip", "Andrew"], ref: "John 21:2", text: "There were together Simon Peter, and Thomas called Didymus, and Nathanael of Cana in Galilee...", testament: "NT" },
+      { q: "What was the first town Jesus performed a miracle in according to John?", a: "Cana", d: ["Nazareth", "Capernaum"], ref: "John 2:11", text: "This beginning of miracles did Jesus in Cana of Galilee...", testament: "NT" },
+      { q: "Which apostle was called 'the Son of Encouragement'?", a: "Barnabas", d: ["Stephen", "Silas"], ref: "Acts 4:36", text: "And Joses, who by the apostles was surnamed Barnabas, (which is, being interpreted, The son of consolation,)...", testament: "NT" },
+      { q: "Who was the grandmother of Timothy praised by Paul for her sincere faith?", a: "Lois", d: ["Eunice", "Priscilla"], ref: "2 Timothy 1:5", text: "...which dwelt first in thy grandmother Lois, and thy mother Eunice...", testament: "NT" },
+      { q: "Which New Testament letter contains the passage known as the 'Love Chapter'?", a: "1 Corinthians", d: ["Ephesians", "Romans"], ref: "1 Corinthians 13:1", text: "Though I speak with the tongues of men and of angels, and have not charity, I am become as sounding brass...", testament: "NT" },
+      { q: "What was the name of the mount where Jesus ascended into heaven?", a: "Mount of Olives", d: ["Mount Zion", "Mount Carmel"], ref: "Acts 1:12", text: "Then returned they unto Jerusalem from the mount called Olivet, which is from Jerusalem a sabbath day's journey.", testament: "NT" },
+      { q: "Which Gospel writer was also known as Levi?", a: "Matthew", d: ["Mark", "Luke"], ref: "Mark 2:14", text: "And as he passed by, he saw Levi the son of Alphaeus sitting at the receipt of custom...", testament: "NT" },
+      { q: "Who was the brother of Martha and Mary whom Jesus raised from the dead?", a: "Lazarus", d: ["Simon", "Nicodemus"], ref: "John 11:43-44", text: "...he cried with a loud voice, Lazarus, come forth. And he that was dead came forth...", testament: "NT" },
+      { q: "What city was Paul traveling to when he saw a vision of a Macedonian man asking for help?", a: "Troas", d: ["Ephesus", "Philippi"], ref: "Acts 16:8-9", text: "And a vision appeared to Paul in the night; There stood a man of Macedonia, and prayed him, saying, Come over into Macedonia, and help us.", testament: "NT" },
+      { q: "Who was the disciple that brought his brother Simon Peter to Jesus?", a: "Andrew", d: ["Philip", "Nathanael"], ref: "John 1:40-41", text: "One of the two which heard John speak, and followed him, was Andrew, Simon Peter's brother. He first findeth his own brother Simon...", testament: "NT" },
+      { q: "Who was the mother of Timothy?", a: "Eunice", d: ["Lois", "Priscilla"], ref: "2 Timothy 1:5", text: "When I call to remembrance the unfeigned faith that is in thee, which dwelt first in thy grandmother Lois, and thy mother Eunice...", testament: "NT" },
+      { q: "What was the name of the island where John was exiled when he wrote Revelation?", a: "Patmos", d: ["Malta", "Crete"], ref: "Revelation 1:9", text: "I John... was in the isle that is called Patmos, for the word of God, and for the testimony of Jesus Christ.", testament: "NT" },
+      { q: "What was the occupation of Priscilla and Aquila?", a: "Tentmakers", d: ["Merchants", "Fishermen"], ref: "Acts 18:2-3", text: "...and because he was of the same craft, he abode with them, and wrought: for by their occupation they were tentmakers.", testament: "NT" },
+      { q: "Who was the father of James and John, the sons of Zebedee?", a: "Zebedee", d: ["Alphaeus", "Jonas"], ref: "Matthew 4:21", text: "...he saw other two brethren, James the son of Zebedee, and John his brother, in a ship with Zebedee their father...", testament: "NT" },
+      { q: "What was the name of the woman who anointed Jesus' feet with expensive perfume in Bethany?", a: "Mary", d: ["Martha", "Mary Magdalene"], ref: "John 12:3", text: "Then took Mary a pound of ointment of spikenard, very costly, and anointed the feet of Jesus...", testament: "NT" },
+      { q: "Who was the chief captain of the Roman guard who rescued Paul from the mob in Jerusalem?", a: "Claudius Lysias", d: ["Julius", "Cornelius"], ref: "Acts 23:26", text: "Claudius Lysias unto the most excellent governor Felix sendeth greeting.", testament: "NT" },
+      { q: "Who was the Roman governor who succeeded Felix and sent Paul to Rome?", a: "Porcius Festus", d: ["Pontius Pilate", "Gallio"], ref: "Acts 24:27", text: "But after two years Porcius Festus came into Felix' room: and Felix, willing to shew the Jews a pleasure, left Paul bound.", testament: "NT" },
+      { q: "Who was the disciple who was a twin?", a: "Thomas", d: ["Philip", "James"], ref: "John 11:16", text: "Then said Thomas, which is called Didymus, unto his fellowdisciples...", testament: "NT" },
+      { q: "Who was the Roman centurion in Caesarea who became one of the first gentile converts to Christianity?", a: "Cornelius", d: ["Julius", "Claudius"], ref: "Acts 10:1", text: "There was a man in Caesarea called Cornelius, a centurion of the band called the Italian band...", testament: "NT" },
+      { q: "What was the name of the beggar in Jesus' parable who sat at the rich man's gate?", a: "Lazarus", d: ["Bartimaeus", "Zacchaeus"], ref: "Luke 16:20", text: "And there was a certain beggar named Lazarus, which was laid at his gate, full of sores...", testament: "NT" },
+      { q: "Who was the Roman emperor when Jesus was born?", a: "Caesar Augustus", d: ["Tiberius Caesar", "Nero"], ref: "Luke 2:1", text: "And it came to pass in those days, that there went out a decree from Caesar Augustus, that all the world should be taxed.", testament: "NT" },
+      { q: "How many silver pieces was Judas paid to betray Jesus?", a: "30", d: ["20", "50"], ref: "Matthew 26:15", text: "And said unto them, What will ye give me, and I will deliver him unto you? And they covenanted with him for thirty pieces of silver.", testament: "NT" },
+      { q: "Which prophet had a vision of a wheel within a wheel?", a: "Ezekiel", d: ["Daniel", "Isaiah"], ref: "Ezekiel 1:16", text: "The appearance of the wheels and their work was like unto the colour of a beryl... and their appearance was as it were a wheel in the middle of a wheel.", testament: "OT" },
+      { q: "What was Paul's original Hebrew name?", a: "Saul", d: ["Silas", "Simon"], ref: "Acts 13:9", text: "Then Saul, (who also is called Paul,) filled with the Holy Ghost, set his eyes on him,", testament: "NT" },
+      { q: "Where was Paul traveling when he saw the blinding light?", a: "Damascus", d: ["Jerusalem", "Antioch"], ref: "Acts 9:3", text: "And as he journeyed, he came near Damascus: and suddenly there shined round about him a light from heaven:", testament: "NT" },
+      { q: "Who was the father of John the Baptist?", a: "Zacharias", d: ["Simeon", "Eli"], ref: "Luke 1:5", text: "There was in the days of Herod, the king of Judaea, a certain priest named Zacharias...", testament: "NT" },
+      { q: "What town did Mary, Martha, and Lazarus live in?", a: "Bethany", d: ["Nazareth", "Capernaum"], ref: "John 11:1", text: "Now a certain man was sick, named Lazarus, of Bethany, the town of Mary and her sister Martha.", testament: "NT" },
+      { q: "Who fell asleep and fell out of a window during Paul's sermon?", a: "Eutychus", d: ["Tychicus", "Titus"], ref: "Acts 20:9", text: "And there sat in a window a certain young man named Eutychus, being fallen into a deep sleep... and fell down from the third loft...", testament: "NT" },
+      { q: "Which disciple was a tax collector before following Jesus?", a: "Matthew", d: ["Peter", "Simon"], ref: "Matthew 9:9", text: "And as Jesus passed forth from thence, he saw a man, named Matthew, sitting at the receipt of custom...", testament: "NT" },
+      { q: "What was the name of the sea Jesus calmed during a storm?", a: "Sea of Galilee", d: ["Dead Sea", "Red Sea"], ref: "Matthew 8:26-27", text: "Then he arose, and rebuked the winds and the sea; and there was a great calm.", testament: "NT" },
+      { q: "Who was the Roman governor who handed Jesus over to be crucified?", a: "Pontius Pilate", d: ["Herod Antipas", "Felix"], ref: "Matthew 27:26", text: "Then released he Barabbas unto them: and when he had scourged Jesus, he delivered him to be crucified.", testament: "NT" },
+      { q: "What did Jesus do to the feet of his disciples during the Last Supper?", a: "Washed them", d: ["Anointed them with oil", "Dried them with linen"], ref: "John 13:5", text: "After that he poureth water into a bason, and began to wash the disciples' feet, and to wipe them with the towel wherewith he was girded.", testament: "NT" },
+      { q: "What was the name of the place where Jesus was crucified?", a: "Golgotha", d: ["Gethsemane", "Gibeon"], ref: "John 19:17", text: "And he bearing his cross went forth into a place called the place of a skull, which is called in the Hebrew Golgotha:", testament: "NT" },
+      { q: "When he was approached by Jesus, who said, 'What have you to do with me, Jesus, Son of the Most High God? I adjure you by God, do not torment me.'?", a: "Legion", d: ["Beelzebub", "Belial"], ref: "Mark 5:7", text: "And cried with a loud voice, and said, What have I to do with thee, Jesus, thou Son of the most high God? I adjure thee by God...", testament: "NT" },
+      { q: "Why were the crowds astonished at Jesus' teaching after the Sermon on the Mount?", a: "He taught as one having authority", d: ["He spoke only in Latin", "He read from unknown scrolls"], ref: "Matthew 7:29", text: "For he taught them as one having authority, and not as the scribes.", testament: "NT" },
+      { q: "Who had a robe made from camel hair and ate locusts and wild honey?", a: "John the Baptist", d: ["Elijah", "Elisha"], ref: "Matthew 3:4", text: "And the same John had his raiment of camel's hair, and a leathern girdle about his loins; and his meat was locusts and wild honey.", testament: "NT" },
+      { q: "What did Jesus say would happen if someone had faith as small as a mustard seed?", a: "They could say to a mountain, 'Move from here to there,' and it would move", d: ["They would never grow sick", "They would receive infinite wealth"], ref: "Matthew 17:20", text: "If ye have faith as a grain of mustard seed, ye shall say unto this mountain, Remove hence to yonder place; and it shall remove...", testament: "NT" },
+      { q: "Who was the Roman procurator of Judea who tried Jesus and authorized His crucifixion?", a: "Pontius Pilate", d: ["Felix", "Festus"], ref: "Matthew 27:26", text: "Then released he Barabbas unto them: and when he had scourged Jesus, he delivered him to be crucified.", testament: "NT" },
+      { q: "Who was the sister of Mary and Lazarus who was busy preparing food while Mary listened to Jesus?", a: "Martha", d: ["Salome", "Joanna"], ref: "Luke 10:40", text: "But Martha was cumbered about much serving, and came to him, and said, Lord, dost thou not care that my sister hath left me to serve alone?", testament: "NT" },
+      { q: "In Revelation, how long is Satan bound in the bottomless pit?", a: "1,000 years", d: ["100 years", "7 years"], ref: "Revelation 20:2-3", text: "And he laid hold on the dragon, that old serpent, which is the Devil, and Satan, and bound him a thousand years...", testament: "NT" },
+      { q: "Which apostle was a physician before serving the ministry?", a: "Luke", d: ["Matthew", "Mark"], ref: "Colossians 4:14", text: "Luke, the beloved physician, and Demas, greet you.", testament: "NT" },
+      { q: "What city was Paul traveling to when he encountered the bright light and heard the voice of Jesus?", a: "Damascus", d: ["Antioch", "Jerusalem"], ref: "Acts 9:3-4", text: "And as he journeyed, he came near Damascus: and suddenly there shined round about him a light from heaven:", testament: "NT" },
+      { q: "Who wrote the Acts of the Apostles?", a: "Luke", d: ["Paul", "Peter"], ref: "Acts 1:1", text: "The former treatise have I made, O Theophilus, of all that Jesus began both to do and teach,", testament: "NT" },
+      { q: "Who was the Roman governor who kept Paul in prison for two years hoping for a bribe?", a: "Felix", d: ["Festus", "Gallio"], ref: "Acts 24:26-27", text: "He hoped also that money should have been given him of Paul, that he might loose him... But after two years Porcius Festus came...", testament: "NT" },
+      { q: "In the parable of the Sower, what happened to the seed that fell among thorns?", a: "The thorns grew up and choked the plants", d: ["Birds ate it up", "It withered due to shallow soil"], ref: "Matthew 13:7", text: "And some fell among thorns; and the thorns sprung up, and choked them:", testament: "NT" },
+      { q: "Who was the chief tax collector in Jericho who climbed a sycomore tree to see Jesus?", a: "Zacchaeus", d: ["Matthew", "Levi"], ref: "Luke 19:2-4", text: "And, behold, there was a man named Zaccheus, which was the chief among the publicans... And he ran before, and climbed up...", testament: "NT" },
+      { q: "What was the title written above Jesus on the cross by order of Pontius Pilate?", a: "THIS IS JESUS THE KING OF THE JEWS", d: ["THE PROPHET OF NAZARETH", "SON OF GOD AND SAVIOR"], ref: "Matthew 27:37", text: "And set up over his head his accusation written, THIS IS JESUS THE KING OF THE JEWS.", testament: "NT" },
+      { q: "Which book of the New Testament contains the Fruit of the Spirit?", a: "Galatians", d: ["Ephesians", "Colossians"], ref: "Galatians 5:22-23", text: "But the fruit of the Spirit is love, joy, peace, longsuffering, gentleness, goodness, faith...", testament: "NT" },
+      { q: "What city was Paul born in?", a: "Tarsus", d: ["Jerusalem", "Antioch"], ref: "Acts 22:3", text: "I am verily a man which am a Jew, born in Tarsus, a city in Cilicia...", testament: "NT" },
+      { q: "What kind of tree did Zacchaeus climb to see Jesus passing by?", a: "Sycomore", d: ["Fig", "Olive"], ref: "Luke 19:4", text: "And he ran before, and climbed up into a sycomore tree to see him...", testament: "NT" },
+      { q: "How many days was Jonah in the belly of the great fish?", a: "3 days and 3 nights", d: ["7 days", "1 day"], ref: "Jonah 1:17", text: "And Jonah was in the belly of the fish three days and three nights.", testament: "OT" },
+      { q: "Which New Testament letter is famous for describing the armor of God?", a: "Ephesians", d: ["Galatians", "Colossians"], ref: "Ephesians 6:11", text: "Put on the whole armour of God, that ye may be able to stand against the wiles of the devil.", testament: "NT" },
+      { q: "Who was the Roman officer at the cross who declared, 'Truly this was the Son of God'?", a: "The centurion", d: ["Pontius Pilate", "Cornelius"], ref: "Matthew 27:54", text: "Now when the centurion, and they that were with him... saw the earthquake... they feared greatly, saying, Truly this was the Son of God.", testament: "NT" },
+      { q: "What was the name of the servant girl who answered the door when Peter escaped from prison?", a: "Rhoda", d: ["Dorcas", "Phoebe"], ref: "Acts 12:13-14", text: "And as Peter knocked at the door of the gate, a damsel came to hearken, named Rhoda.", testament: "NT" },
+      { q: "What was the name of the man who requested Jesus' body for burial?", a: "Joseph of Arimathea", d: ["Nicodemus", "Simon of Cyrene"], ref: "Matthew 27:57-58", text: "When the even was come, there came a rich man of Arimathaea, named Joseph, who also himself was Jesus' disciple...", testament: "NT" },
+      { q: "In the parable of the Good Samaritan, who were the first two people to pass by the injured man?", a: "A priest and a Levite", d: ["A Pharisee and a Sadducee", "A tax collector and a scribe"], ref: "Luke 10:31-32", text: "And by chance there came down a certain priest that way... And likewise a Levite... passed by on the other side.", testament: "NT" },
+      { q: "In Revelation, what is the number of the Beast?", a: "666", d: ["777", "144"], ref: "Revelation 13:18", text: "Here is wisdom. Let him that hath understanding count the number of the beast: for it is the number of a man; and his number is Six hundred threescore and six.", testament: "NT" },
+      { q: "Which disciple was a twin (Didymus)?", a: "Thomas", d: ["Philip", "James"], ref: "John 11:16", text: "Then said Thomas, which is called Didymus, unto his fellowdisciples, Let us also go, that we may die with him.", testament: "NT" },
+      { q: "Who killed Sisera by driving a tent peg through his temple?", a: "Jael", d: ["Deborah", "Delilah"], ref: "Judges 4:21", text: "Then Jael Heber's wife took a nail of the tent, and took an hammer in her hand... and smote the nail into his temples...", testament: "OT" },
+      { q: "Who was the young man that fell asleep during Paul's long sermon and fell out of a third-story window?", a: "Eutychus", d: ["Tychicus", "Silas"], ref: "Acts 20:9", text: "And there sat in a window a certain young man named Eutychus... fell down from the third loft, and was taken up dead.", testament: "NT" },
+      { q: "Whose father was so pleased to see him that he gave him a robe, ring, and shoes, and killed the fatted calf?", a: "Prodigal Son", d: ["Joseph", "Absalom"], ref: "Luke 15:22-23", text: "But the father said to his servants, Bring forth the best robe, and put it on him... And bring hither the fatted calf, and kill it...", testament: "NT" },
+      { q: "What was the name of the man who helped carry Jesus' cross?", a: "Simon of Cyrene", d: ["Joseph of Arimathea", "Nicodemus"], ref: "Mark 15:21", text: "And they compel one Simon a Cyrenian... to bear his cross.", testament: "NT" },
+      { q: "What city was the scene of Ezekiel's vision of the resurrection of dry bones?", a: "The valley which was full of bones", d: ["Valley of Elah", "Valley of Achor"], ref: "Ezekiel 37:1", text: "The hand of the Lord was upon me... and set me down in the midst of the valley which was full of bones,", testament: "OT" },
+      { q: "What was the name of the pool where Jesus told the blind man to wash his eyes?", a: "Siloam", d: ["Bethesda", "Gihon"], ref: "John 9:7", text: "And said unto him, Go, wash in the pool of Siloam... He went his way therefore, and washed, and came seeing.", testament: "NT" },
+      { q: "Who was the wife of Abraham?", a: "Sarah", d: ["Rebekah", "Rachel"], ref: "Genesis 11:29", text: "And Abram and Nahor took them wives: the name of Abram's wife was Sarai...", testament: "OT" },
+      { q: "Who was the mother of Isaac?", a: "Sarah", d: ["Hagar", "Keturah"], ref: "Genesis 21:3", text: "And Abraham called the name of his son that was born unto him, whom Sarah bare to him, Isaac.", testament: "OT" },
+      { q: "Who was the father of Isaac?", a: "Abraham", d: ["Terah", "Lot"], ref: "Genesis 21:3", text: "And Abraham called the name of his son that was born unto him, whom Sarah bare to him, Isaac.", testament: "OT" },
+      { q: "Who was the mother of Ishmael?", a: "Hagar", d: ["Sarah", "Keturah"], ref: "Genesis 16:15", text: "And Hagar bare Abram a son: and Abram called his son's name, which Hagar bare, Ishmael.", testament: "OT" },
+      { q: "Who was the father of Jacob?", a: "Isaac", d: ["Abraham", "Terah"], ref: "Genesis 25:26", text: "And after that came his brother out, and his hand took hold on Esau's heel; and his name was called Jacob...", testament: "OT" },
+      { q: "Who was the mother of Jacob?", a: "Rebekah", d: ["Rachel", "Leah"], ref: "Genesis 25:21", text: "And Isaac intreated the Lord for his wife, because she was barren... and Rebekah his wife conceived.", testament: "OT" },
+      { q: "Who was the father of Joseph (sold into Egypt)?", a: "Jacob", d: ["Isaac", "Abraham"], ref: "Genesis 30:24", text: "And she called his name Joseph; and said, The Lord shall add to me another son.", testament: "OT" },
+      { q: "Who was the mother of Joseph (sold into Egypt)?", a: "Rachel", d: ["Leah", "Bilhah"], ref: "Genesis 30:24", text: "And she called his name Joseph; and said, The Lord shall add to me another son.", testament: "OT" },
+      { q: "Who was the first king of Israel?", a: "Saul", d: ["David", "Solomon"], ref: "1 Samuel 10:1", text: "Then Samuel took a vial of oil, and poured it upon his head... Is it not because the Lord hath anointed thee to be captain...", testament: "OT" },
+      { q: "Who was the second king of Israel?", a: "David", d: ["Saul", "Solomon"], ref: "2 Samuel 5:4", text: "David was thirty years old when he began to reign, and he reigned forty years.", testament: "OT" },
+      { q: "Who was the third king of all Israel?", a: "Solomon", d: ["Rehoboam", "Hezekiah"], ref: "1 Kings 11:43", text: "And Solomon slept with his fathers... and Rehoboam his son reigned in his stead.", testament: "OT" },
+      { q: "Which Gospel was written first?", a: "Mark (traditionally accepted)", d: ["John", "Luke"], ref: "New Testament Introduction", text: "The chronological scholarly consensus on synoptic gospel writing development.", testament: "NT" },
+      { q: "Who wrote the Book of Acts?", a: "Luke", d: ["Paul", "John"], ref: "Acts 1:1", text: "The former treatise have I made, O Theophilus, of all that Jesus began both to do and teach,", testament: "NT" },
+      { q: "How many letters are attributed to Paul in the New Testament?", a: "13", d: ["7", "21"], ref: "New Testament Canon", text: "The Pauline epistles comprising Romans through Philemon.", testament: "NT" },
+      { q: "Which book comes right after Acts in the New Testament?", a: "Romans", d: ["1 Corinthians", "Galatians"], ref: "New Testament Canon", text: "The Epistle of Paul the Apostle to the Romans.", testament: "OT" },
+      { q: "Which book is the final book of the New Testament?", a: "Revelation", d: ["Jude", "3 John"], ref: "Revelation 1:1", text: "The Revelation of Jesus Christ, which God gave unto him...", testament: "NT" },
+      { q: "What is the middle book of the Old Testament?", a: "Proverbs", d: ["Psalms", "Job"], ref: "Old Testament Canon", text: "The central book structured within the historical/poetic canon layout.", testament: "OT" },
+      { q: "How many major prophets are there in the Old Testament?", a: "5", d: ["4", "12"], ref: "Old Testament Canon", text: "Isaiah, Jeremiah, Lamentations, Ezekiel, and Daniel.", testament: "OT" },
+      { q: "How many minor prophets are there in the Old Testament?", a: "12", d: ["5", "9"], ref: "Old Testament Canon", text: "Hosea through Malachi.", testament: "OT" },
+      { q: "What is the shortest chapter in the Bible?", a: "Psalm 117", d: ["Psalm 23", "Psalm 150"], ref: "Psalm 117:1-2", text: "O praise the Lord, all ye nations: praise him, all ye people. For his merciful kindness is great toward us...", testament: "OT" }
+    ];
+
+    // --- IDLE FLOATING VERSES DATA LIST ---
+    const idleVersesList = [
+      { ref: "2 Timothy 2:15", text: "Study to shew thyself approved unto God, a workman that needeth not to be ashamed, rightly dividing the word of truth.", anim: "anim-left" },
+      { ref: "Joshua 1:8", text: "This book of the law shall not depart out of thy mouth; but thou shalt meditate therein day and night...", anim: "anim-right" },
+      { ref: "Psalm 119:11", text: "Thy word have I hid in mine heart, that I might not sin against thee.", anim: "anim-top" },
+      { ref: "Psalm 119:105", text: "Thy word is a lamp unto my feet, and a light unto my path.", anim: "anim-zoom" },
+      { ref: "Colossians 3:16", text: "Let the word of Christ dwell in you richly in all wisdom; teaching and admonishing one another...", anim: "anim-left" },
+      { ref: "Romans 15:4", text: "For whatsoever things were written aforetime were written for our learning, that we through patience and comfort of the scriptures might have hope.", anim: "anim-right" },
+      { ref: "2 Timothy 3:16–17", text: "All scripture is given by inspiration of God, and is profitable for doctrine, for reproof, for correction, for instruction in righteousness...", anim: "anim-top" }
+    ];
+
+    let idleVerseIndex = 0;
+    let idleVerseTimer = null;
+
+    function startIdleVerses() {
+      const overlay = document.getElementById('idle-verse-overlay');
+      if (!overlay) return;
+
+      showNextIdleVerse();
+      idleVerseTimer = setInterval(showNextIdleVerse, 10000);
+    }
+
+    function showNextIdleVerse() {
+      if (gameHasStarted) return;
+      const overlay = document.getElementById('idle-verse-overlay');
+      if (!overlay) return;
+
+      overlay.innerHTML = '';
+      const v = idleVersesList[idleVerseIndex];
+
+      const card = document.createElement('div');
+      card.className = `floating-verse-card ${v.anim}`;
+      card.innerHTML = `
+        <div class="f-label">📖 King James Bible (KJV)</div>
+        <div class="f-ref">${v.ref}</div>
+        <div class="f-text">“${v.text}”</div>
+      `;
+
+      overlay.appendChild(card);
+      idleVerseIndex = (idleVerseIndex + 1) % idleVersesList.length;
+    }
+
+    function stopIdleVerses() {
+      if (idleVerseTimer) clearInterval(idleVerseTimer);
+      const overlay = document.getElementById('idle-verse-overlay');
+      if (overlay) overlay.innerHTML = '';
+    }
+
+    let audioCtx = null;
+    let soundEnabled = false;
+    let verseTimerInterval = null;
+
+    let gamesPlayed = 0;
+    let gamesWon = 0;
+    let gamesLost = 0;
+
+    function updateStatsDisplay() {
+      document.getElementById('stat-played').textContent = gamesPlayed;
+      document.getElementById('stat-won').textContent = gamesWon;
+      document.getElementById('stat-lost').textContent = gamesLost;
+    }
+
+    function globalUnlockAudio(e) {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+
+      try {
+        const buffer = audioCtx.createBuffer(1, 1, 22050);
+        const source = audioCtx.createBufferSource();
+        source.buffer = buffer;
+        source.connect(audioCtx.destination);
+        source.start(0);
+      } catch (err) {
+        console.log("Audio unlock buffer execution:", err);
+      }
+
+      soundEnabled = true;
+      playTrainSound();
+
+      window.removeEventListener('pointerdown', globalUnlockAudio);
+      window.removeEventListener('keydown', globalUnlockAudio);
+    }
+
+    window.addEventListener('pointerdown', globalUnlockAudio);
+    window.addEventListener('keydown', globalUnlockAudio);
+
+    function playSound(type) {
+      if (!soundEnabled || !audioCtx) return;
+
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      const now = audioCtx.currentTime;
+
+      if (type === 'correct') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(523.25, now);
+        osc.frequency.setValueAtTime(659.25, now + 0.08);
+        osc.frequency.setValueAtTime(783.99, now + 0.16);
+        gain.gain.setValueAtTime(0.25, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+        osc.start(now);
+        osc.stop(now + 0.4);
+      } else if (type === 'wrong') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(160, now);
+        osc.frequency.linearRampToValueAtTime(110, now + 0.25);
+        gain.gain.setValueAtTime(0.25, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+        osc.start(now);
+        osc.stop(now + 0.28);
+      } else if (type === 'countdown-tick') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(440, now);
+        gain.gain.setValueAtTime(0.15, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+        osc.start(now);
+        osc.stop(now + 0.15);
+      } else if (type === 'countdown-start') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(880, now);
+        gain.gain.setValueAtTime(0.25, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+        osc.start(now);
+        osc.stop(now + 0.3);
+      } else if (type === 'swallow') {
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(320, now);
+        osc.frequency.linearRampToValueAtTime(120, now + 0.35);
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+        osc.start(now);
+        osc.stop(now + 0.4);
+      } else if (type === 'victory') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(523.25, now);
+        osc.frequency.setValueAtTime(659.25, now + 0.12);
+        osc.frequency.setValueAtTime(783.99, now + 0.24);
+        osc.frequency.setValueAtTime(1046.50, now + 0.36);
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.8);
+        osc.start(now);
+        osc.stop(now + 0.8);
+      }
+    }
+
+    function playTrainSound() {
+      if (!soundEnabled || !audioCtx) return;
+
+      const now = audioCtx.currentTime;
+      const bufferSize = audioCtx.sampleRate * 2.0;
+      const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        data[i] = Math.random() * 2 - 1;
+      }
+
+      const noise = audioCtx.createBufferSource();
+      noise.buffer = buffer;
+
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(180, now);
+      filter.frequency.linearRampToValueAtTime(700, now + 0.9);
+      filter.frequency.linearRampToValueAtTime(150, now + 1.8);
+
+      const gain = audioCtx.createGain();
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.linearRampToValueAtTime(0.06, now + 0.9);
+      gain.gain.linearRampToValueAtTime(0.001, now + 1.8);
+
+      noise.connect(filter);
+      filter.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      noise.start(now);
+      noise.stop(now + 1.8);
+    }
+
+    const canvas = document.getElementById('fog-canvas');
+    const ctx = canvas.getContext('2d');
+
+    let fogParticles = [];
+    const particleCount = 45;
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    class FogParticle {
+      constructor() {
+        this.reset(true);
+      }
+
+      reset(initial = false) {
+        this.x = initial ? Math.random() * canvas.width : -350;
+        this.y = Math.random() * canvas.height;
+        this.baseRadius = Math.random() * 220 + 160;
+        this.radius = this.baseRadius;
+        
+        this.vx = Math.random() * 0.35 + 0.12;
+        this.sineOffset = Math.random() * Math.PI * 2;
+        this.sineSpeed = Math.random() * 0.005 + 0.002;
+        
+        this.baseAlpha = Math.random() * 0.08 + 0.02;
+        this.alpha = this.baseAlpha;
+        this.pulseSpeed = Math.random() * 0.01 + 0.003;
+        this.pulseAngle = Math.random() * Math.PI * 2;
+
+        const bluePicker = Math.random();
+        if (bluePicker < 0.4) {
+          this.color = { r: 0, g: 162, b: 232 };
+        } else if (bluePicker < 0.8) {
+          this.color = { r: 70, g: 130, b: 180 };
+        } else {
+          this.color = { r: 0, g: 102, b: 204 };
+        }
+      }
+
+      update() {
+        this.x += this.vx;
+        this.sineOffset += this.sineSpeed;
+        this.y += Math.sin(this.sineOffset) * 0.18;
+
+        this.pulseAngle += this.pulseSpeed;
+        this.alpha = this.baseAlpha + Math.sin(this.pulseAngle) * 0.015;
+        this.radius = this.baseRadius + Math.cos(this.pulseAngle) * 15;
+
+        if (this.x - this.radius > canvas.width) {
+          this.reset(false);
+        }
+      }
+
+      draw() {
+        ctx.beginPath();
+        const gradient = ctx.createRadialGradient(
+          this.x, this.y, 0,
+          this.x, this.y, this.radius
+        );
+
+        const a = Math.max(0, this.alpha);
+        gradient.addColorStop(0, `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, ${a})`);
+        gradient.addColorStop(0.3, `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, ${a * 0.7})`);
+        gradient.addColorStop(0.7, `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, ${a * 0.25})`);
+        gradient.addColorStop(1, `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, 0)`);
+
+        ctx.fillStyle = gradient;
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    for (let i = 0; i < particleCount; i++) {
+      fogParticles.push(new FogParticle());
+    }
+
+    function animateFog() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      fogParticles.forEach(particle => {
+        particle.update();
+        particle.draw();
+      });
+      requestAnimationFrame(animateFog);
+    }
+    animateFog();
+
+    function buildDeckFromPDF() {
+      return pdfRawQuestions.map((item, id) => {
+        let options = [item.a, ...item.d];
+        for (let i = options.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [options[i], options[j]] = [options[j], options[i]];
+        }
+        const correctIndex = options.indexOf(item.a);
+        return {
+          id: id,
+          q: item.q,
+          options: options,
+          ans: correctIndex,
+          ref: item.ref || "KJV Reference",
+          text: item.text || "Scripture reference.",
+          testament: item.testament || "OT"
+        };
+      });
+    }
+
+    const masterPDFDeck = buildDeckFromPDF();
+    let currentActiveDeck = [];
+    let usedQuestionIndices = new Set();
+
+    function getNextUniqueQuestion() {
+      if (currentActiveDeck.length === 0) {
+        let availableQuestions = masterPDFDeck.filter(item => !usedQuestionIndices.has(item.id));
+        
+        if (availableQuestions.length === 0) {
+          usedQuestionIndices.clear();
+          availableQuestions = [...masterPDFDeck];
+          showShuffleModal();
+        }
+
+        currentActiveDeck = shuffleArray(availableQuestions);
+      }
+
+      const q = currentActiveDeck.pop();
+      usedQuestionIndices.add(q.id);
+      return q;
+    }
+
+    function shuffleArray(array) {
+      const arr = [...array];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function showShuffleModal() {
+      document.getElementById('shuffle-modal').classList.remove('hidden');
+    }
+
+    function closeShuffleModal() {
+      document.getElementById('shuffle-modal').classList.add('hidden');
+    }
+
+    const titleElement = document.getElementById('main-title');
+    const subtitleElement = document.getElementById('logo-subtitle');
+    const logoHeaderBox = document.getElementById('logo-header-box');
+    const stickyBottomBar = document.getElementById('sticky-bottom-bar');
+    const disclaimerFooter = document.getElementById('disclaimer-footer');
+    let titleAnimationTimer = null;
+    let gameHasStarted = false;
+
+    function triggerTitleRun() {
+      if (gameHasStarted) return;
+      titleElement.classList.remove('run-chase');
+      void titleElement.offsetWidth;
+      titleElement.classList.add('run-chase');
+      playTrainSound();
+      titleAnimationTimer = setTimeout(triggerTitleRun, 8300);
+    }
+    
+    titleAnimationTimer = setTimeout(() => {
+      triggerTitleRun();
+    }, 6500);
+
+    // Initialize Idle Floating Verses on Load
+    startIdleVerses();
+
+    let currentBank = 0;
+    let timer = 60;
+    let timerInterval = null;
+    let playerPos = 5;
+    let chaserPos = 7;
+    let activeQuestion = null;
+    let askedQuestionsLog = [];
+
+    const qDisplay = document.getElementById('question-display');
+    const verseContainer = document.getElementById('verse-container');
+    const verseRefEl = document.getElementById('verse-ref');
+    const verseTextEl = document.getElementById('verse-text');
+    const verseTimerBadge = document.getElementById('verse-timer-badge');
+    const startGameBtn = document.getElementById('start-game-btn');
+    const audioHint = document.getElementById('audio-hint');
+    const builderOptions = document.getElementById('builder-options');
+    const bankVal = document.getElementById('bank-val');
+    const timerWrap = document.getElementById('timer-wrap');
+    const timerVal = document.getElementById('timer-val');
+    const boardContainer = document.getElementById('board-container');
+    const offersWrap = document.getElementById('offers-wrap');
+    const chaseOptions = document.getElementById('chase-options');
+    const summaryWrap = document.getElementById('summary-wrap');
+    const summaryList = document.getElementById('summary-list');
+    const summaryScoreBanner = document.getElementById('summary-score-banner');
+    const diffIndicator = document.getElementById('difficulty-indicator');
+
+    function hideVersePanel() {
+      if (verseTimerInterval) clearInterval(verseTimerInterval);
+      verseTimerBadge.classList.add('hidden');
+      verseContainer.classList.add('hidden');
+    }
+
+    function showVersePanel(questionObj) {
+      if (questionObj && (questionObj.ref || questionObj.text)) {
+        verseRefEl.textContent = questionObj.ref ? `${questionObj.ref} (KJV)` : "--";
+        verseTextEl.textContent = questionObj.text ? `“${questionObj.text}”` : "--";
+        verseContainer.classList.remove('hidden');
+
+        if (verseTimerInterval) clearInterval(verseTimerInterval);
+        verseTimerBadge.classList.add('hidden');
+
+        let remainingVerseTime = 10;
+        verseTimerInterval = setInterval(() => {
+          remainingVerseTime--;
+          
+          if (remainingVerseTime <= 3 && remainingVerseTime > 0) {
+            verseTimerBadge.textContent = `${remainingVerseTime}`;
+            verseTimerBadge.classList.remove('hidden');
+            playSound('countdown-tick');
+          } else if (remainingVerseTime <= 0) {
+            clearInterval(verseTimerInterval);
+            verseTimerBadge.classList.add('hidden');
+          }
+        }, 1000);
+
+      } else {
+        verseContainer.classList.add('hidden');
+      }
+    }
+
+    startGameBtn.addEventListener('click', startCountdownSequence);
+
+    function startCountdownSequence() {
+      gameHasStarted = true;
+      stopIdleVerses();
+
+      if (titleAnimationTimer) clearTimeout(titleAnimationTimer);
+      titleElement.classList.remove('run-chase');
+      subtitleElement.classList.add('active-game');
+
+      logoHeaderBox.classList.add('hidden');
+      disclaimerFooter.style.opacity = '0';
+      setTimeout(() => {
+        disclaimerFooter.classList.add('hidden');
+      }, 300);
+
+      currentActiveDeck = [];
+      askedQuestionsLog = [];
+
+      startGameBtn.classList.add('hidden');
+      audioHint.classList.add('hidden');
+      stickyBottomBar.classList.add('hidden');
+      summaryWrap.classList.add('hidden');
+      summaryScoreBanner.classList.add('hidden');
+      diffIndicator.classList.add('hidden');
+      hideVersePanel();
+
+      let count = 3;
+      qDisplay.className = "countdown-display";
+      qDisplay.textContent = count;
+      playSound('countdown-tick');
+
+      const countdownInterval = setInterval(() => {
+        count--;
+        if (count > 0) {
+          qDisplay.textContent = count;
+          playSound('countdown-tick');
+        } else if (count === 0) {
+          qDisplay.textContent = "START!";
+          playSound('countdown-start');
+        } else {
+          clearInterval(countdownInterval);
+          qDisplay.className = "";
+          beginCashBuilderRound();
+        }
+      }, 1000);
+    }
+
+    function beginCashBuilderRound() {
+      builderOptions.classList.remove('hidden');
+      timerWrap.classList.remove('hidden');
+
+      currentBank = 0;
+      timer = 60;
+      bankVal.textContent = `0 Shekels`;
+      timerVal.textContent = timer;
+
+      showBuilderQ();
+
+      if (timerInterval) clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        timer--;
+        timerVal.textContent = timer;
+        if (timer <= 0) {
+          clearInterval(timerInterval);
+          finishBuilder();
+        }
+      }, 1000);
+    }
+
+    function showBuilderQ() {
+      if (timer <= 0) return;
+      activeQuestion = getNextUniqueQuestion();
+
+      qDisplay.textContent = activeQuestion.q;
+      hideVersePanel();
+      builderOptions.innerHTML = '';
+
+      activeQuestion.options.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.textContent = `${String.fromCharCode(65 + idx)}: ${opt}`;
+        btn.onclick = () => handleBuilderChoice(idx);
+        builderOptions.appendChild(btn);
+      });
+    }
+
+    function handleBuilderChoice(choice) {
+      const isCorrect = (choice === activeQuestion.ans);
+
+      playSound(isCorrect ? 'correct' : 'wrong');
+
+      const buttons = builderOptions.querySelectorAll('.option-btn');
+      buttons.forEach((btn, idx) => {
+        btn.disabled = true;
+        if (idx === activeQuestion.ans) {
+          btn.classList.add('btn-correct');
+        } else if (idx === choice && !isCorrect) {
+          btn.classList.add('btn-wrong');
+        }
+      });
+      
+      askedQuestionsLog.push({
+        q: activeQuestion.q,
+        userAns: activeQuestion.options[choice],
+        correctAns: activeQuestion.options[activeQuestion.ans],
+        ref: activeQuestion.ref + " (KJV)",
+        text: activeQuestion.text,
+        isCorrect: isCorrect,
+        round: 'Shekels of Silver Builder (KJV)'
+      });
+
+      if (isCorrect) {
+        currentBank += 1000;
+        bankVal.textContent = `${currentBank.toLocaleString()} Shekels`;
+      }
+
+      setTimeout(() => {
+        if (timer > 0) {
+          showBuilderQ();
+        }
+      }, 600);
+    }
+
+    function finishBuilder() {
+      if (timerInterval) clearInterval(timerInterval);
+      builderOptions.classList.add('hidden');
+      builderOptions.innerHTML = '';
+      timerWrap.classList.add('hidden');
+      boardContainer.classList.add('hidden');
+      hideVersePanel();
+
+      if (currentBank === 0) currentBank = 1000;
+
+      qDisplay.textContent = `Shekels of Silver Builder complete! You accumulated ${currentBank.toLocaleString()} Shekels of Silver. Choose your starting position against the Chaser below.`;
+      showOffers();
+    }
+
+    function showOffers() {
+      offersWrap.classList.remove('hidden');
+
+      const low = Math.floor(currentBank / 2);
+      const high = currentBank * 3;
+
+      document.getElementById('low-val').textContent = `${low.toLocaleString()} Shekels`;
+      document.getElementById('med-val').textContent = `${currentBank.toLocaleString()} Shekels`;
+      document.getElementById('high-val').textContent = `${high.toLocaleString()} Shekels`;
+
+      document.getElementById('low-offer').onclick = () => selectPosition(low, 4);
+      document.getElementById('med-offer').onclick = () => selectPosition(currentBank, 5);
+      document.getElementById('high-offer').onclick = () => selectPosition(high, 6);
+    }
+
+    function selectPosition(amount, steps) {
+      currentBank = amount;
+      bankVal.textContent = `${currentBank.toLocaleString()} Shekels`;
+      playerPos = steps;
+      chaserPos = 7;
+
+      offersWrap.classList.add('hidden');
+      boardContainer.classList.remove('hidden');
+      chaseOptions.classList.remove('hidden');
+
+      renderBoard();
+      nextChaseStep();
+    }
+
+    function renderBoard(isSwallowed = false, isVictory = false) {
+      for (let s = 1; s <= 7; s++) {
+        const stepEl = document.getElementById(`step-${s}`);
+        if (stepEl) {
+          stepEl.classList.remove('chaser-active-step');
+          stepEl.classList.remove('player-active-step');
+        }
+      }
+
+      if (chaserPos >= 1 && chaserPos <= 7) {
+        const activeChaserStepEl = document.getElementById(`step-${chaserPos}`);
+        if (activeChaserStepEl) activeChaserStepEl.classList.add('chaser-active-step');
+      }
+
+      if (playerPos >= 1 && playerPos <= 7) {
+        const activePlayerStepEl = document.getElementById(`step-${playerPos}`);
+        if (activePlayerStepEl) activePlayerStepEl.classList.add('player-active-step');
+      }
+
+      for (let i = 0; i <= 7; i++) {
+        const slot = document.getElementById(`slot-${i}`);
+        slot.innerHTML = '';
+        slot.classList.remove('swallowed-state', 'victory-state');
+
+        if (isSwallowed && i === chaserPos) {
+          slot.classList.add('swallowed-state');
+          const c = document.createElement('div');
+          c.className = 'chaser-text-badge';
+          c.innerHTML = '💥 CRASH!';
+          slot.appendChild(c);
+        } else if (isVictory && i === 0 && playerPos === 0) {
+          slot.classList.add('victory-state');
+          const p = document.createElement('div');
+          p.className = 'player-token';
+          p.innerHTML = '🏆 WINNER!';
+          slot.appendChild(p);
+        } else {
+          if (i === chaserPos) {
+            const c = document.createElement('div');
+            c.className = 'chaser-text-badge';
+            c.innerHTML = '⚡ DERAILMENT';
+            slot.appendChild(c);
+          }
+
+          if (i === playerPos) {
+            const p = document.createElement('div');
+            p.className = 'player-token';
+            p.innerHTML = '🚄 BULLET TRAIN';
+            slot.appendChild(p);
+          }
+        }
+      }
+    }
+
+    function getQuestionForPlayerPos() {
+      let difficulty = 'easy';
+      if (playerPos >= 5) {
+        difficulty = 'easy';
+      } else if (playerPos >= 3) {
+        difficulty = 'medium';
+      } else {
+        difficulty = 'hard';
+      }
+
+      diffIndicator.classList.remove('hidden', 'diff-easy', 'diff-medium', 'diff-hard');
+      if (difficulty === 'easy') {
+        diffIndicator.classList.add('diff-easy');
+        diffIndicator.textContent = 'EASY';
+      } else if (difficulty === 'medium') {
+        diffIndicator.classList.add('diff-medium');
+        diffIndicator.textContent = 'MEDIUM';
+      } else {
+        diffIndicator.classList.add('diff-hard');
+        diffIndicator.textContent = 'HARD';
+      }
+
+      const q = getNextUniqueQuestion();
+      q.difficulty = difficulty;
+      return q;
+    }
+
+    function showGameOverState(isWin) {
+      chaseOptions.innerHTML = '';
+      chaseOptions.classList.add('hidden');
+      builderOptions.innerHTML = '';
+      builderOptions.classList.add('hidden');
+      offersWrap.classList.add('hidden');
+      timerWrap.classList.add('hidden');
+      hideVersePanel();
+      diffIndicator.classList.add('hidden');
+      
+      if (!isWin) {
+        bankVal.textContent = `0 Shekels (Crashed)`;
+      }
+
+      gamesPlayed++;
+      if (isWin) {
+        gamesWon++;
+      } else {
+        gamesLost++;
+      }
+      updateStatsDisplay();
+
+      renderSummaryReport(isWin);
+      stickyBottomBar.classList.remove('hidden');
+    }
+
+    function nextChaseStep() {
+      if (playerPos === 0) {
+        playSound('victory');
+        renderBoard(false, true);
+        qDisplay.textContent = `🎉 You arrived at the Train Station safely and earned ${currentBank.toLocaleString()} Shekels of Silver!`;
+        showGameOverState(true);
+        return;
+      }
+      if (chaserPos <= playerPos) {
+        chaserPos = playerPos;
+        playSound('swallow');
+        renderBoard(true, false);
+        qDisplay.textContent = `CRASH! The Derailment caught up with your Bullet Train! Game over!`;
+        showGameOverState(false);
+        return;
+      }
+
+      activeQuestion = getQuestionForPlayerPos();
+      qDisplay.textContent = activeQuestion.q;
+      hideVersePanel();
+      chaseOptions.innerHTML = '';
+
+      activeQuestion.options.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.textContent = `${String.fromCharCode(65 + idx)}: ${opt}`;
+        btn.onclick = () => handleChaseChoice(idx);
+        chaseOptions.appendChild(btn);
+      });
+    }
+
+    function handleChaseChoice(choice) {
+      const playerCorrect = (choice === activeQuestion.ans);
+
+      if (playerCorrect) {
+        playSound('correct');
+      } else {
+        playSound('wrong');
+      }
+
+      let chaserAccuracy = 0.85;
+      if (activeQuestion.difficulty === 'medium') chaserAccuracy = 0.75;
+      if (activeQuestion.difficulty === 'hard') chaserAccuracy = 0.65;
+      
+      const chaserCorrect = Math.random() < chaserAccuracy;
+
+      askedQuestionsLog.push({
+        q: activeQuestion.q,
+        userAns: activeQuestion.options[choice],
+        correctAns: activeQuestion.options[activeQuestion.ans],
+        ref: activeQuestion.ref + " (KJV)",
+        text: activeQuestion.text,
+        isCorrect: playerCorrect,
+        round: `Chase (${activeQuestion.difficulty.toUpperCase()}) - KJV`
+      });
+
+      const buttons = chaseOptions.querySelectorAll('.option-btn');
+      buttons.forEach((btn, idx) => {
+        btn.disabled = true;
+        if (idx === activeQuestion.ans) {
+          btn.classList.add('btn-correct');
+        } else if (idx === choice && !playerCorrect) {
+          btn.classList.add('btn-wrong');
+        }
+      });
+
+      if (playerCorrect) playerPos--;
+      if (chaserCorrect) chaserPos--;
+
+      const isWon = (playerPos === 0);
+      const isCaught = (!isWon && chaserPos <= playerPos);
+      if (isCaught) {
+        chaserPos = playerPos;
+        playSound('swallow');
+      }
+
+      renderBoard(isCaught, isWon);
+
+      const correctAnswerText = activeQuestion.options[activeQuestion.ans];
+      let feedback = `Correct: "${correctAnswerText}" | `;
+
+      if (playerCorrect && chaserCorrect) {
+        feedback += "Both your Bullet Train and the Derailment advanced!";
+      } else if (playerCorrect && !chaserCorrect) {
+        feedback += "Your Bullet Train advanced safely!";
+      } else if (!playerCorrect && chaserCorrect) {
+        feedback += "Incorrect! The Derailment closed in on your tracks!";
+      } else {
+        feedback += "Both missed! The tracks remain tense!";
+      }
+
+      qDisplay.textContent = feedback;
+
+      const isMobile = window.innerWidth < 768;
+
+      if (isWon) {
+        playSound('victory');
+        qDisplay.textContent = `🎉 You arrived at the Train Station safely and earned ${currentBank.toLocaleString()} Shekels of Silver!`;
+        showGameOverState(true);
+        return;
+      }
+
+      if (isCaught) {
+        qDisplay.textContent = `CRASH! The Derailment caught up with your Bullet Train! Game over!`;
+        showGameOverState(false);
+        return;
+      }
+
+      if (isMobile) {
+        setTimeout(() => {
+          showVersePanel(activeQuestion);
+        }, 3000);
+
+        setTimeout(() => {
+          nextChaseStep();
+        }, 13000);
+      } else {
+        showVersePanel(activeQuestion);
+        setTimeout(() => {
+          nextChaseStep();
+        }, 10000);
+      }
+    }
+
+    function renderSummaryReport(isWin) {
+      summaryList.innerHTML = '';
+      
+      const totalAsked = askedQuestionsLog.length;
+      if (totalAsked === 0) {
+        summaryScoreBanner.textContent = "No questions answered.";
+        summaryList.innerHTML = `<div style="text-align:center; color:#7a8ba3; padding: 20px;">No questions answered.</div>`;
+      } else {
+        const totalCorrect = askedQuestionsLog.filter(item => item.isCorrect).length;
+        const percentage = Math.round((totalCorrect / totalAsked) * 100);
+
+        let bannerHTML = "";
+        if (isWin) {
+          bannerHTML = `🎉 You arrived at the Train Station safely and earned <strong>${currentBank.toLocaleString()} Shekels of Silver</strong>!<br><span style="font-size: 0.85rem; color: #f7e7a1; font-weight: 700; display: block; margin-top: 6px;">Fantastic job! Why not play another round to test yourself with even more Bible questions?</span>`;
+        } else {
+          bannerHTML = `💥 Game Over! The Derailment caught you.<br><span style="font-size: 0.85rem; color: #f7e7a1; font-weight: 700; display: block; margin-top: 6px;">Don't give up! Jump back in and play another round with even more Bible questions!</span>`;
+        }
+
+        summaryScoreBanner.innerHTML = bannerHTML;
+
+        askedQuestionsLog.forEach((item, index) => {
+          const div = document.createElement('div');
+          const itemClass = item.isCorrect ? 'item-correct' : 'item-wrong';
+          div.className = `summary-item ${itemClass}`;
+          
+          const statusClass = item.isCorrect ? 'status-correct' : 'status-wrong';
+          const statusText = item.isCorrect ? '✓ CORRECT' : '✗ INCORRECT';
+
+          div.innerHTML = `
+            <div class="q-header">
+              <div class="q-txt">${index + 1}. ${item.q}</div>
+              <div class="q-round-tag">${item.round}</div>
+            </div>
+            <div class="ans-info">
+              <div class="ans-row">
+                <span>Result:</span>
+                <span class="${statusClass}">${statusText}</span>
+              </div>
+              <div class="ans-row">
+                <span>Your Choice:</span>
+                <strong style="color: ${item.isCorrect ? '#00ffaa' : '#ff2a4b'};">${item.userAns}</strong>
+              </div>
+              ${!item.isCorrect ? `
+                <div class="ans-row">
+                  <span>Correct Answer:</span>
+                  <strong style="color:#00ffaa;">${item.correctAns}</strong>
+                </div>
+              ` : ''}
+              <div style="margin-top: 4px;">
+                <span>Scripture Ref:</span>
+                <strong style="color:#d4af37;">${item.ref}</strong>
+              </div>
+              <div class="summary-scripture">“${item.text}”</div>
+            </div>
+          `;
+          summaryList.appendChild(div);
+        });
+      }
+
+      summaryScoreBanner.classList.remove('hidden');
+      summaryWrap.classList.remove('hidden');
+    }
+
+    function resetGame() {
+      if (timerInterval) clearInterval(timerInterval);
+      if (titleAnimationTimer) clearTimeout(titleAnimationTimer);
+      gameHasStarted = false;
+
+      logoHeaderBox.classList.remove('hidden');
+      subtitleElement.classList.remove('active-game');
+      disclaimerFooter.classList.remove('hidden');
+      disclaimerFooter.style.opacity = '1';
+
+      currentBank = 0;
+      timer = 60;
+      askedQuestionsLog = [];
+
+      bankVal.textContent = `0 Shekels`;
+      timerVal.textContent = `60`;
+
+      timerWrap.classList.add('hidden');
+      boardContainer.classList.add('hidden');
+      builderOptions.classList.add('hidden');
+      builderOptions.innerHTML = '';
+      offersWrap.classList.add('hidden');
+      chaseOptions.classList.add('hidden');
+      chaseOptions.innerHTML = '';
+      summaryWrap.classList.add('hidden');
+      summaryScoreBanner.classList.add('hidden');
+      diffIndicator.classList.add('hidden');
+      hideVersePanel();
+      stickyBottomBar.classList.add('hidden');
+
+      startGameBtn.classList.remove('hidden');
+      audioHint.classList.remove('hidden');
+      qDisplay.className = "";
+      qDisplay.textContent = "Welcome to The Bullet Line: Scripture Pursuit (400 Q Bank - KJV)! Press START GAME below to begin.";
+
+      // Restart Idle Floating Verses
+      idleVerseIndex = 0;
+      startIdleVerses();
+
+      titleAnimationTimer = setTimeout(triggerTitleRun, 6500);
+    }
+  </script>
+</body>
+</html>
