@@ -1024,7 +1024,7 @@
   <div id="app-container">
     <div id="logo-header-box" class="logo-container">
       <div id="main-title" class="train-logo-wrapper">
-        <svg viewBox="0 0 1600 220" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+        <svg viewBox="0 0 1600 220" width="100%" height="100%" shape-rendering="geometricPrecision" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <linearGradient id="trainHull" x1="0%" y1="0%" x2="100%" y2="0%">
               <stop offset="0%" stop-color="#ffffff"/>
@@ -1047,7 +1047,7 @@
             </linearGradient>
             
             <filter id="neonBlue" x="-20%" y="-20%" width="140%" height="140%">
-              <feGaussianBlur stdDeviation="6" result="blur"/>
+              <feGaussianBlur stdDeviation="2" result="blur"/>
               <feMerge>
                 <feMergeNode in="blur"/>
                 <feMergeNode in="SourceGraphic"/>
