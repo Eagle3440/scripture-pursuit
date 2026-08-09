@@ -71,7 +71,6 @@
       100% { transform: translateX(-8%) scale(1.15); }
     }
 
-    /* --- IDLE FLOATING BIBLE VERSES IN FOG (SCALED UP FOR PC/TABLET) --- */
     #idle-verse-overlay {
       position: fixed;
       top: 40vh;
@@ -137,7 +136,6 @@
       .floating-verse-card .f-text { font-size: 1.25rem; }
     }
 
-    /* Directional Float Animations (Balanced for an 18-second cycle: 2s fly in, 14s hold, 2s fly out) */
     @keyframes floatFromLeft {
       0% { transform: translateX(-110vw) translateY(20px) rotate(-5deg); opacity: 0; }
       11.1% { transform: translateX(0) translateY(0) rotate(0deg); opacity: 1; }
@@ -171,7 +169,6 @@
     .anim-top { animation: floatFromTop 18s ease-in-out forwards; }
     .anim-zoom { animation: floatZoomIn 18s ease-in-out forwards; }
 
-    /* --- DISCLAIMER FOOTER --- */
     #disclaimer-footer {
       position: fixed;
       bottom: 0;
@@ -255,7 +252,6 @@
       100% { transform: translateX(0) scale(1); opacity: 1; }
     }
 
-    /* --- ANIMATED TRAIN DOORS: slide open shortly after arrival, close before next departure --- */
     #door-left, #door-right, #door-left-2, #door-right-2 {
       transform-box: fill-box;
       transform-origin: center;
@@ -421,14 +417,8 @@
       }
 
       @keyframes slideUpMobile {
-        from {
-          transform: translateY(100%);
-          opacity: 0;
-        }
-        to {
-          transform: translateY(0);
-          opacity: 1;
-        }
+        from { transform: translateY(100%); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
       }
     }
 
@@ -495,7 +485,6 @@
     .diff-medium { background: rgba(255, 170, 0, 0.2); color: #ffaa00; border: 1px solid #ffaa00; }
     .diff-hard { background: rgba(255, 42, 75, 0.2); color: #ff2a4b; border: 1px solid #ff2a4b; }
 
-    /* --- REALISTIC TRACKS CHASE BOARD STYLING --- */
     .board-container {
       width: 100%;
       display: flex;
@@ -1052,10 +1041,8 @@
 
     .modal-overlay {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
       background: rgba(2, 5, 10, 0.85);
       backdrop-filter: blur(8px);
       display: flex;
@@ -1093,7 +1080,6 @@
       margin-bottom: 18px;
     }
 
-    /* --- FEEDBACK MODAL STYLING --- */
     .feedback-modal-box {
       background: #0a1424;
       border: 2px solid #00d2ff;
@@ -1184,9 +1170,7 @@
       transition: background 0.2s;
     }
 
-    .btn-feedback-cancel:hover {
-      background: #1c314f;
-    }
+    .btn-feedback-cancel:hover { background: #1c314f; }
 
     .btn-feedback-submit {
       flex: 1;
@@ -1223,23 +1207,20 @@
   <div class="fog-layer-1"></div>
   <div class="fog-layer-2"></div>
 
-  <!-- IDLE FLOATING VERSES CONTAINER (MID TO BOTTOM) -->
   <div id="idle-verse-overlay"></div>
 
-  <!-- DISCLAIMER FOOTER -->
   <div id="disclaimer-footer">
     <span>This bible quiz game is not a substitute for reading your King James BIBLE.</span>
     <a id="feedback-link" onclick="openFeedbackModal()">FEEDBACK</a>
   </div>
 
-  <!-- FEEDBACK MODAL (SEND DIRECTLY FROM PAGE VIA FORMSUBMIT / MAILTO FALLBACK) -->
+  <!-- FIXED AJAX FEEDBACK MODAL (Submits background fetch to FormSubmit safely) -->
   <div id="feedback-modal" class="modal-overlay hidden">
     <div class="feedback-modal-box">
       <h3>💬 Send Feedback</h3>
       <p>Have questions, comments, or suggestions about the game? Send a message directly to billpmonti@gmail.com!</p>
       
-      <form id="feedback-form" action="https://formsubmit.co/billpmonti@gmail.com" method="POST">
-        <!-- Optional FormSubmit configurations -->
+      <form id="feedback-form" onsubmit="submitFeedbackAjax(event)">
         <input type="hidden" name="_subject" value="New Scripture Pursuit Feedback!">
         <input type="hidden" name="_captcha" value="false">
         <input type="hidden" name="_template" value="box">
@@ -1261,7 +1242,7 @@
 
         <div class="feedback-btn-row">
           <button type="button" class="btn-feedback-cancel" onclick="closeFeedbackModal()">Cancel</button>
-          <button type="submit" class="btn-feedback-submit">Send Email</button>
+          <button type="submit" id="fb-submit-btn" class="btn-feedback-submit">Send Email</button>
         </div>
       </form>
     </div>
@@ -1366,9 +1347,7 @@
       <div><span id="logo-subtitle" class="logo-subtitle">The Bullet Line: Scripture Pursuit — 400 Q BANK (KJV)</span></div>
     </div>
 
-    <!-- Main Game Layout -->
     <div class="main-game-layout">
-      <!-- Left Box: Game Controls, Board, and Questions -->
       <div class="card-container">
         <div class="status-bar">
           <div>TREASURY: <span id="bank-val" class="bank-text">0 Shekels</span></div>
@@ -1425,7 +1404,6 @@
           <div id="chase-options" class="options-grid hidden"></div>
         </div>
 
-        <!-- STICKY BOTTOM ACTION BAR -->
         <div id="sticky-bottom-bar" class="sticky-bottom-actions hidden">
           <div class="sticky-actions-row">
             <button class="btn-restart-sticky" onclick="resetGame()">RESTART GAME</button>
@@ -1436,7 +1414,6 @@
         </div>
       </div>
 
-      <!-- Right Box: Big Dedicated Scripture Panel -->
       <div id="verse-container" class="verse-side-panel hidden">
         <div class="verse-label">📖 King James Bible (KJV)</div>
         <div id="verse-ref" class="verse-ref">--</div>
@@ -1447,9 +1424,7 @@
   </div>
 
   <script>
-    // --- BALANCED 400 Q BANK (200 OLD TESTAMENT + 200 NEW TESTAMENT) ---
     const pdfRawQuestions = [
-      // === OLD TESTAMENT QUESTIONS (200) ===
       { q: "How many days did it take God to create the heavens and the earth?", a: "Seven", d: ["Six", "Forty"], ref: "Genesis 2:2", text: "And on the seventh day God ended his work which he had made; and he rested on the seventh day from all his work which he had made.", testament: "OT" },
       { q: "What did God create on the first day?", a: "Light", d: ["Atmosphere", "Sun and Moon"], ref: "Genesis 1:3", text: "And God said, Let there be light: and there was light.", testament: "OT" },
       { q: "What did God create on the fourth day?", a: "The sun, moon, and stars", d: ["Birds/Sea animals", "Light"], ref: "Genesis 1:16", text: "And God made two great lights; the greater light to rule the day, and the lesser light to rule the night: he made the stars also.", testament: "OT" },
@@ -1627,7 +1602,6 @@
       { q: "What was the name of the garden planted by God where He placed the first man?", a: "Garden of Eden", d: ["Gethsemane", "Paradise"], ref: "Genesis 2:8", text: "And the Lord God planted a garden eastward in Eden; and there he put the man whom he had formed.", testament: "OT" },
       { q: "What was the name of the feast celebrated to remember God delivering Israel from Egyptian bondage?", a: "Passover", d: ["Pentecost", "Feast of Tabernacles"], ref: "Exodus 12:11", text: "...it is the Lord's passover.", testament: "OT" },
 
-      // === NEW TESTAMENT QUESTIONS (200) ===
       { q: "Where was Jesus born?", a: "Bethlehem", d: ["Nazareth", "Jerusalem"], ref: "Micah 5:2", text: "But thou, Bethlehem Ephratah, though thou be little among the thousands of Judah, yet out of thee shall he come forth unto me...", testament: "NT" },
       { q: "How many books are in the New Testament?", a: "27", d: ["39", "66"], ref: "Canon of Scripture", text: "Comprising twenty-seven inspired historical, epistle, and prophetic books of the New Covenant.", testament: "NT" },
       { q: "Paul was shipwrecked on what island?", a: "Malta", d: ["Patmos", "Cyprus"], ref: "Acts 28:1", text: "And when they were escaped, then they knew that the island was called Melita.", testament: "NT" },
@@ -1761,43 +1735,14 @@
       { q: "What is the shortest chapter in the Bible?", a: "Psalm 117", d: ["Psalm 23", "Psalm 150"], ref: "Psalm 117:1-2", text: "O praise the Lord, all ye nations: praise him, all ye people. For his merciful kindness is great toward us...", testament: "OT" }
     ];
 
-    // --- IDLE FLOATING VERSES DATA LIST (SET TO 18s TOTAL DURATION PER CYCLE) ---
     const idleVersesList = [
-      { 
-        ref: "2 Timothy 2:15", 
-        text: "Study to shew thyself approved unto God, a workman that needeth not to be ashamed, rightly dividing the word of truth.", 
-        anim: "anim-left" 
-      },
-      { 
-        ref: "Joshua 1:8", 
-        text: "This book of the law shall not depart out of thy mouth; but thou shalt meditate therein day and night, that thou mayest observe to do according to all that is written therein: for then thou shalt make thy way prosperous, and then thou shalt have good success.", 
-        anim: "anim-right" 
-      },
-      { 
-        ref: "Psalm 119:11", 
-        text: "Thy word have I hid in mine heart, that I might not sin against thee.", 
-        anim: "anim-top" 
-      },
-      { 
-        ref: "Psalm 119:105", 
-        text: "Thy word is a lamp unto my feet, and a light unto my path.", 
-        anim: "anim-zoom" 
-      },
-      { 
-        ref: "Colossians 3:16", 
-        text: "Let the word of Christ dwell in you richly in all wisdom; teaching and admonishing one another in psalms and hymns and spiritual songs, singing with grace in your hearts to the Lord.", 
-        anim: "anim-left" 
-      },
-      { 
-        ref: "Romans 15:4", 
-        text: "For whatsoever things were written aforetime were written for our learning, that we through patience and comfort of the scriptures might have hope.", 
-        anim: "anim-right" 
-      },
-      { 
-        ref: "2 Timothy 3:16–17", 
-        text: "All scripture is given by inspiration of God, and is profitable for doctrine, for reproof, for correction, for instruction in righteousness: That the man of God may be perfect, thoroughly furnished unto all good works.", 
-        anim: "anim-top" 
-      }
+      { ref: "2 Timothy 2:15", text: "Study to shew thyself approved unto God, a workman that needeth not to be ashamed, rightly dividing the word of truth.", anim: "anim-left" },
+      { ref: "Joshua 1:8", text: "This book of the law shall not depart out of thy mouth; but thou shalt meditate therein day and night, that thou mayest observe to do according to all that is written therein: for then thou shalt make thy way prosperous, and then thou shalt have good success.", anim: "anim-right" },
+      { ref: "Psalm 119:11", text: "Thy word have I hid in mine heart, that I might not sin against thee.", anim: "anim-top" },
+      { ref: "Psalm 119:105", text: "Thy word is a lamp unto my feet, and a light unto my path.", anim: "anim-zoom" },
+      { ref: "Colossians 3:16", text: "Let the word of Christ dwell in you richly in all wisdom; teaching and admonishing one another in psalms and hymns and spiritual songs, singing with grace in your hearts to the Lord.", anim: "anim-left" },
+      { ref: "Romans 15:4", text: "For whatsoever things were written aforetime were written for our learning, that we through patience and comfort of the scriptures might have hope.", anim: "anim-right" },
+      { ref: "2 Timothy 3:16–17", text: "All scripture is given by inspiration of God, and is profitable for doctrine, for reproof, for correction, for instruction in righteousness: That the man of God may be perfect, thoroughly furnished unto all good works.", anim: "anim-top" }
     ];
 
     let idleVerseIndex = 0;
@@ -1806,27 +1751,19 @@
     function startIdleVerses() {
       const overlay = document.getElementById('idle-verse-overlay');
       if (!overlay) return;
-
       showNextIdleVerse();
-      idleVerseTimer = setInterval(showNextIdleVerse, 18000); // 18 seconds interval
+      idleVerseTimer = setInterval(showNextIdleVerse, 18000);
     }
 
     function showNextIdleVerse() {
       if (gameHasStarted) return;
       const overlay = document.getElementById('idle-verse-overlay');
       if (!overlay) return;
-
       overlay.innerHTML = '';
       const v = idleVersesList[idleVerseIndex];
-
       const card = document.createElement('div');
       card.className = `floating-verse-card ${v.anim}`;
-      card.innerHTML = `
-        <div class="f-label">📖 King James Bible (KJV)</div>
-        <div class="f-ref">${v.ref}</div>
-        <div class="f-text">“${v.text}”</div>
-      `;
-
+      card.innerHTML = `<div class="f-label">📖 King James Bible (KJV)</div><div class="f-ref">${v.ref}</div><div class="f-text">“${v.text}”</div>`;
       overlay.appendChild(card);
       idleVerseIndex = (idleVerseIndex + 1) % idleVersesList.length;
     }
@@ -1841,7 +1778,6 @@
     let soundEnabled = false;
     let soundMuted = false;
     let verseTimerInterval = null;
-
     let gamesPlayed = 0;
     let gamesWon = 0;
     let gamesLost = 0;
@@ -1852,51 +1788,59 @@
       document.getElementById('stat-lost').textContent = gamesLost;
     }
 
-    // --- FEEDBACK MODAL CONTROLS ---
-    function openFeedbackModal() {
-      document.getElementById('feedback-modal').classList.remove('hidden');
-    }
+    function openFeedbackModal() { document.getElementById('feedback-modal').classList.remove('hidden'); }
+    function closeFeedbackModal() { document.getElementById('feedback-modal').classList.add('hidden'); }
 
-    function closeFeedbackModal() {
-      document.getElementById('feedback-modal').classList.add('hidden');
+    // FIXED AJAX Feedback Submission so it never goes to a dead address bar page
+    function submitFeedbackAjax(event) {
+      event.preventDefault();
+      const form = document.getElementById('feedback-form');
+      const submitBtn = document.getElementById('fb-submit-btn');
+      submitBtn.textContent = "Sending...";
+      submitBtn.disabled = true;
+
+      const formData = new FormData(form);
+
+      fetch("https://formsubmit.co/ajax/billpmonti@gmail.com", {
+        method: "POST",
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        alert("Thank you! Your feedback has been successfully sent.");
+        form.reset();
+        submitBtn.textContent = "Send Email";
+        submitBtn.disabled = false;
+        closeFeedbackModal();
+      })
+      .catch(error => {
+        // Fallback if network blocks ajax: use standard mailto window
+        const name = document.getElementById('fb-name').value;
+        const msg = document.getElementById('fb-message').value;
+        window.location.href = `mailto:billpmonti@gmail.com?subject=Feedback&body=${encodeURIComponent(msg)}`;
+        submitBtn.textContent = "Send Email";
+        submitBtn.disabled = false;
+        closeFeedbackModal();
+      });
     }
 
     function globalUnlockAudio(e) {
-      if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      }
-      if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
-      }
-
-      try {
-        const buffer = audioCtx.createBuffer(1, 1, 22050);
-        const source = audioCtx.createBufferSource();
-        source.buffer = buffer;
-        source.connect(audioCtx.destination);
-        source.start(0);
-      } catch (err) {
-        console.log("Audio unlock buffer execution:", err);
-      }
-
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
       soundEnabled = true;
       playTrainSound();
-
       window.removeEventListener('pointerdown', globalUnlockAudio);
       window.removeEventListener('keydown', globalUnlockAudio);
     }
-
     window.addEventListener('pointerdown', globalUnlockAudio);
     window.addEventListener('keydown', globalUnlockAudio);
 
     function playSound(type) {
       if (!soundEnabled || !audioCtx || soundMuted) return;
-
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
       osc.connect(gain);
       gain.connect(audioCtx.destination);
-
       const now = audioCtx.currentTime;
 
       if (type === 'correct') {
@@ -1906,38 +1850,33 @@
         osc.frequency.setValueAtTime(783.99, now + 0.16);
         gain.gain.setValueAtTime(0.25, now);
         gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
-        osc.start(now);
-        osc.stop(now + 0.4);
+        osc.start(now); osc.stop(now + 0.4);
       } else if (type === 'wrong') {
         osc.type = 'sawtooth';
         osc.frequency.setValueAtTime(160, now);
         osc.frequency.linearRampToValueAtTime(110, now + 0.25);
         gain.gain.setValueAtTime(0.25, now);
         gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
-        osc.start(now);
-        osc.stop(now + 0.28);
+        osc.start(now); osc.stop(now + 0.28);
       } else if (type === 'countdown-tick') {
         osc.type = 'sine';
         osc.frequency.setValueAtTime(440, now);
         gain.gain.setValueAtTime(0.15, now);
         gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
-        osc.start(now);
-        osc.stop(now + 0.15);
+        osc.start(now); osc.stop(now + 0.15);
       } else if (type === 'countdown-start') {
         osc.type = 'sine';
         osc.frequency.setValueAtTime(880, now);
         gain.gain.setValueAtTime(0.25, now);
         gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
-        osc.start(now);
-        osc.stop(now + 0.3);
+        osc.start(now); osc.stop(now + 0.3);
       } else if (type === 'swallow') {
         osc.type = 'triangle';
         osc.frequency.setValueAtTime(320, now);
         osc.frequency.linearRampToValueAtTime(120, now + 0.35);
         gain.gain.setValueAtTime(0.3, now);
         gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
-        osc.start(now);
-        osc.stop(now + 0.4);
+        osc.start(now); osc.stop(now + 0.4);
       } else if (type === 'victory') {
         osc.type = 'sine';
         osc.frequency.setValueAtTime(523.25, now);
@@ -1946,17 +1885,14 @@
         osc.frequency.setValueAtTime(1046.50, now + 0.36);
         gain.gain.setValueAtTime(0.3, now);
         gain.gain.exponentialRampToValueAtTime(0.001, now + 0.8);
-        osc.start(now);
-        osc.stop(now + 0.8);
+        osc.start(now); osc.stop(now + 0.8);
       } else if (type === 'door-chime') {
-        // Two-tone bell "ding-dong", evocative of a train door-closing chime
         osc.type = 'sine';
         osc.frequency.setValueAtTime(880, now);
         gain.gain.setValueAtTime(0.001, now);
         gain.gain.linearRampToValueAtTime(0.28, now + 0.02);
         gain.gain.exponentialRampToValueAtTime(0.001, now + 0.55);
-        osc.start(now);
-        osc.stop(now + 0.55);
+        osc.start(now); osc.stop(now + 0.55);
 
         const osc2 = audioCtx.createOscillator();
         const gain2 = audioCtx.createGain();
@@ -1967,25 +1903,20 @@
         gain2.gain.setValueAtTime(0.001, now + 0.3);
         gain2.gain.linearRampToValueAtTime(0.28, now + 0.32);
         gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.95);
-        osc2.start(now + 0.3);
-        osc2.stop(now + 0.95);
+        osc2.start(now + 0.3); osc2.stop(now + 0.95);
       }
     }
 
     function playTrainSound() {
       if (!soundEnabled || !audioCtx || soundMuted) return;
-
       const now = audioCtx.currentTime;
       const bufferSize = audioCtx.sampleRate * 2.0;
       const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
       const data = buffer.getChannelData(0);
-      for (let i = 0; i < bufferSize; i++) {
-        data[i] = Math.random() * 2 - 1;
-      }
+      for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
 
       const noise = audioCtx.createBufferSource();
       noise.buffer = buffer;
-
       const filter = audioCtx.createBiquadFilter();
       filter.type = 'lowpass';
       filter.frequency.setValueAtTime(180, now);
@@ -1997,17 +1928,12 @@
       gain.gain.linearRampToValueAtTime(0.06, now + 0.9);
       gain.gain.linearRampToValueAtTime(0.001, now + 1.8);
 
-      noise.connect(filter);
-      filter.connect(gain);
-      gain.connect(audioCtx.destination);
-
-      noise.start(now);
-      noise.stop(now + 1.8);
+      noise.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
+      noise.start(now); noise.stop(now + 1.8);
     }
 
     const canvas = document.getElementById('fog-canvas');
     const ctx = canvas.getContext('2d');
-
     let fogParticles = [];
     const particleCount = 45;
 
@@ -2019,78 +1945,50 @@
     resizeCanvas();
 
     class FogParticle {
-      constructor() {
-        this.reset(true);
-      }
-
+      constructor() { this.reset(true); }
       reset(initial = false) {
         this.x = initial ? Math.random() * canvas.width : -350;
         this.y = Math.random() * canvas.height;
         this.baseRadius = Math.random() * 220 + 160;
         this.radius = this.baseRadius;
-        
         this.vx = Math.random() * 0.35 + 0.12;
         this.sineOffset = Math.random() * Math.PI * 2;
         this.sineSpeed = Math.random() * 0.005 + 0.002;
-        
         this.baseAlpha = Math.random() * 0.08 + 0.02;
         this.alpha = this.baseAlpha;
         this.pulseSpeed = Math.random() * 0.01 + 0.003;
         this.pulseAngle = Math.random() * Math.PI * 2;
-
         const bluePicker = Math.random();
-        if (bluePicker < 0.4) {
-          this.color = { r: 0, g: 162, b: 232 };
-        } else if (bluePicker < 0.8) {
-          this.color = { r: 70, g: 130, b: 180 };
-        } else {
-          this.color = { r: 0, g: 102, b: 204 };
-        }
+        this.color = bluePicker < 0.4 ? { r: 0, g: 162, b: 232 } : bluePicker < 0.8 ? { r: 70, g: 130, b: 180 } : { r: 0, g: 102, b: 204 };
       }
-
       update() {
         this.x += this.vx;
         this.sineOffset += this.sineSpeed;
         this.y += Math.sin(this.sineOffset) * 0.18;
-
         this.pulseAngle += this.pulseSpeed;
         this.alpha = this.baseAlpha + Math.sin(this.pulseAngle) * 0.015;
         this.radius = this.baseRadius + Math.cos(this.pulseAngle) * 15;
-
-        if (this.x - this.radius > canvas.width) {
-          this.reset(false);
-        }
+        if (this.x - this.radius > canvas.width) this.reset(false);
       }
-
       draw() {
         ctx.beginPath();
-        const gradient = ctx.createRadialGradient(
-          this.x, this.y, 0,
-          this.x, this.y, this.radius
-        );
-
+        const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius);
         const a = Math.max(0, this.alpha);
         gradient.addColorStop(0, `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, ${a})`);
         gradient.addColorStop(0.3, `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, ${a * 0.7})`);
         gradient.addColorStop(0.7, `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, ${a * 0.25})`);
         gradient.addColorStop(1, `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, 0)`);
-
         ctx.fillStyle = gradient;
         ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
         ctx.fill();
       }
     }
 
-    for (let i = 0; i < particleCount; i++) {
-      fogParticles.push(new FogParticle());
-    }
+    for (let i = 0; i < particleCount; i++) fogParticles.push(new FogParticle());
 
     function animateFog() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      fogParticles.forEach(particle => {
-        particle.update();
-        particle.draw();
-      });
+      fogParticles.forEach(p => { p.update(); p.draw(); });
       requestAnimationFrame(animateFog);
     }
     animateFog();
@@ -2102,15 +2000,9 @@
           const j = Math.floor(Math.random() * (i + 1));
           [options[i], options[j]] = [options[j], options[i]];
         }
-        const correctIndex = options.indexOf(item.a);
         return {
-          id: id,
-          q: item.q,
-          options: options,
-          ans: correctIndex,
-          ref: item.ref || "KJV Reference",
-          text: item.text || "Scripture reference.",
-          testament: item.testament || "OT"
+          id: id, q: item.q, options: options, ans: options.indexOf(item.a),
+          ref: item.ref || "KJV Reference", text: item.text || "Scripture reference.", testament: item.testament || "OT"
         };
       });
     }
@@ -2121,38 +2013,20 @@
 
     function getNextUniqueQuestion() {
       if (currentActiveDeck.length === 0) {
-        let availableQuestions = masterPDFDeck.filter(item => !usedQuestionIndices.has(item.id));
-        
-        if (availableQuestions.length === 0) {
+        let available = masterPDFDeck.filter(item => !usedQuestionIndices.has(item.id));
+        if (available.length === 0) {
           usedQuestionIndices.clear();
-          availableQuestions = [...masterPDFDeck];
-          showShuffleModal();
+          available = [...masterPDFDeck];
+          document.getElementById('shuffle-modal').classList.remove('hidden');
         }
-
-        currentActiveDeck = shuffleArray(availableQuestions);
+        currentActiveDeck = [...available].sort(() => Math.random() - 0.5);
       }
-
       const q = currentActiveDeck.pop();
       usedQuestionIndices.add(q.id);
       return q;
     }
 
-    function shuffleArray(array) {
-      const arr = [...array];
-      for (let i = arr.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [arr[i], arr[j]] = [arr[j], arr[i]];
-      }
-      return arr;
-    }
-
-    function showShuffleModal() {
-      document.getElementById('shuffle-modal').classList.remove('hidden');
-    }
-
-    function closeShuffleModal() {
-      document.getElementById('shuffle-modal').classList.add('hidden');
-    }
+    function closeShuffleModal() { document.getElementById('shuffle-modal').classList.add('hidden'); }
 
     const titleElement = document.getElementById('main-title');
     const subtitleElement = document.getElementById('logo-subtitle');
@@ -2173,24 +2047,15 @@
       if (doorChimeTimer) clearTimeout(doorChimeTimer);
       doorChimeTimer = setTimeout(() => {
         if (!gameHasStarted) playSound('door-chime');
-      }, 6800); // fires as the doors begin sliding shut (~82% of the 8.3s cycle)
+      }, 6800);
 
       titleAnimationTimer = setTimeout(triggerTitleRun, 8300);
     }
     
-    titleAnimationTimer = setTimeout(() => {
-      triggerTitleRun();
-    }, 6500);
-
-    // Initialize Idle Floating Verses on Load
+    titleAnimationTimer = setTimeout(triggerTitleRun, 6500);
     startIdleVerses();
 
-    let currentBank = 0;
-    let timer = 60;
-    let timerInterval = null;
-    let playerPos = 5;
-    let chaserPos = 7;
-    let activeQuestion = null;
+    let currentBank = 0, timer = 60, timerInterval = null, playerPos = 5, chaserPos = 7, activeQuestion = null;
     let askedQuestionsLog = [];
 
     const qDisplay = document.getElementById('question-display');
@@ -2224,14 +2089,12 @@
         verseRefEl.textContent = questionObj.ref ? `${questionObj.ref} (KJV)` : "--";
         verseTextEl.textContent = questionObj.text ? `“${questionObj.text}”` : "--";
         verseContainer.classList.remove('hidden');
-
         if (verseTimerInterval) clearInterval(verseTimerInterval);
         verseTimerBadge.classList.add('hidden');
 
         let remainingVerseTime = 10;
         verseTimerInterval = setInterval(() => {
           remainingVerseTime--;
-          
           if (remainingVerseTime <= 3 && remainingVerseTime > 0) {
             verseTimerBadge.textContent = `${remainingVerseTime}`;
             verseTimerBadge.classList.remove('hidden');
@@ -2241,7 +2104,6 @@
             verseTimerBadge.classList.add('hidden');
           }
         }, 1000);
-
       } else {
         verseContainer.classList.add('hidden');
       }
@@ -2254,29 +2116,22 @@
       soundMuted = !soundMuted;
       soundToggleBtn.textContent = soundMuted ? '🔇' : '🔊';
       soundToggleBtn.classList.toggle('muted', soundMuted);
-      if (!soundMuted) {
-        playSound('countdown-tick');
-      }
+      if (!soundMuted) playSound('countdown-tick');
     });
 
     function startCountdownSequence() {
       gameHasStarted = true;
       stopIdleVerses();
-
       if (titleAnimationTimer) clearTimeout(titleAnimationTimer);
       if (doorChimeTimer) clearTimeout(doorChimeTimer);
       titleElement.classList.remove('run-chase');
       subtitleElement.classList.add('active-game');
-
       logoHeaderBox.classList.add('hidden');
       disclaimerFooter.style.opacity = '0';
-      setTimeout(() => {
-        disclaimerFooter.classList.add('hidden');
-      }, 300);
+      setTimeout(() => disclaimerFooter.classList.add('hidden'), 300);
 
       currentActiveDeck = [];
       askedQuestionsLog = [];
-
       startGameBtn.classList.add('hidden');
       audioHint.classList.add('hidden');
       stickyBottomBar.classList.add('hidden');
@@ -2309,12 +2164,10 @@
     function beginCashBuilderRound() {
       builderOptions.classList.remove('hidden');
       timerWrap.classList.remove('hidden');
-
       currentBank = 0;
       timer = 60;
       bankVal.textContent = `0 Shekels`;
       timerVal.textContent = timer;
-
       showBuilderQ();
 
       if (timerInterval) clearInterval(timerInterval);
@@ -2331,7 +2184,6 @@
     function showBuilderQ() {
       if (timer <= 0) return;
       activeQuestion = getNextUniqueQuestion();
-
       qDisplay.textContent = activeQuestion.q;
       hideVersePanel();
       builderOptions.innerHTML = '';
@@ -2347,27 +2199,19 @@
 
     function handleBuilderChoice(choice) {
       const isCorrect = (choice === activeQuestion.ans);
-
       playSound(isCorrect ? 'correct' : 'wrong');
 
-      const buttons = builderOptions.querySelectorAll('.option-btn');
-      buttons.forEach((btn, idx) => {
+      builderOptions.querySelectorAll('.option-btn').forEach((btn, idx) => {
         btn.disabled = true;
-        if (idx === activeQuestion.ans) {
-          btn.classList.add('btn-correct');
-        } else if (idx === choice && !isCorrect) {
-          btn.classList.add('btn-wrong');
-        }
+        if (idx === activeQuestion.ans) btn.classList.add('btn-correct');
+        else if (idx === choice && !isCorrect) btn.classList.add('btn-wrong');
       });
       
       askedQuestionsLog.push({
-        q: activeQuestion.q,
-        userAns: activeQuestion.options[choice],
+        q: activeQuestion.q, userAns: activeQuestion.options[choice],
         correctAns: activeQuestion.options[activeQuestion.ans],
-        ref: activeQuestion.ref + " (KJV)",
-        text: activeQuestion.text,
-        isCorrect: isCorrect,
-        round: 'Shekels of Silver Builder (KJV)'
+        ref: activeQuestion.ref + " (KJV)", text: activeQuestion.text,
+        isCorrect: isCorrect, round: 'Shekels of Silver Builder (KJV)'
       });
 
       if (isCorrect) {
@@ -2375,11 +2219,7 @@
         bankVal.textContent = `${currentBank.toLocaleString()} Shekels`;
       }
 
-      setTimeout(() => {
-        if (timer > 0) {
-          showBuilderQ();
-        }
-      }, 600);
+      setTimeout(() => { if (timer > 0) showBuilderQ(); }, 600);
     }
 
     function finishBuilder() {
@@ -2391,14 +2231,12 @@
       hideVersePanel();
 
       if (currentBank === 0) currentBank = 1000;
-
       qDisplay.textContent = `Shekels of Silver Builder complete! You accumulated ${currentBank.toLocaleString()} Shekels of Silver. Choose your starting position against the Chaser below.`;
       showOffers();
     }
 
     function showOffers() {
       offersWrap.classList.remove('hidden');
-
       const low = Math.floor(currentBank / 2);
       const high = currentBank * 3;
 
@@ -2416,11 +2254,9 @@
       bankVal.textContent = `${currentBank.toLocaleString()} Shekels`;
       playerPos = steps;
       chaserPos = 7;
-
       offersWrap.classList.add('hidden');
       boardContainer.classList.remove('hidden');
       chaseOptions.classList.remove('hidden');
-
       renderBoard();
       nextChaseStep();
     }
@@ -2428,21 +2264,10 @@
     function renderBoard(isSwallowed = false, isVictory = false) {
       for (let s = 1; s <= 7; s++) {
         const stepEl = document.getElementById(`step-${s}`);
-        if (stepEl) {
-          stepEl.classList.remove('chaser-active-step');
-          stepEl.classList.remove('player-active-step');
-        }
+        if (stepEl) stepEl.classList.remove('chaser-active-step', 'player-active-step');
       }
-
-      if (chaserPos >= 1 && chaserPos <= 7) {
-        const activeChaserStepEl = document.getElementById(`step-${chaserPos}`);
-        if (activeChaserStepEl) activeChaserStepEl.classList.add('chaser-active-step');
-      }
-
-      if (playerPos >= 1 && playerPos <= 7) {
-        const activePlayerStepEl = document.getElementById(`step-${playerPos}`);
-        if (activePlayerStepEl) activePlayerStepEl.classList.add('player-active-step');
-      }
+      if (chaserPos >= 1 && chaserPos <= 7) document.getElementById(`step-${chaserPos}`)?.classList.add('chaser-active-step');
+      if (playerPos >= 1 && playerPos <= 7) document.getElementById(`step-${playerPos}`)?.classList.add('player-active-step');
 
       for (let i = 0; i <= 7; i++) {
         const slot = document.getElementById(`slot-${i}`);
@@ -2452,27 +2277,22 @@
         if (isSwallowed && i === chaserPos) {
           slot.classList.add('swallowed-state');
           const c = document.createElement('div');
-          c.className = 'chaser-text-badge';
-          c.innerHTML = '💥 CRASH!';
+          c.className = 'chaser-text-badge'; c.innerHTML = '💥 CRASH!';
           slot.appendChild(c);
         } else if (isVictory && i === 0 && playerPos === 0) {
           slot.classList.add('victory-state');
           const p = document.createElement('div');
-          p.className = 'player-token';
-          p.innerHTML = '🏆 WINNER!';
+          p.className = 'player-token'; p.innerHTML = '🏆 WINNER!';
           slot.appendChild(p);
         } else {
           if (i === chaserPos) {
             const c = document.createElement('div');
-            c.className = 'chaser-text-badge';
-            c.innerHTML = '⚡ DERAILMENT';
+            c.className = 'chaser-text-badge'; c.innerHTML = '⚡ DERAILMENT';
             slot.appendChild(c);
           }
-
           if (i === playerPos) {
             const p = document.createElement('div');
-            p.className = 'player-token';
-            p.innerHTML = '🚄 BULLET TRAIN';
+            p.className = 'player-token'; p.innerHTML = '🚄 BULLET TRAIN';
             slot.appendChild(p);
           }
         }
@@ -2480,26 +2300,11 @@
     }
 
     function getQuestionForPlayerPos() {
-      let difficulty = 'easy';
-      if (playerPos >= 5) {
-        difficulty = 'easy';
-      } else if (playerPos >= 3) {
-        difficulty = 'medium';
-      } else {
-        difficulty = 'hard';
-      }
-
+      let difficulty = playerPos >= 5 ? 'easy' : playerPos >= 3 ? 'medium' : 'hard';
       diffIndicator.classList.remove('hidden', 'diff-easy', 'diff-medium', 'diff-hard');
-      if (difficulty === 'easy') {
-        diffIndicator.classList.add('diff-easy');
-        diffIndicator.textContent = 'EASY';
-      } else if (difficulty === 'medium') {
-        diffIndicator.classList.add('diff-medium');
-        diffIndicator.textContent = 'MEDIUM';
-      } else {
-        diffIndicator.classList.add('diff-hard');
-        diffIndicator.textContent = 'HARD';
-      }
+      if (difficulty === 'easy') { diffIndicator.classList.add('diff-easy'); diffIndicator.textContent = 'EASY'; }
+      else if (difficulty === 'medium') { diffIndicator.classList.add('diff-medium'); diffIndicator.textContent = 'MEDIUM'; }
+      else { diffIndicator.classList.add('diff-hard'); diffIndicator.textContent = 'HARD'; }
 
       const q = getNextUniqueQuestion();
       q.difficulty = difficulty;
@@ -2516,16 +2321,10 @@
       hideVersePanel();
       diffIndicator.classList.add('hidden');
       
-      if (!isWin) {
-        bankVal.textContent = `0 Shekels (Crashed)`;
-      }
+      if (!isWin) bankVal.textContent = `0 Shekels (Crashed)`;
 
       gamesPlayed++;
-      if (isWin) {
-        gamesWon++;
-      } else {
-        gamesLost++;
-      }
+      if (isWin) gamesWon++; else gamesLost++;
       updateStatsDisplay();
 
       renderSummaryReport(isWin);
@@ -2565,37 +2364,22 @@
 
     function handleChaseChoice(choice) {
       const playerCorrect = (choice === activeQuestion.ans);
+      playSound(playerCorrect ? 'correct' : 'wrong');
 
-      if (playerCorrect) {
-        playSound('correct');
-      } else {
-        playSound('wrong');
-      }
-
-      let chaserAccuracy = 0.85;
-      if (activeQuestion.difficulty === 'medium') chaserAccuracy = 0.75;
-      if (activeQuestion.difficulty === 'hard') chaserAccuracy = 0.65;
-      
+      let chaserAccuracy = activeQuestion.difficulty === 'medium' ? 0.75 : activeQuestion.difficulty === 'hard' ? 0.65 : 0.85;
       const chaserCorrect = Math.random() < chaserAccuracy;
 
       askedQuestionsLog.push({
-        q: activeQuestion.q,
-        userAns: activeQuestion.options[choice],
+        q: activeQuestion.q, userAns: activeQuestion.options[choice],
         correctAns: activeQuestion.options[activeQuestion.ans],
-        ref: activeQuestion.ref + " (KJV)",
-        text: activeQuestion.text,
-        isCorrect: playerCorrect,
-        round: `Chase (${activeQuestion.difficulty.toUpperCase()}) - KJV`
+        ref: activeQuestion.ref + " (KJV)", text: activeQuestion.text,
+        isCorrect: playerCorrect, round: `Chase (${activeQuestion.difficulty.toUpperCase()}) - KJV`
       });
 
-      const buttons = chaseOptions.querySelectorAll('.option-btn');
-      buttons.forEach((btn, idx) => {
+      chaseOptions.querySelectorAll('.option-btn').forEach((btn, idx) => {
         btn.disabled = true;
-        if (idx === activeQuestion.ans) {
-          btn.classList.add('btn-correct');
-        } else if (idx === choice && !playerCorrect) {
-          btn.classList.add('btn-wrong');
-        }
+        if (idx === activeQuestion.ans) btn.classList.add('btn-correct');
+        else if (idx === choice && !playerCorrect) btn.classList.add('btn-wrong');
       });
 
       if (playerCorrect) playerPos--;
@@ -2603,28 +2387,17 @@
 
       const isWon = (playerPos === 0);
       const isCaught = (!isWon && chaserPos <= playerPos);
-      if (isCaught) {
-        chaserPos = playerPos;
-        playSound('swallow');
-      }
+      if (isCaught) { chaserPos = playerPos; playSound('swallow'); }
 
       renderBoard(isCaught, isWon);
 
-      const correctAnswerText = activeQuestion.options[activeQuestion.ans];
-      let feedback = `Correct: "${correctAnswerText}" | `;
-
-      if (playerCorrect && chaserCorrect) {
-        feedback += "Both your Bullet Train and the Derailment advanced!";
-      } else if (playerCorrect && !chaserCorrect) {
-        feedback += "Your Bullet Train advanced safely!";
-      } else if (!playerCorrect && chaserCorrect) {
-        feedback += "Incorrect! The Derailment closed in on your tracks!";
-      } else {
-        feedback += "Both missed! The tracks remain tense!";
-      }
+      let feedback = `Correct: "${activeQuestion.options[activeQuestion.ans]}" | `;
+      if (playerCorrect && chaserCorrect) feedback += "Both your Bullet Train and the Derailment advanced!";
+      else if (playerCorrect && !chaserCorrect) feedback += "Your Bullet Train advanced safely!";
+      else if (!playerCorrect && chaserCorrect) feedback += "Incorrect! The Derailment closed in on your tracks!";
+      else feedback += "Both missed! The tracks remain tense!";
 
       qDisplay.textContent = feedback;
-
       const isMobile = window.innerWidth < 768;
 
       if (isWon) {
@@ -2633,7 +2406,6 @@
         showGameOverState(true);
         return;
       }
-
       if (isCaught) {
         qDisplay.textContent = `CRASH! The Derailment caught up with your Bullet Train! Game over!`;
         showGameOverState(false);
@@ -2641,80 +2413,43 @@
       }
 
       if (isMobile) {
-        setTimeout(() => {
-          showVersePanel(activeQuestion);
-        }, 3000);
-
-        setTimeout(() => {
-          nextChaseStep();
-        }, 13000);
+        setTimeout(() => showVersePanel(activeQuestion), 3000);
+        setTimeout(() => nextChaseStep(), 13000);
       } else {
         showVersePanel(activeQuestion);
-        setTimeout(() => {
-          nextChaseStep();
-        }, 10000);
+        setTimeout(() => nextChaseStep(), 10000);
       }
     }
 
     function renderSummaryReport(isWin) {
       summaryList.innerHTML = '';
-      
-      const totalAsked = askedQuestionsLog.length;
-      if (totalAsked === 0) {
+      if (askedQuestionsLog.length === 0) {
         summaryScoreBanner.textContent = "No questions answered.";
         summaryList.innerHTML = `<div style="text-align:center; color:#7a8ba3; padding: 20px;">No questions answered.</div>`;
       } else {
-        const totalCorrect = askedQuestionsLog.filter(item => item.isCorrect).length;
-        const percentage = Math.round((totalCorrect / totalAsked) * 100);
-
-        let bannerHTML = "";
-        if (isWin) {
-          bannerHTML = `🎉 You arrived at the Train Station safely and earned <strong>${currentBank.toLocaleString()} Shekels of Silver</strong>!<br><span style="font-size: 0.85rem; color: #f7e7a1; font-weight: 700; display: block; margin-top: 6px;">Fantastic job! Why not play another round to test yourself with even more Bible questions?</span>`;
-        } else {
-          bannerHTML = `💥 Game Over! The Derailment caught you.<br><span style="font-size: 0.85rem; color: #f7e7a1; font-weight: 700; display: block; margin-top: 6px;">Don't give up! Jump back in and play another round with even more Bible questions!</span>`;
-        }
-
-        summaryScoreBanner.innerHTML = bannerHTML;
+        summaryScoreBanner.innerHTML = isWin 
+          ? `🎉 You arrived at the Train Station safely and earned <strong>${currentBank.toLocaleString()} Shekels of Silver</strong>!`
+          : `💥 Game Over! The Derailment caught you.`;
 
         askedQuestionsLog.forEach((item, index) => {
           const div = document.createElement('div');
-          const itemClass = item.isCorrect ? 'item-correct' : 'item-wrong';
-          div.className = `summary-item ${itemClass}`;
-          
-          const statusClass = item.isCorrect ? 'status-correct' : 'status-wrong';
-          const statusText = item.isCorrect ? '✓ CORRECT' : '✗ INCORRECT';
-
+          div.className = `summary-item ${item.isCorrect ? 'item-correct' : 'item-wrong'}`;
           div.innerHTML = `
             <div class="q-header">
               <div class="q-txt">${index + 1}. ${item.q}</div>
               <div class="q-round-tag">${item.round}</div>
             </div>
             <div class="ans-info">
-              <div class="ans-row">
-                <span>Result:</span>
-                <span class="${statusClass}">${statusText}</span>
-              </div>
-              <div class="ans-row">
-                <span>Your Choice:</span>
-                <strong style="color: ${item.isCorrect ? '#00ffaa' : '#ff2a4b'};">${item.userAns}</strong>
-              </div>
-              ${!item.isCorrect ? `
-                <div class="ans-row">
-                  <span>Correct Answer:</span>
-                  <strong style="color:#00ffaa;">${item.correctAns}</strong>
-                </div>
-              ` : ''}
-              <div style="margin-top: 4px;">
-                <span>Scripture Ref:</span>
-                <strong style="color:#d4af37;">${item.ref}</strong>
-              </div>
+              <div class="ans-row"><span>Result:</span><span class="${item.isCorrect ? 'status-correct' : 'status-wrong'}">${item.isCorrect ? '✓ CORRECT' : '✗ INCORRECT'}</span></div>
+              <div class="ans-row"><span>Your Choice:</span><strong style="color: ${item.isCorrect ? '#00ffaa' : '#ff2a4b'};">${item.userAns}</strong></div>
+              ${!item.isCorrect ? `<div class="ans-row"><span>Correct Answer:</span><strong style="color:#00ffaa;">${item.correctAns}</strong></div>` : ''}
+              <div style="margin-top: 4px;"><span>Scripture Ref:</span><strong style="color:#d4af37;">${item.ref}</strong></div>
               <div class="summary-scripture">“${item.text}”</div>
             </div>
           `;
           summaryList.appendChild(div);
         });
       }
-
       summaryScoreBanner.classList.remove('hidden');
       summaryWrap.classList.remove('hidden');
     }
@@ -2730,12 +2465,8 @@
       disclaimerFooter.classList.remove('hidden');
       disclaimerFooter.style.opacity = '1';
 
-      currentBank = 0;
-      timer = 60;
-      askedQuestionsLog = [];
-
-      bankVal.textContent = `0 Shekels`;
-      timerVal.textContent = `60`;
+      currentBank = 0; timer = 60; askedQuestionsLog = [];
+      bankVal.textContent = `0 Shekels`; timerVal.textContent = `60`;
 
       timerWrap.classList.add('hidden');
       boardContainer.classList.add('hidden');
@@ -2755,10 +2486,8 @@
       qDisplay.className = "";
       qDisplay.textContent = "Welcome to The Bullet Line: Scripture Pursuit (400 Q Bank - KJV)! Press START GAME below to begin.";
 
-      // Restart Idle Floating Verses
       idleVerseIndex = 0;
       startIdleVerses();
-
       titleAnimationTimer = setTimeout(triggerTitleRun, 6500);
     }
   </script>
