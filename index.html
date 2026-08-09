@@ -255,6 +255,52 @@
       100% { transform: translateX(0) scale(1); opacity: 1; }
     }
 
+    /* --- ANIMATED TRAIN DOORS: slide open shortly after arrival, close before next departure --- */
+    #door-left, #door-right, #door-left-2, #door-right-2 {
+      transform-box: fill-box;
+      transform-origin: center;
+    }
+
+    .train-logo-wrapper.run-chase #door-left {
+      animation: doorSlideLeft 8.3s ease-in-out forwards;
+    }
+
+    .train-logo-wrapper.run-chase #door-right {
+      animation: doorSlideRight 8.3s ease-in-out forwards;
+    }
+
+    .train-logo-wrapper.run-chase #door-left-2 {
+      animation: doorSlideLeft2 8.3s ease-in-out forwards;
+    }
+
+    .train-logo-wrapper.run-chase #door-right-2 {
+      animation: doorSlideRight2 8.3s ease-in-out forwards;
+    }
+
+    @keyframes doorSlideLeft {
+      0%, 24% { transform: translateX(0); }
+      32%, 82% { transform: translateX(-27px); }
+      92%, 100% { transform: translateX(0); }
+    }
+
+    @keyframes doorSlideRight {
+      0%, 24% { transform: translateX(0); }
+      32%, 82% { transform: translateX(27px); }
+      92%, 100% { transform: translateX(0); }
+    }
+
+    @keyframes doorSlideLeft2 {
+      0%, 24% { transform: translateX(0); }
+      32%, 82% { transform: translateX(-27px); }
+      92%, 100% { transform: translateX(0); }
+    }
+
+    @keyframes doorSlideRight2 {
+      0%, 24% { transform: translateX(0); }
+      32%, 82% { transform: translateX(27px); }
+      92%, 100% { transform: translateX(0); }
+    }
+
     .logo-subtitle {
       margin-top: 4px;
       font-size: 0.85rem;
@@ -1242,11 +1288,32 @@
             <path d="M 65 135 C 95 135, 135 90, 185 90 L 225 90 C 165 90, 115 135, 65 135 Z" fill="#002244" opacity="0.85" />
             <ellipse cx="50" cy="145" rx="16" ry="6" fill="#ffffff" filter="url(#neonBlue)" />
 
+            <g id="train-door" transform="translate(645, 98)">
+              <rect x="-2" y="-2" width="64" height="80" rx="4" fill="none" stroke="#00d2ff" stroke-width="2" opacity="0.55" filter="url(#neonBlue)" />
+              <rect id="door-left" x="0" y="0" width="30" height="76" rx="2" fill="#001830" stroke="#00a2ff" stroke-width="1.5" />
+              <rect id="door-right" x="30" y="0" width="30" height="76" rx="2" fill="#001830" stroke="#00a2ff" stroke-width="1.5" />
+              <rect x="6" y="10" width="18" height="24" rx="2" fill="#0a2a44" opacity="0.85" />
+              <rect x="36" y="10" width="18" height="24" rx="2" fill="#0a2a44" opacity="0.85" />
+            </g>
+
             <rect x="795" y="80" width="10" height="90" rx="2" fill="#0088cc" opacity="0.9" filter="url(#neonBlue)" />
 
             <path d="M 805 145 C 805 70, 808 70, 815 70 L 1370 70 C 1460 70, 1530 145, 1570 145 C 1540 170, 1460 175, 1370 175 L 815 175 C 808 175, 805 145, 805 145 Z" fill="url(#trainHull)" opacity="0.38" />
             <path d="M 813 72 L 1372 72 C 1462 72, 1532 145, 1572 145" stroke="#00d2ff" stroke-width="4.5" fill="none" filter="url(#neonBlue)" />
             <path d="M 813 175 L 1560 175" stroke="#00a2ff" stroke-width="3.5" fill="none" filter="url(#neonBlue)" />
+
+            <g id="line-windows">
+              <rect x="850" y="95" width="42" height="52" rx="6" fill="#0a2a44" opacity="0.9" stroke="#00d2ff" stroke-width="2" filter="url(#neonBlue)" />
+              <rect x="915" y="95" width="42" height="52" rx="6" fill="#0a2a44" opacity="0.9" stroke="#00d2ff" stroke-width="2" filter="url(#neonBlue)" />
+            </g>
+
+            <g id="train-door-2" transform="translate(1280, 98)">
+              <rect x="-2" y="-2" width="64" height="80" rx="4" fill="none" stroke="#00d2ff" stroke-width="2" opacity="0.55" filter="url(#neonBlue)" />
+              <rect id="door-left-2" x="0" y="0" width="30" height="76" rx="2" fill="#001830" stroke="#00a2ff" stroke-width="1.5" />
+              <rect id="door-right-2" x="30" y="0" width="30" height="76" rx="2" fill="#001830" stroke="#00a2ff" stroke-width="1.5" />
+              <rect x="6" y="10" width="18" height="24" rx="2" fill="#0a2a44" opacity="0.85" />
+              <rect x="36" y="10" width="18" height="24" rx="2" fill="#0a2a44" opacity="0.85" />
+            </g>
 
             <path d="M 1535 135 C 1505 135, 1465 90, 1415 90 L 1375 90 C 1435 90, 1485 135, 1535 135 Z" fill="#002244" opacity="0.85" />
             <ellipse cx="1550" cy="145" rx="16" ry="6" fill="#00d2ff" filter="url(#neonBlue)" />
