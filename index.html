@@ -52,11 +52,13 @@
     .fog-layer-1 {
       background: radial-gradient(circle at 30% 50%, rgba(0, 150, 255, 0.08) 0%, rgba(0, 80, 180, 0.04) 45%, transparent 70%);
       animation: fogFast 20s linear infinite alternate;
+      filter: blur(40px);
     }
 
     .fog-layer-2 {
       background: radial-gradient(ellipse at 70% 40%, rgba(70, 130, 180, 0.12) 0%, rgba(0, 50, 120, 0.15) 55%, transparent 80%);
       animation: fogSlow 35s ease-in-out infinite alternate;
+      filter: blur(60px);
     }
 
     @keyframes fogFast {
@@ -69,6 +71,7 @@
       100% { transform: translateX(-8%) scale(1.15); }
     }
 
+    /* --- IDLE FLOATING BIBLE VERSES IN FOG (SCALED UP FOR PC/TABLET) --- */
     #idle-verse-overlay {
       position: fixed;
       top: 40vh;
@@ -88,11 +91,12 @@
       width: 95%;
       max-width: 860px;
       background: rgba(12, 22, 36, 0.92);
+      backdrop-filter: blur(15px);
       border: 2px solid rgba(212, 175, 55, 0.55);
       border-radius: 18px;
       padding: 34px 42px;
       text-align: center;
-      box-shadow: 0 25px 60px rgba(0,0,0,0.88);
+      box-shadow: 0 25px 60px rgba(0,0,0,0.88), inset 0 0 30px rgba(212, 175, 55, 0.15);
       opacity: 0;
       will-change: transform, opacity;
     }
@@ -133,6 +137,7 @@
       .floating-verse-card .f-text { font-size: 1.25rem; }
     }
 
+    /* Directional Float Animations */
     @keyframes floatFromLeft {
       0% { transform: translateX(-110vw) translateY(20px) rotate(-5deg); opacity: 0; }
       15% { transform: translateX(0) translateY(0) rotate(0deg); opacity: 1; }
@@ -166,12 +171,14 @@
     .anim-top { animation: floatFromTop 10s ease-in-out forwards; }
     .anim-zoom { animation: floatZoomIn 10s ease-in-out forwards; }
 
+    /* --- DISCLAIMER FOOTER --- */
     #disclaimer-footer {
       position: fixed;
       bottom: 0;
       left: 0;
       width: 100vw;
       background: rgba(4, 10, 20, 0.94);
+      backdrop-filter: blur(10px);
       border-top: 1px solid rgba(212, 175, 55, 0.3);
       padding: 10px 15px;
       text-align: center;
@@ -180,6 +187,7 @@
       color: #f7e7a1;
       letter-spacing: 0.8px;
       z-index: 999;
+      text-shadow: 0 0 8px rgba(212, 175, 55, 0.3);
       transition: opacity 0.3s ease;
     }
 
@@ -208,7 +216,7 @@
       max-width: 720px;
       height: auto;
       will-change: transform, opacity;
-      filter: drop-shadow(0 0 15px rgba(0, 210, 255, 0.25));
+      filter: drop-shadow(0 0 25px rgba(0, 210, 255, 0.45));
       position: relative;
     }
 
@@ -222,41 +230,6 @@
       21% { transform: translateX(-120vw) skewX(-20deg) scale(0.9); opacity: 0; }
       25% { opacity: 1; }
       100% { transform: translateX(0) scale(1); opacity: 1; }
-    }
-
-    .logo-text-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      transform: skewX(-16deg);
-    }
-
-    .bullet-text, .line-text {
-      position: absolute;
-      top: 48%;
-      transform: translateY(-50%);
-      font-family: 'Montserrat', sans-serif;
-      font-weight: 900;
-      background: linear-gradient(to bottom, #ffffff 0%, #e0f4ff 35%, #00a2ff 55%, #003366 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));
-    }
-
-    .bullet-text {
-      left: 26.5%;
-      transform: translate(-50%, -50%);
-      font-size: clamp(1.5rem, 4.4vw, 3.4rem);
-      font-style: italic;
-    }
-
-    .line-text {
-      left: 71.5%;
-      transform: translate(-50%, -50%);
-      font-size: clamp(1.5rem, 4.6vw, 3.6rem);
     }
 
     .logo-subtitle {
@@ -273,15 +246,15 @@
     @keyframes bibleBlink {
       0%, 100% {
         color: #ff2a4b;
-        text-shadow: 0 0 10px rgba(255, 42, 75, 0.9);
+        text-shadow: 0 0 10px rgba(255, 42, 75, 0.9), 0 0 20px rgba(255, 42, 75, 0.6);
       }
       33% {
         color: #ffffff;
-        text-shadow: 0 0 10px rgba(255, 255, 255, 0.9);
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.9), 0 0 20px rgba(255, 255, 255, 0.6);
       }
       66% {
         color: #0088ff;
-        text-shadow: 0 0 10px rgba(0, 136, 255, 0.9);
+        text-shadow: 0 0 10px rgba(0, 136, 255, 0.9), 0 0 20px rgba(0, 136, 255, 0.6);
       }
     }
 
@@ -310,20 +283,23 @@
 
     .card-container {
       background: rgba(8, 14, 25, 0.88);
+      backdrop-filter: blur(20px);
       flex: 1;
       border-radius: 16px;
       padding: 24px;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.9);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.9), inset 0 0 2px rgba(0, 180, 255, 0.3);
       border: 1px solid rgba(0, 150, 255, 0.35);
       display: flex;
       flex-direction: column;
       align-items: center;
       margin-bottom: 45px;
+      transition: flex 0.3s ease;
     }
 
     .verse-side-panel {
       flex: 1;
       background: rgba(12, 22, 36, 0.95);
+      backdrop-filter: blur(20px);
       border: 1.5px solid rgba(212, 175, 55, 0.45);
       border-radius: 16px;
       padding: 32px 26px;
@@ -332,7 +308,7 @@
       align-items: center;
       justify-content: center;
       text-align: center;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.9);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.9), inset 0 0 25px rgba(212, 175, 55, 0.1);
       margin-bottom: 45px;
       min-height: 320px;
       position: relative;
@@ -350,11 +326,13 @@
       font-size: 0.95rem;
       font-weight: 600;
       color: #f7e7a1;
+      text-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
       background: none;
       border: none;
       padding: 0;
       letter-spacing: 0.5px;
       opacity: 0.85;
+      transition: opacity 0.3s ease;
     }
 
     @media (max-width: 767px) {
@@ -367,15 +345,21 @@
         z-index: 999;
         margin: 0;
         border-radius: 20px 20px 0 0;
-        box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.95);
+        box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.95), 0 0 25px rgba(212, 175, 55, 0.5);
         transform: translateY(100%);
         animation: slideUpMobile 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         overflow-y: auto;
       }
 
       @keyframes slideUpMobile {
-        from { transform: translateY(100%); opacity: 0; }
-        to { transform: translateY(0); opacity: 1; }
+        from {
+          transform: translateY(100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
       }
     }
 
@@ -423,10 +407,11 @@
       border: 1px solid rgba(0, 180, 255, 0.15);
     }
 
-    .bank-text { color: #00ffaa; }
+    .bank-text { color: #00ffaa; text-shadow: 0 0 10px rgba(0,255,170,0.4); }
     .timer-text { 
       font-family: 'Playfair Display', serif;
       color: #f7e7a1; 
+      text-shadow: 0 0 10px rgba(212, 175, 55, 0.4); 
       font-size: 1.05rem;
     }
     .diff-badge {
@@ -441,6 +426,7 @@
     .diff-medium { background: rgba(255, 170, 0, 0.2); color: #ffaa00; border: 1px solid #ffaa00; }
     .diff-hard { background: rgba(255, 42, 75, 0.2); color: #ff2a4b; border: 1px solid #ff2a4b; }
 
+    /* --- REALISTIC TRACKS CHASE BOARD STYLING --- */
     .board-container {
       width: 100%;
       display: flex;
@@ -452,6 +438,7 @@
       padding: 18px 10px;
       border-radius: 12px;
       border: 1.5px solid rgba(0, 210, 255, 0.3);
+      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8), 0 10px 25px rgba(0, 0, 0, 0.5);
       position: relative;
       overflow: hidden;
     }
@@ -483,22 +470,27 @@
       border-radius: 6px;
       font-size: 0.8rem;
       font-weight: 700;
+      transition: all 0.3s ease;
       position: relative;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
     }
 
     .step span { 
       font-size: 0.72rem; 
       color: #9ab4d0; 
+      transition: all 0.3s ease;
       z-index: 1;
     }
 
     .step.chaser-active-step span .step-num {
       color: #ff2a4b !important;
+      text-shadow: 0 0 12px #ff2a4b, 0 0 22px #ff2a4b;
       font-weight: 900;
     }
 
     .step.player-active-step span .step-num {
       color: #00d2ff !important;
+      text-shadow: 0 0 12px #00d2ff, 0 0 22px #00d2ff;
       font-weight: 900;
     }
 
@@ -509,7 +501,7 @@
     .step[data-step="3"] { width: 76%; }
     .step[data-step="2"] { width: 70%; }
     .step[data-step="1"] { width: 64%; }
-    .step[data-step="0"] { width: 58%; background: linear-gradient(90deg, #003322 0%, #005538 50%, #003322 100%); border-color: #00ffaa; }
+    .step[data-step="0"] { width: 58%; background: linear-gradient(90deg, #003322 0%, #005538 50%, #003322 100%); border-color: #00ffaa; box-shadow: 0 0 15px rgba(0,255,170,0.5); }
 
     .token-space { 
       display: flex; 
@@ -537,21 +529,38 @@
       font-size: 0.72rem;
       font-weight: 900;
       letter-spacing: 1.2px;
+      text-shadow: 0 0 6px rgba(0, 0, 0, 0.9);
       z-index: 5;
       white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .chaser-text-badge {
       background: linear-gradient(135deg, #4d0012 0%, #ff1e42 50%, #800a1d 100%);
       color: #ffffff;
       border: 1.5px solid #ff8597;
+      box-shadow: 0 0 16px rgba(255, 30, 66, 0.9), inset 0 0 8px rgba(255, 255, 255, 0.5);
+      animation: derailmentVibe 0.8s ease-in-out infinite alternate;
+    }
+
+    @keyframes derailmentVibe {
+      0% { transform: translateX(-50%) scale(0.94) rotate(-2deg); box-shadow: 0 0 8px rgba(255, 30, 66, 0.6); }
+      100% { transform: translateX(-50%) scale(1.08) rotate(2deg); box-shadow: 0 0 22px rgba(255, 30, 66, 1), 0 0 10px rgba(255, 255, 255, 0.8); }
     }
 
     .player-token { 
       background: linear-gradient(135deg, #002244 0%, #00d2ff 50%, #004499 100%); 
       color: #ffffff; 
+      box-shadow: 0 0 16px #00d2ff, inset 0 0 8px rgba(255, 255, 255, 0.7); 
       border: 1.5px solid #80dfff;
+      animation: bulletTrainRush 1.1s ease-in-out infinite alternate;
       z-index: 6;
+    }
+
+    @keyframes bulletTrainRush {
+      0% { transform: translateX(-50%) translateY(0px) scale(0.96); box-shadow: 0 0 10px #00d2ff; }
+      100% { transform: translateX(-50%) translateY(-3px) scale(1.06); box-shadow: 0 0 22px #00d2ff, 0 0 12px #ffffff; }
     }
 
     .token-space.swallowed-state { justify-content: center; }
@@ -561,14 +570,28 @@
       transform: translateX(-50%);
       background: linear-gradient(135deg, #8a0015 0%, #ff1e42 50%, #40010c 100%);
       border: 1.5px solid #ffff00;
+      box-shadow: 0 0 30px rgba(255, 42, 75, 1), 0 0 15px rgba(255, 255, 0, 0.9);
       z-index: 8;
+      animation: crashExplosion 0.35s ease-in-out infinite alternate;
+    }
+
+    @keyframes crashExplosion {
+      0% { transform: translateX(-50%) scale(1) rotate(-4deg); filter: brightness(1); }
+      100% { transform: translateX(-50%) scale(1.18) rotate(4deg); filter: brightness(1.4); }
     }
 
     .token-space.victory-state { justify-content: center; }
     .token-space.victory-state .player-token {
       background: linear-gradient(135deg, #001a4d 0%, #0099ff 50%, #003399 100%);
       border: 1.5px solid #a6e4ff;
+      box-shadow: 0 0 30px rgba(0, 153, 255, 1), 0 0 15px rgba(255, 255, 255, 0.9);
       z-index: 8;
+      animation: victoryTrainPulse 0.55s ease-in-out infinite alternate;
+    }
+
+    @keyframes victoryTrainPulse {
+      0% { transform: translateX(-50%) scale(1); filter: brightness(1); }
+      100% { transform: translateX(-50%) scale(1.14); filter: brightness(1.4); }
     }
 
     .question-box {
@@ -582,6 +605,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      text-shadow: 0 0 8px rgba(0, 162, 255, 0.25);
       background: rgba(5, 10, 18, 0.5);
       border: 1px solid rgba(0, 150, 255, 0.2);
       border-radius: 10px;
@@ -594,9 +618,16 @@
       font-size: 2.4rem;
       font-weight: 700;
       color: #f7e7a1;
+      text-shadow: 0 0 15px rgba(212, 175, 55, 0.6);
       letter-spacing: 2px;
+      animation: pulseCount 0.9s ease-in-out infinite alternate;
       width: 100%;
       text-align: center;
+    }
+
+    @keyframes pulseCount {
+      from { transform: scale(1); opacity: 0.85; }
+      to { transform: scale(1.08); opacity: 1; }
     }
 
     .controls {
@@ -618,8 +649,15 @@
       letter-spacing: 1.5px;
       text-transform: uppercase;
       cursor: pointer;
+      box-shadow: 0 0 18px rgba(0, 210, 255, 0.4);
+      transition: all 0.2s ease;
       width: 100%;
       max-width: 300px;
+    }
+
+    .btn-cyan:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 25px rgba(0, 210, 255, 0.7);
     }
 
     .audio-hint-text {
@@ -630,6 +668,7 @@
       letter-spacing: 1px;
       text-align: center;
       text-transform: uppercase;
+      text-shadow: 0 0 6px rgba(0, 210, 255, 0.2);
     }
 
     .sticky-bottom-actions {
@@ -638,6 +677,7 @@
       left: 0;
       width: 100%;
       background: rgba(4, 10, 20, 0.96);
+      backdrop-filter: blur(15px);
       border-top: 1.5px solid rgba(0, 210, 255, 0.4);
       padding: 14px 20px;
       display: flex;
@@ -646,6 +686,7 @@
       align-items: center;
       gap: 10px;
       z-index: 1000;
+      box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.8);
       margin-top: 20px;
       border-radius: 12px;
     }
@@ -656,6 +697,9 @@
       align-items: center;
       width: 100%;
       max-width: 500px;
+      position: sticky;
+      bottom: 20px;
+      z-index: 100;
     }
 
     .btn-restart-sticky {
@@ -669,9 +713,17 @@
       letter-spacing: 2px;
       text-transform: uppercase;
       cursor: pointer;
+      box-shadow: 0 0 20px rgba(0, 210, 255, 0.5);
+      transition: all 0.2s ease;
       width: 100%;
       max-width: 320px;
       text-align: center;
+    }
+
+    .btn-restart-sticky:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 30px rgba(0, 210, 255, 0.85);
+      background: linear-gradient(180deg, #1ae0ff 0%, #0077e6 100%);
     }
 
     .stats-display-text {
@@ -685,6 +737,7 @@
 
     .stats-display-text span {
       color: #00ffaa;
+      text-shadow: 0 0 8px rgba(0, 255, 170, 0.3);
     }
 
     .options-grid {
@@ -704,12 +757,14 @@
       font-weight: 600;
       text-align: left;
       cursor: pointer;
+      transition: all 0.2s;
     }
 
     .option-btn.btn-correct {
       background: #005a36 !important;
       border-color: #00ffaa !important;
       color: #ffffff !important;
+      box-shadow: 0 0 12px rgba(0, 255, 170, 0.5);
       font-weight: 700;
     }
 
@@ -717,6 +772,7 @@
       background: #6b0c1a !important;
       border-color: #ff2a4b !important;
       color: #ffffff !important;
+      box-shadow: 0 0 12px rgba(255, 42, 75, 0.5);
     }
 
     .offers-row {
@@ -740,6 +796,12 @@
       padding: 14px;
       text-align: center;
       cursor: pointer;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .offer-card:hover {
+      transform: translateY(-3px);
+      border-color: #00d2ff;
     }
 
     .offer-title { font-size: 0.75rem; color: #7a8ba3; margin-bottom: 4px; font-weight: 700; text-transform: uppercase; }
@@ -757,6 +819,7 @@
       color: #00ffaa;
       margin-top: 15px;
       letter-spacing: 1px;
+      box-shadow: 0 0 18px rgba(0, 210, 255, 0.25);
       line-height: 1.5;
     }
 
@@ -792,6 +855,8 @@
       margin-bottom: 14px;
       font-size: 0.95rem;
       line-height: 1.5;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+      transition: border-color 0.2s ease;
     }
 
     .summary-item.item-correct {
@@ -817,6 +882,7 @@
       font-size: 1.05rem;
       color: #33b5ff;
       line-height: 1.4;
+      text-shadow: 0 0 8px rgba(0, 162, 255, 0.2);
     }
 
     .summary-item .q-round-tag {
@@ -868,6 +934,7 @@
       padding: 2px 8px;
       border-radius: 4px;
       font-size: 0.8rem;
+      letter-spacing: 1px;
     }
 
     .status-wrong {
@@ -878,6 +945,7 @@
       padding: 2px 8px;
       border-radius: 4px;
       font-size: 0.8rem;
+      letter-spacing: 1px;
     }
 
     .modal-overlay {
@@ -887,10 +955,12 @@
       width: 100vw;
       height: 100vh;
       background: rgba(2, 5, 10, 0.85);
+      backdrop-filter: blur(8px);
       display: flex;
       align-items: center;
       justify-content: center;
       z-index: 1000;
+      animation: fadeIn 0.3s ease-out;
       padding: 15px;
     }
 
@@ -902,6 +972,7 @@
       max-width: 380px;
       width: 100%;
       text-align: center;
+      box-shadow: 0 0 30px rgba(0, 210, 255, 0.4);
     }
 
     .modal-title {
@@ -920,6 +991,11 @@
       margin-bottom: 18px;
     }
 
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
     .hidden { display: none !important; }
   </style>
 </head>
@@ -929,8 +1005,10 @@
   <div class="fog-layer-1"></div>
   <div class="fog-layer-2"></div>
 
+  <!-- IDLE FLOATING VERSES CONTAINER (MID TO BOTTOM) -->
   <div id="idle-verse-overlay"></div>
 
+  <!-- DISCLAIMER FOOTER -->
   <div id="disclaimer-footer">
     This bible quiz game is not a substitute for reading your King James BIBLE.
   </div>
@@ -946,7 +1024,7 @@
   <div id="app-container">
     <div id="logo-header-box" class="logo-container">
       <div id="main-title" class="train-logo-wrapper">
-        <svg viewBox="0 0 1600 220" width="100%" height="100%" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg">
+        <svg viewBox="0 0 1600 220" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <linearGradient id="trainHull" x1="0%" y1="0%" x2="100%" y2="0%">
               <stop offset="0%" stop-color="#ffffff"/>
@@ -955,38 +1033,67 @@
               <stop offset="90%" stop-color="#80d8ff"/>
               <stop offset="100%" stop-color="#ffffff"/>
             </linearGradient>
+            <linearGradient id="chromeText" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#ffffff"/>
+              <stop offset="35%" stop-color="#e0f4ff"/>
+              <stop offset="55%" stop-color="#00a2ff"/>
+              <stop offset="100%" stop-color="#003366"/>
+            </linearGradient>
+            <linearGradient id="speedGlow" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="transparent"/>
+              <stop offset="20%" stop-color="#00d2ff"/>
+              <stop offset="80%" stop-color="#00a2ff"/>
+              <stop offset="100%" stop-color="transparent"/>
+            </linearGradient>
+            
+            <filter id="neonBlue" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="6" result="blur"/>
+              <feMerge>
+                <feMergeNode in="blur"/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
           </defs>
 
-          <!-- SVG Train Graphics with exactly a single clean track line below -->
-          <path d="M 40 198 L 1560 198" stroke="#00d2ff" stroke-width="4" fill="none" />
+          <path d="M 10 185 L 1590 185" stroke="url(#speedGlow)" stroke-width="4.5" filter="url(#neonBlue)" />
+          <path d="M 40 198 L 1560 198" stroke="#00d2ff" stroke-width="2" opacity="0.6" />
+          <path d="M 100 208 L 1500 208" stroke="#00a2ff" stroke-width="2.5" opacity="0.75" filter="url(#neonBlue)" />
 
           <g transform="skewX(-16) translate(10, 10)">
-            <path d="M 30 145 C 70 145, 140 70, 230 70 L 785 70 C 792 70, 795 145, 795 145 C 795 175, 780 175, 230 175 C 140 175, 60 170, 30 145 Z" fill="url(#trainHull)" opacity="0.45" />
-            <path d="M 28 145 C 68 145, 138 72, 228 72 L 787 72" stroke="#00d2ff" stroke-width="3" fill="none" />
+            <path d="M 30 145 C 70 145, 140 70, 230 70 L 785 70 C 792 70, 795 145, 795 145 C 795 175, 780 175, 230 175 C 140 175, 60 170, 30 145 Z" fill="url(#trainHull)" opacity="0.38" />
+            <path d="M 28 145 C 68 145, 138 72, 228 72 L 787 72" stroke="#00d2ff" stroke-width="4.5" fill="none" filter="url(#neonBlue)" />
+            <path d="M 40 175 L 787 175" stroke="#00a2ff" stroke-width="3.5" fill="none" filter="url(#neonBlue)" />
 
             <path d="M 65 135 C 95 135, 135 90, 185 90 L 225 90 C 165 90, 115 135, 65 135 Z" fill="#002244" opacity="0.85" />
-            <ellipse cx="50" cy="145" rx="16" ry="6" fill="#ffffff" />
+            <ellipse cx="50" cy="145" rx="16" ry="6" fill="#ffffff" filter="url(#neonBlue)" />
 
-            <rect x="795" y="80" width="10" height="90" rx="2" fill="#0088cc" opacity="0.9" />
+            <rect x="795" y="80" width="10" height="90" rx="2" fill="#0088cc" opacity="0.9" filter="url(#neonBlue)" />
 
-            <path d="M 805 145 C 805 70, 808 70, 815 70 L 1370 70 C 1460 70, 1530 145, 1570 145 C 1540 170, 1460 175, 1370 175 L 815 175 C 808 175, 805 145, 805 145 Z" fill="url(#trainHull)" opacity="0.45" />
-            <path d="M 813 72 L 1372 72 C 1462 72, 1532 145, 1572 145" stroke="#00d2ff" stroke-width="3" fill="none" />
+            <path d="M 805 145 C 805 70, 808 70, 815 70 L 1370 70 C 1460 70, 1530 145, 1570 145 C 1540 170, 1460 175, 1370 175 L 815 175 C 808 175, 805 145, 805 145 Z" fill="url(#trainHull)" opacity="0.38" />
+            <path d="M 813 72 L 1372 72 C 1462 72, 1532 145, 1572 145" stroke="#00d2ff" stroke-width="4.5" fill="none" filter="url(#neonBlue)" />
+            <path d="M 813 175 L 1560 175" stroke="#00a2ff" stroke-width="3.5" fill="none" filter="url(#neonBlue)" />
 
             <path d="M 1535 135 C 1505 135, 1465 90, 1415 90 L 1375 90 C 1435 90, 1485 135, 1535 135 Z" fill="#002244" opacity="0.85" />
-            <ellipse cx="1550" cy="145" rx="16" ry="6" fill="#00d2ff" />
+            <ellipse cx="1550" cy="145" rx="16" ry="6" fill="#00d2ff" filter="url(#neonBlue)" />
+
+            <g transform="translate(425, 148)">
+              <text x="4" y="4" font-family="'Montserrat', sans-serif" font-size="75" font-weight="900" font-style="italic" text-anchor="middle" fill="#000e1a">BULLET</text>
+              <text x="0" y="0" font-family="'Montserrat', sans-serif" font-size="75" font-weight="900" font-style="italic" text-anchor="middle" fill="url(#chromeText)" stroke="#004477" stroke-width="2" filter="url(#neonBlue)">BULLET</text>
+            </g>
+
+            <g transform="translate(1125, 150)">
+              <text x="5" y="5" font-family="'Montserrat', sans-serif" font-size="80" font-weight="900" text-anchor="middle" fill="#001a33">LINE</text>
+              <text x="0" y="0" font-family="'Montserrat', sans-serif" font-size="80" font-weight="900" text-anchor="middle" fill="url(#chromeText)" stroke="#004477" stroke-width="2.5" filter="url(#neonBlue)">LINE</text>
+            </g>
           </g>
         </svg>
-
-        <!-- HTML/CSS Native Text Overlay to prevent Firefox rendering bugs -->
-        <div class="logo-text-overlay">
-          <span class="bullet-text">BULLET</span>
-          <span class="line-text">LINE</span>
-        </div>
       </div>
       <div><span id="logo-subtitle" class="logo-subtitle">The Bullet Line: Scripture Pursuit — 400 Q BANK (KJV)</span></div>
     </div>
 
+    <!-- Main Game Layout -->
     <div class="main-game-layout">
+      <!-- Left Box: Game Controls, Board, and Questions -->
       <div class="card-container">
         <div class="status-bar">
           <div>TREASURY: <span id="bank-val" class="bank-text">0 Shekels</span></div>
@@ -1040,6 +1147,7 @@
           <div id="chase-options" class="options-grid hidden"></div>
         </div>
 
+        <!-- STICKY BOTTOM ACTION BAR -->
         <div id="sticky-bottom-bar" class="sticky-bottom-actions hidden">
           <div class="sticky-actions-row">
             <button class="btn-restart-sticky" onclick="resetGame()">RESTART GAME</button>
@@ -1050,6 +1158,7 @@
         </div>
       </div>
 
+      <!-- Right Box: Big Dedicated Scripture Panel -->
       <div id="verse-container" class="verse-side-panel hidden">
         <div class="verse-label">📖 King James Bible (KJV)</div>
         <div id="verse-ref" class="verse-ref">--</div>
@@ -1060,7 +1169,9 @@
   </div>
 
   <script>
+    // --- BALANCED 400 Q BANK (200 OLD TESTAMENT + 200 NEW TESTAMENT) ---
     const pdfRawQuestions = [
+      // === OLD TESTAMENT QUESTIONS (200) ===
       { q: "How many days did it take God to create the heavens and the earth?", a: "Seven", d: ["Six", "Forty"], ref: "Genesis 2:2", text: "And on the seventh day God ended his work which he had made; and he rested on the seventh day from all his work which he had made.", testament: "OT" },
       { q: "What did God create on the first day?", a: "Light", d: ["Atmosphere", "Sun and Moon"], ref: "Genesis 1:3", text: "And God said, Let there be light: and there was light.", testament: "OT" },
       { q: "What did God create on the fourth day?", a: "The sun, moon, and stars", d: ["Birds/Sea animals", "Light"], ref: "Genesis 1:16", text: "And God made two great lights; the greater light to rule the day, and the lesser light to rule the night: he made the stars also.", testament: "OT" },
@@ -1237,6 +1348,8 @@
       { q: "Who was the wife of Jacob whom he loved more than Leah?", a: "Rachel", d: ["Rebekah", "Bilhah"], ref: "Genesis 29:30", text: "...and he loved also Rachel more than Leah...", testament: "OT" },
       { q: "What was the name of the garden planted by God where He placed the first man?", a: "Garden of Eden", d: ["Gethsemane", "Paradise"], ref: "Genesis 2:8", text: "And the Lord God planted a garden eastward in Eden; and there he put the man whom he had formed.", testament: "OT" },
       { q: "What was the name of the feast celebrated to remember God delivering Israel from Egyptian bondage?", a: "Passover", d: ["Pentecost", "Feast of Tabernacles"], ref: "Exodus 12:11", text: "...it is the Lord's passover.", testament: "OT" },
+
+      // === NEW TESTAMENT QUESTIONS (200) ===
       { q: "Where was Jesus born?", a: "Bethlehem", d: ["Nazareth", "Jerusalem"], ref: "Micah 5:2", text: "But thou, Bethlehem Ephratah, though thou be little among the thousands of Judah, yet out of thee shall he come forth unto me...", testament: "NT" },
       { q: "How many books are in the New Testament?", a: "27", d: ["39", "66"], ref: "Canon of Scripture", text: "Comprising twenty-seven inspired historical, epistle, and prophetic books of the New Covenant.", testament: "NT" },
       { q: "Paul was shipwrecked on what island?", a: "Malta", d: ["Patmos", "Cyprus"], ref: "Acts 28:1", text: "And when they were escaped, then they knew that the island was called Melita.", testament: "NT" },
@@ -1370,6 +1483,7 @@
       { q: "What is the shortest chapter in the Bible?", a: "Psalm 117", d: ["Psalm 23", "Psalm 150"], ref: "Psalm 117:1-2", text: "O praise the Lord, all ye nations: praise him, all ye people. For his merciful kindness is great toward us...", testament: "OT" }
     ];
 
+    // --- IDLE FLOATING VERSES DATA LIST ---
     const idleVersesList = [
       { ref: "2 Timothy 2:15", text: "Study to shew thyself approved unto God, a workman that needeth not to be ashamed, rightly dividing the word of truth.", anim: "anim-left" },
       { ref: "Joshua 1:8", text: "This book of the law shall not depart out of thy mouth; but thou shalt meditate therein day and night...", anim: "anim-right" },
@@ -1386,6 +1500,7 @@
     function startIdleVerses() {
       const overlay = document.getElementById('idle-verse-overlay');
       if (!overlay) return;
+
       showNextIdleVerse();
       idleVerseTimer = setInterval(showNextIdleVerse, 10000);
     }
@@ -1394,8 +1509,10 @@
       if (gameHasStarted) return;
       const overlay = document.getElementById('idle-verse-overlay');
       if (!overlay) return;
+
       overlay.innerHTML = '';
       const v = idleVersesList[idleVerseIndex];
+
       const card = document.createElement('div');
       card.className = `floating-verse-card ${v.anim}`;
       card.innerHTML = `
@@ -1403,6 +1520,7 @@
         <div class="f-ref">${v.ref}</div>
         <div class="f-text">“${v.text}”</div>
       `;
+
       overlay.appendChild(card);
       idleVerseIndex = (idleVerseIndex + 1) % idleVersesList.length;
     }
@@ -1416,6 +1534,7 @@
     let audioCtx = null;
     let soundEnabled = false;
     let verseTimerInterval = null;
+
     let gamesPlayed = 0;
     let gamesWon = 0;
     let gamesLost = 0;
@@ -1433,15 +1552,20 @@
       if (audioCtx.state === 'suspended') {
         audioCtx.resume();
       }
+
       try {
         const buffer = audioCtx.createBuffer(1, 1, 22050);
         const source = audioCtx.createBufferSource();
         source.buffer = buffer;
         source.connect(audioCtx.destination);
         source.start(0);
-      } catch (err) {}
+      } catch (err) {
+        console.log("Audio unlock buffer execution:", err);
+      }
+
       soundEnabled = true;
       playTrainSound();
+
       window.removeEventListener('pointerdown', globalUnlockAudio);
       window.removeEventListener('keydown', globalUnlockAudio);
     }
@@ -1451,10 +1575,12 @@
 
     function playSound(type) {
       if (!soundEnabled || !audioCtx) return;
+
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
       osc.connect(gain);
       gain.connect(audioCtx.destination);
+
       const now = audioCtx.currentTime;
 
       if (type === 'correct') {
@@ -1511,6 +1637,7 @@
 
     function playTrainSound() {
       if (!soundEnabled || !audioCtx) return;
+
       const now = audioCtx.currentTime;
       const bufferSize = audioCtx.sampleRate * 2.0;
       const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
@@ -1518,26 +1645,32 @@
       for (let i = 0; i < bufferSize; i++) {
         data[i] = Math.random() * 2 - 1;
       }
+
       const noise = audioCtx.createBufferSource();
       noise.buffer = buffer;
+
       const filter = audioCtx.createBiquadFilter();
       filter.type = 'lowpass';
       filter.frequency.setValueAtTime(180, now);
       filter.frequency.linearRampToValueAtTime(700, now + 0.9);
       filter.frequency.linearRampToValueAtTime(150, now + 1.8);
+
       const gain = audioCtx.createGain();
       gain.gain.setValueAtTime(0.001, now);
       gain.gain.linearRampToValueAtTime(0.06, now + 0.9);
       gain.gain.linearRampToValueAtTime(0.001, now + 1.8);
+
       noise.connect(filter);
       filter.connect(gain);
       gain.connect(audioCtx.destination);
+
       noise.start(now);
       noise.stop(now + 1.8);
     }
 
     const canvas = document.getElementById('fog-canvas');
     const ctx = canvas.getContext('2d');
+
     let fogParticles = [];
     const particleCount = 45;
 
@@ -1552,18 +1685,22 @@
       constructor() {
         this.reset(true);
       }
+
       reset(initial = false) {
         this.x = initial ? Math.random() * canvas.width : -350;
         this.y = Math.random() * canvas.height;
         this.baseRadius = Math.random() * 220 + 160;
         this.radius = this.baseRadius;
+        
         this.vx = Math.random() * 0.35 + 0.12;
         this.sineOffset = Math.random() * Math.PI * 2;
         this.sineSpeed = Math.random() * 0.005 + 0.002;
+        
         this.baseAlpha = Math.random() * 0.08 + 0.02;
         this.alpha = this.baseAlpha;
         this.pulseSpeed = Math.random() * 0.01 + 0.003;
         this.pulseAngle = Math.random() * Math.PI * 2;
+
         const bluePicker = Math.random();
         if (bluePicker < 0.4) {
           this.color = { r: 0, g: 162, b: 232 };
@@ -1573,28 +1710,34 @@
           this.color = { r: 0, g: 102, b: 204 };
         }
       }
+
       update() {
         this.x += this.vx;
         this.sineOffset += this.sineSpeed;
         this.y += Math.sin(this.sineOffset) * 0.18;
+
         this.pulseAngle += this.pulseSpeed;
         this.alpha = this.baseAlpha + Math.sin(this.pulseAngle) * 0.015;
         this.radius = this.baseRadius + Math.cos(this.pulseAngle) * 15;
+
         if (this.x - this.radius > canvas.width) {
           this.reset(false);
         }
       }
+
       draw() {
         ctx.beginPath();
         const gradient = ctx.createRadialGradient(
           this.x, this.y, 0,
           this.x, this.y, this.radius
         );
+
         const a = Math.max(0, this.alpha);
         gradient.addColorStop(0, `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, ${a})`);
         gradient.addColorStop(0.3, `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, ${a * 0.7})`);
         gradient.addColorStop(0.7, `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, ${a * 0.25})`);
         gradient.addColorStop(1, `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, 0)`);
+
         ctx.fillStyle = gradient;
         ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
         ctx.fill();
@@ -1642,13 +1785,16 @@
     function getNextUniqueQuestion() {
       if (currentActiveDeck.length === 0) {
         let availableQuestions = masterPDFDeck.filter(item => !usedQuestionIndices.has(item.id));
+        
         if (availableQuestions.length === 0) {
           usedQuestionIndices.clear();
           availableQuestions = [...masterPDFDeck];
           showShuffleModal();
         }
+
         currentActiveDeck = shuffleArray(availableQuestions);
       }
+
       const q = currentActiveDeck.pop();
       usedQuestionIndices.add(q.id);
       return q;
@@ -1692,6 +1838,7 @@
       triggerTitleRun();
     }, 6500);
 
+    // Initialize Idle Floating Verses on Load
     startIdleVerses();
 
     let currentBank = 0;
@@ -1739,6 +1886,7 @@
         let remainingVerseTime = 10;
         verseTimerInterval = setInterval(() => {
           remainingVerseTime--;
+          
           if (remainingVerseTime <= 3 && remainingVerseTime > 0) {
             verseTimerBadge.textContent = `${remainingVerseTime}`;
             verseTimerBadge.classList.remove('hidden');
@@ -1748,6 +1896,7 @@
             verseTimerBadge.classList.add('hidden');
           }
         }, 1000);
+
       } else {
         verseContainer.classList.add('hidden');
       }
@@ -1804,10 +1953,12 @@
     function beginCashBuilderRound() {
       builderOptions.classList.remove('hidden');
       timerWrap.classList.remove('hidden');
+
       currentBank = 0;
       timer = 60;
       bankVal.textContent = `0 Shekels`;
       timerVal.textContent = timer;
+
       showBuilderQ();
 
       if (timerInterval) clearInterval(timerInterval);
@@ -1824,6 +1975,7 @@
     function showBuilderQ() {
       if (timer <= 0) return;
       activeQuestion = getNextUniqueQuestion();
+
       qDisplay.textContent = activeQuestion.q;
       hideVersePanel();
       builderOptions.innerHTML = '';
@@ -1839,6 +1991,7 @@
 
     function handleBuilderChoice(choice) {
       const isCorrect = (choice === activeQuestion.ans);
+
       playSound(isCorrect ? 'correct' : 'wrong');
 
       const buttons = builderOptions.querySelectorAll('.option-btn');
@@ -1889,6 +2042,7 @@
 
     function showOffers() {
       offersWrap.classList.remove('hidden');
+
       const low = Math.floor(currentBank / 2);
       const high = currentBank * 3;
 
@@ -2055,6 +2209,7 @@
 
     function handleChaseChoice(choice) {
       const playerCorrect = (choice === activeQuestion.ans);
+
       if (playerCorrect) {
         playSound('correct');
       } else {
@@ -2113,6 +2268,7 @@
       }
 
       qDisplay.textContent = feedback;
+
       const isMobile = window.innerWidth < 768;
 
       if (isWon) {
@@ -2129,21 +2285,32 @@
       }
 
       if (isMobile) {
-        setTimeout(() => { showVersePanel(activeQuestion); }, 3000);
-        setTimeout(() => { nextChaseStep(); }, 13000);
+        setTimeout(() => {
+          showVersePanel(activeQuestion);
+        }, 3000);
+
+        setTimeout(() => {
+          nextChaseStep();
+        }, 13000);
       } else {
         showVersePanel(activeQuestion);
-        setTimeout(() => { nextChaseStep(); }, 10000);
+        setTimeout(() => {
+          nextChaseStep();
+        }, 10000);
       }
     }
 
     function renderSummaryReport(isWin) {
       summaryList.innerHTML = '';
+      
       const totalAsked = askedQuestionsLog.length;
       if (totalAsked === 0) {
         summaryScoreBanner.textContent = "No questions answered.";
         summaryList.innerHTML = `<div style="text-align:center; color:#7a8ba3; padding: 20px;">No questions answered.</div>`;
       } else {
+        const totalCorrect = askedQuestionsLog.filter(item => item.isCorrect).length;
+        const percentage = Math.round((totalCorrect / totalAsked) * 100);
+
         let bannerHTML = "";
         if (isWin) {
           bannerHTML = `🎉 You arrived at the Train Station safely and earned <strong>${currentBank.toLocaleString()} Shekels of Silver</strong>!<br><span style="font-size: 0.85rem; color: #f7e7a1; font-weight: 700; display: block; margin-top: 6px;">Fantastic job! Why not play another round to test yourself with even more Bible questions?</span>`;
@@ -2157,6 +2324,7 @@
           const div = document.createElement('div');
           const itemClass = item.isCorrect ? 'item-correct' : 'item-wrong';
           div.className = `summary-item ${itemClass}`;
+          
           const statusClass = item.isCorrect ? 'status-correct' : 'status-wrong';
           const statusText = item.isCorrect ? '✓ CORRECT' : '✗ INCORRECT';
 
@@ -2230,8 +2398,10 @@
       qDisplay.className = "";
       qDisplay.textContent = "Welcome to The Bullet Line: Scripture Pursuit (400 Q Bank - KJV)! Press START GAME below to begin.";
 
+      // Restart Idle Floating Verses
       idleVerseIndex = 0;
       startIdleVerses();
+
       titleAnimationTimer = setTimeout(triggerTitleRun, 6500);
     }
   </script>
