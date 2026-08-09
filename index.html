@@ -137,39 +137,39 @@
       .floating-verse-card .f-text { font-size: 1.25rem; }
     }
 
-    /* Directional Float Animations */
+    /* Directional Float Animations (Balanced for an 18-second cycle: 2s fly in, 14s hold, 2s fly out) */
     @keyframes floatFromLeft {
       0% { transform: translateX(-110vw) translateY(20px) rotate(-5deg); opacity: 0; }
-      15% { transform: translateX(0) translateY(0) rotate(0deg); opacity: 1; }
-      85% { transform: translateX(0) translateY(0) rotate(0deg); opacity: 1; }
+      11.1% { transform: translateX(0) translateY(0) rotate(0deg); opacity: 1; }
+      88.9% { transform: translateX(0) translateY(0) rotate(0deg); opacity: 1; }
       100% { transform: translateX(110vw) translateY(-20px) rotate(5deg); opacity: 0; }
     }
 
     @keyframes floatFromRight {
       0% { transform: translateX(110vw) translateY(-20px) rotate(5deg); opacity: 0; }
-      15% { transform: translateX(0) translateY(0) rotate(0deg); opacity: 1; }
-      85% { transform: translateX(0) translateY(0) rotate(0deg); opacity: 1; }
+      11.1% { transform: translateX(0) translateY(0) rotate(0deg); opacity: 1; }
+      88.9% { transform: translateX(0) translateY(0) rotate(0deg); opacity: 1; }
       100% { transform: translateX(-110vw) translateY(20px) rotate(-5deg); opacity: 0; }
     }
 
     @keyframes floatFromTop {
       0% { transform: translateY(-60vh) scale(0.8); opacity: 0; }
-      15% { transform: translateY(0) scale(1); opacity: 1; }
-      85% { transform: translateY(0) scale(1); opacity: 1; }
+      11.1% { transform: translateY(0) scale(1); opacity: 1; }
+      88.9% { transform: translateY(0) scale(1); opacity: 1; }
       100% { transform: translateY(60vh) scale(0.8); opacity: 0; }
     }
 
     @keyframes floatZoomIn {
       0% { transform: scale(0.6); opacity: 0; }
-      15% { transform: scale(1); opacity: 1; }
-      85% { transform: scale(1); opacity: 1; }
+      11.1% { transform: scale(1); opacity: 1; }
+      88.9% { transform: scale(1); opacity: 1; }
       100% { transform: scale(1.3); opacity: 0; }
     }
 
-    .anim-left { animation: floatFromLeft 10s ease-in-out forwards; }
-    .anim-right { animation: floatFromRight 10s ease-in-out forwards; }
-    .anim-top { animation: floatFromTop 10s ease-in-out forwards; }
-    .anim-zoom { animation: floatZoomIn 10s ease-in-out forwards; }
+    .anim-left { animation: floatFromLeft 18s ease-in-out forwards; }
+    .anim-right { animation: floatFromRight 18s ease-in-out forwards; }
+    .anim-top { animation: floatFromTop 18s ease-in-out forwards; }
+    .anim-zoom { animation: floatZoomIn 18s ease-in-out forwards; }
 
     /* --- DISCLAIMER FOOTER --- */
     #disclaimer-footer {
@@ -181,7 +181,11 @@
       backdrop-filter: blur(10px);
       border-top: 1px solid rgba(212, 175, 55, 0.3);
       padding: 10px 15px;
-      text-align: center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
       font-size: 0.78rem;
       font-weight: 700;
       color: #f7e7a1;
@@ -189,6 +193,25 @@
       z-index: 999;
       text-shadow: 0 0 8px rgba(212, 175, 55, 0.3);
       transition: opacity 0.3s ease;
+    }
+
+    #disclaimer-footer a {
+      color: #00d2ff;
+      text-decoration: none;
+      border: 1px solid rgba(0, 210, 255, 0.4);
+      padding: 3px 10px;
+      border-radius: 4px;
+      background: rgba(0, 210, 255, 0.08);
+      transition: all 0.2s ease;
+      text-shadow: none;
+      cursor: pointer;
+    }
+
+    #disclaimer-footer a:hover {
+      background: rgba(0, 210, 255, 0.25);
+      border-color: #00d2ff;
+      box-shadow: 0 0 10px rgba(0, 210, 255, 0.4);
+      color: #ffffff;
     }
 
     #app-container {
@@ -991,6 +1014,122 @@
       margin-bottom: 18px;
     }
 
+    /* --- FEEDBACK MODAL STYLING --- */
+    .feedback-modal-box {
+      background: #0a1424;
+      border: 2px solid #00d2ff;
+      border-radius: 14px;
+      padding: 28px 24px;
+      max-width: 460px;
+      width: 100%;
+      text-align: left;
+      box-shadow: 0 0 40px rgba(0, 210, 255, 0.45);
+      position: relative;
+    }
+
+    .feedback-modal-box h3 {
+      font-size: 1.2rem;
+      font-weight: 900;
+      color: #00ffaa;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      text-align: center;
+    }
+
+    .feedback-modal-box p {
+      font-size: 0.85rem;
+      color: #cfd8e3;
+      margin-bottom: 16px;
+      text-align: center;
+      line-height: 1.4;
+    }
+
+    .feedback-form-group {
+      margin-bottom: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .feedback-form-group label {
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: #00d2ff;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .feedback-form-group input,
+    .feedback-form-group textarea {
+      background: #050a12;
+      border: 1px solid #1f314d;
+      border-radius: 8px;
+      padding: 10px 12px;
+      color: #e0e6ed;
+      font-size: 0.9rem;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .feedback-form-group input:focus,
+    .feedback-form-group textarea:focus {
+      border-color: #00d2ff;
+      box-shadow: 0 0 8px rgba(0, 210, 255, 0.3);
+    }
+
+    .feedback-form-group textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .feedback-btn-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .btn-feedback-cancel {
+      flex: 1;
+      background: #132238;
+      border: 1px solid #233857;
+      color: #cfd8e3;
+      padding: 11px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-feedback-cancel:hover {
+      background: #1c314f;
+    }
+
+    .btn-feedback-submit {
+      flex: 1;
+      background: linear-gradient(180deg, #00d2ff 0%, #0088cc 100%);
+      border: none;
+      color: #05131a;
+      padding: 11px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 900;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      box-shadow: 0 0 15px rgba(0, 210, 255, 0.4);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .btn-feedback-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 22px rgba(0, 210, 255, 0.7);
+    }
+
     @keyframes fadeIn {
       from { opacity: 0; transform: scale(0.95); }
       to { opacity: 1; transform: scale(1); }
@@ -1010,7 +1149,43 @@
 
   <!-- DISCLAIMER FOOTER -->
   <div id="disclaimer-footer">
-    This bible quiz game is not a substitute for reading your King James BIBLE.
+    <span>This bible quiz game is not a substitute for reading your King James BIBLE.</span>
+    <a id="feedback-link" onclick="openFeedbackModal()">FEEDBACK</a>
+  </div>
+
+  <!-- FEEDBACK MODAL (SEND DIRECTLY FROM PAGE VIA FORMSUBMIT / MAILTO FALLBACK) -->
+  <div id="feedback-modal" class="modal-overlay hidden">
+    <div class="feedback-modal-box">
+      <h3>💬 Send Feedback</h3>
+      <p>Have questions, comments, or suggestions about the game? Send a message directly to billpmonti@gmail.com!</p>
+      
+      <form id="feedback-form" action="https://formsubmit.co/billpmonti@gmail.com" method="POST">
+        <!-- Optional FormSubmit configurations -->
+        <input type="hidden" name="_subject" value="New Scripture Pursuit Feedback!">
+        <input type="hidden" name="_captcha" value="false">
+        <input type="hidden" name="_template" value="box">
+
+        <div class="feedback-form-group">
+          <label for="fb-name">Your Name</label>
+          <input type="text" id="fb-name" name="name" placeholder="Enter your name" required>
+        </div>
+
+        <div class="feedback-form-group">
+          <label for="fb-email">Your Email</label>
+          <input type="email" id="fb-email" name="email" placeholder="your.email@example.com" required>
+        </div>
+
+        <div class="feedback-form-group">
+          <label for="fb-message">Message / Feedback</label>
+          <textarea id="fb-message" name="message" placeholder="Type your feedback here..." required></textarea>
+        </div>
+
+        <div class="feedback-btn-row">
+          <button type="button" class="btn-feedback-cancel" onclick="closeFeedbackModal()">Cancel</button>
+          <button type="submit" class="btn-feedback-submit">Send Email</button>
+        </div>
+      </form>
+    </div>
   </div>
 
   <div id="shuffle-modal" class="modal-overlay hidden">
@@ -1483,15 +1658,43 @@
       { q: "What is the shortest chapter in the Bible?", a: "Psalm 117", d: ["Psalm 23", "Psalm 150"], ref: "Psalm 117:1-2", text: "O praise the Lord, all ye nations: praise him, all ye people. For his merciful kindness is great toward us...", testament: "OT" }
     ];
 
-    // --- IDLE FLOATING VERSES DATA LIST ---
+    // --- IDLE FLOATING VERSES DATA LIST (SET TO 18s TOTAL DURATION PER CYCLE) ---
     const idleVersesList = [
-      { ref: "2 Timothy 2:15", text: "Study to shew thyself approved unto God, a workman that needeth not to be ashamed, rightly dividing the word of truth.", anim: "anim-left" },
-      { ref: "Joshua 1:8", text: "This book of the law shall not depart out of thy mouth; but thou shalt meditate therein day and night...", anim: "anim-right" },
-      { ref: "Psalm 119:11", text: "Thy word have I hid in mine heart, that I might not sin against thee.", anim: "anim-top" },
-      { ref: "Psalm 119:105", text: "Thy word is a lamp unto my feet, and a light unto my path.", anim: "anim-zoom" },
-      { ref: "Colossians 3:16", text: "Let the word of Christ dwell in you richly in all wisdom; teaching and admonishing one another...", anim: "anim-left" },
-      { ref: "Romans 15:4", text: "For whatsoever things were written aforetime were written for our learning, that we through patience and comfort of the scriptures might have hope.", anim: "anim-right" },
-      { ref: "2 Timothy 3:16–17", text: "All scripture is given by inspiration of God, and is profitable for doctrine, for reproof, for correction, for instruction in righteousness...", anim: "anim-top" }
+      { 
+        ref: "2 Timothy 2:15", 
+        text: "Study to shew thyself approved unto God, a workman that needeth not to be ashamed, rightly dividing the word of truth.", 
+        anim: "anim-left" 
+      },
+      { 
+        ref: "Joshua 1:8", 
+        text: "This book of the law shall not depart out of thy mouth; but thou shalt meditate therein day and night, that thou mayest observe to do according to all that is written therein: for then thou shalt make thy way prosperous, and then thou shalt have good success.", 
+        anim: "anim-right" 
+      },
+      { 
+        ref: "Psalm 119:11", 
+        text: "Thy word have I hid in mine heart, that I might not sin against thee.", 
+        anim: "anim-top" 
+      },
+      { 
+        ref: "Psalm 119:105", 
+        text: "Thy word is a lamp unto my feet, and a light unto my path.", 
+        anim: "anim-zoom" 
+      },
+      { 
+        ref: "Colossians 3:16", 
+        text: "Let the word of Christ dwell in you richly in all wisdom; teaching and admonishing one another in psalms and hymns and spiritual songs, singing with grace in your hearts to the Lord.", 
+        anim: "anim-left" 
+      },
+      { 
+        ref: "Romans 15:4", 
+        text: "For whatsoever things were written aforetime were written for our learning, that we through patience and comfort of the scriptures might have hope.", 
+        anim: "anim-right" 
+      },
+      { 
+        ref: "2 Timothy 3:16–17", 
+        text: "All scripture is given by inspiration of God, and is profitable for doctrine, for reproof, for correction, for instruction in righteousness: That the man of God may be perfect, thoroughly furnished unto all good works.", 
+        anim: "anim-top" 
+      }
     ];
 
     let idleVerseIndex = 0;
@@ -1502,7 +1705,7 @@
       if (!overlay) return;
 
       showNextIdleVerse();
-      idleVerseTimer = setInterval(showNextIdleVerse, 10000);
+      idleVerseTimer = setInterval(showNextIdleVerse, 18000); // 18 seconds interval
     }
 
     function showNextIdleVerse() {
@@ -1543,6 +1746,15 @@
       document.getElementById('stat-played').textContent = gamesPlayed;
       document.getElementById('stat-won').textContent = gamesWon;
       document.getElementById('stat-lost').textContent = gamesLost;
+    }
+
+    // --- FEEDBACK MODAL CONTROLS ---
+    function openFeedbackModal() {
+      document.getElementById('feedback-modal').classList.remove('hidden');
+    }
+
+    function closeFeedbackModal() {
+      document.getElementById('feedback-modal').classList.add('hidden');
     }
 
     function globalUnlockAudio(e) {
