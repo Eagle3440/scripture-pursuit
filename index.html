@@ -23,7 +23,7 @@
       justify-content: flex-start;
       min-height: 100vh;
       width: 100vw;
-      padding: 20px 15px 120px 15px;
+      padding: 20px 15px 90px 15px;
       overflow-x: hidden;
       overflow-y: auto;
       position: relative;
@@ -292,7 +292,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      margin-bottom: 20px;
+      margin-bottom: 45px;
       transition: flex 0.3s ease;
     }
 
@@ -309,7 +309,7 @@
       justify-content: center;
       text-align: center;
       box-shadow: 0 20px 50px rgba(0,0,0,0.9), inset 0 0 25px rgba(212, 175, 55, 0.1);
-      margin-bottom: 20px;
+      margin-bottom: 45px;
       min-height: 320px;
       position: relative;
     }
@@ -672,21 +672,23 @@
     }
 
     .sticky-bottom-actions {
-      position: fixed;
+      position: sticky;
       bottom: 0;
       left: 0;
-      width: 100vw;
+      width: 100%;
       background: rgba(4, 10, 20, 0.96);
       backdrop-filter: blur(15px);
       border-top: 1.5px solid rgba(0, 210, 255, 0.4);
-      padding: 12px 20px;
+      padding: 14px 20px;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      gap: 8px;
-      z-index: 9999;
+      gap: 10px;
+      z-index: 1000;
       box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.8);
+      margin-top: 20px;
+      border-radius: 12px;
     }
 
     .sticky-actions-row {
@@ -695,6 +697,8 @@
       align-items: center;
       width: 100%;
       max-width: 500px;
+      position: sticky;
+      bottom: 20px;
       z-index: 100;
     }
 
@@ -1142,6 +1146,16 @@
 
           <div id="chase-options" class="options-grid hidden"></div>
         </div>
+
+        <!-- STICKY BOTTOM ACTION BAR -->
+        <div id="sticky-bottom-bar" class="sticky-bottom-actions hidden">
+          <div class="sticky-actions-row">
+            <button class="btn-restart-sticky" onclick="resetGame()">RESTART GAME</button>
+          </div>
+          <div class="stats-display-text" id="stats-display-text">
+            GAMES PLAYED: <span id="stat-played">0</span> | WON: <span id="stat-won">0</span> | LOST: <span id="stat-lost">0</span>
+          </div>
+        </div>
       </div>
 
       <!-- Right Box: Big Dedicated Scripture Panel -->
@@ -1151,16 +1165,6 @@
         <div id="verse-text" class="verse-text">--</div>
         <div id="verse-timer-badge" class="verse-timer-badge hidden">3</div>
       </div>
-    </div>
-  </div>
-
-  <!-- STICKY BOTTOM ACTION BAR (MOVED COMPLETELY OUTSIDE CONTAINER) -->
-  <div id="sticky-bottom-bar" class="sticky-bottom-actions hidden">
-    <div class="sticky-actions-row">
-      <button class="btn-restart-sticky" onclick="resetGame()">RESTART GAME</button>
-    </div>
-    <div class="stats-display-text" id="stats-display-text">
-      GAMES PLAYED: <span id="stat-played">0</span> | WON: <span id="stat-won">0</span> | LOST: <span id="stat-lost">0</span>
     </div>
   </div>
 
