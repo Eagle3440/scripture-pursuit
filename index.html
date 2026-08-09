@@ -71,7 +71,7 @@
       100% { transform: translateX(-8%) scale(1.15); }
     }
 
-    /* --- IDLE FLOATING BIBLE VERSES IN FOG (SCALED UP FOR PC/TABLET) --- */
+    /* --- IDLE FLOATING BIBLE VERSES IN FOG --- */
     #idle-verse-overlay {
       position: fixed;
       top: 40vh;
@@ -137,7 +137,6 @@
       .floating-verse-card .f-text { font-size: 1.25rem; }
     }
 
-    /* Directional Float Animations */
     @keyframes floatFromLeft {
       0% { transform: translateX(-110vw) translateY(20px) rotate(-5deg); opacity: 0; }
       15% { transform: translateX(0) translateY(0) rotate(0deg); opacity: 1; }
@@ -171,7 +170,6 @@
     .anim-top { animation: floatFromTop 10s ease-in-out forwards; }
     .anim-zoom { animation: floatZoomIn 10s ease-in-out forwards; }
 
-    /* --- DISCLAIMER FOOTER --- */
     #disclaimer-footer {
       position: fixed;
       bottom: 0;
@@ -216,7 +214,7 @@
       max-width: 720px;
       height: auto;
       will-change: transform, opacity;
-      filter: drop-shadow(0 0 25px rgba(0, 210, 255, 0.45));
+      filter: drop-shadow(0 0 20px rgba(0, 210, 255, 0.35));
       position: relative;
     }
 
@@ -352,14 +350,8 @@
       }
 
       @keyframes slideUpMobile {
-        from {
-          transform: translateY(100%);
-          opacity: 0;
-        }
-        to {
-          transform: translateY(0);
-          opacity: 1;
-        }
+        from { transform: translateY(100%); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
       }
     }
 
@@ -426,7 +418,6 @@
     .diff-medium { background: rgba(255, 170, 0, 0.2); color: #ffaa00; border: 1px solid #ffaa00; }
     .diff-hard { background: rgba(255, 42, 75, 0.2); color: #ff2a4b; border: 1px solid #ff2a4b; }
 
-    /* --- REALISTIC TRACKS CHASE BOARD STYLING --- */
     .board-container {
       width: 100%;
       display: flex;
@@ -1005,10 +996,8 @@
   <div class="fog-layer-1"></div>
   <div class="fog-layer-2"></div>
 
-  <!-- IDLE FLOATING VERSES CONTAINER (MID TO BOTTOM) -->
   <div id="idle-verse-overlay"></div>
 
-  <!-- DISCLAIMER FOOTER -->
   <div id="disclaimer-footer">
     This bible quiz game is not a substitute for reading your King James BIBLE.
   </div>
@@ -1045,46 +1034,39 @@
               <stop offset="80%" stop-color="#00a2ff"/>
               <stop offset="100%" stop-color="transparent"/>
             </linearGradient>
-            
-            <filter id="neonBlue" x="-20%" y="-20%" width="140%" height="140%">
-              <feGaussianBlur stdDeviation="2" result="blur"/>
-              <feMerge>
-                <feMergeNode in="blur"/>
-                <feMergeNode in="SourceGraphic"/>
-              </feMerge>
-            </filter>
           </defs>
 
-          <!-- Fixed speed lines without blurring filters to prevent Firefox rendering artifacts -->
+          <!-- Completely filter-free vector speed lines for crisp cross-browser rendering -->
           <path d="M 10 185 L 1590 185" stroke="url(#speedGlow)" stroke-width="4.5" />
           <path d="M 40 198 L 1560 198" stroke="#00d2ff" stroke-width="2" opacity="0.6" />
           <path d="M 100 208 L 1500 208" stroke="#00a2ff" stroke-width="2.5" opacity="0.75" />
 
           <g transform="skewX(-16) translate(10, 10)">
             <path d="M 30 145 C 70 145, 140 70, 230 70 L 785 70 C 792 70, 795 145, 795 145 C 795 175, 780 175, 230 175 C 140 175, 60 170, 30 145 Z" fill="url(#trainHull)" opacity="0.38" />
-            <path d="M 28 145 C 68 145, 138 72, 228 72 L 787 72" stroke="#00d2ff" stroke-width="4.5" fill="none" filter="url(#neonBlue)" />
-            <path d="M 40 175 L 787 175" stroke="#00a2ff" stroke-width="3.5" fill="none" filter="url(#neonBlue)" />
+            <path d="M 28 145 C 68 145, 138 72, 228 72 L 787 72" stroke="#00d2ff" stroke-width="4.5" fill="none" />
+            <path d="M 40 175 L 787 175" stroke="#00a2ff" stroke-width="3.5" fill="none" />
 
             <path d="M 65 135 C 95 135, 135 90, 185 90 L 225 90 C 165 90, 115 135, 65 135 Z" fill="#002244" opacity="0.85" />
-            <ellipse cx="50" cy="145" rx="16" ry="6" fill="#ffffff" filter="url(#neonBlue)" />
+            <ellipse cx="50" cy="145" rx="16" ry="6" fill="#ffffff" />
 
-            <rect x="795" y="80" width="10" height="90" rx="2" fill="#0088cc" opacity="0.9" filter="url(#neonBlue)" />
+            <rect x="795" y="80" width="10" height="90" rx="2" fill="#0088cc" opacity="0.9" />
 
             <path d="M 805 145 C 805 70, 808 70, 815 70 L 1370 70 C 1460 70, 1530 145, 1570 145 C 1540 170, 1460 175, 1370 175 L 815 175 C 808 175, 805 145, 805 145 Z" fill="url(#trainHull)" opacity="0.38" />
-            <path d="M 813 72 L 1372 72 C 1462 72, 1532 145, 1572 145" stroke="#00d2ff" stroke-width="4.5" fill="none" filter="url(#neonBlue)" />
-            <path d="M 813 175 L 1560 175" stroke="#00a2ff" stroke-width="3.5" fill="none" filter="url(#neonBlue)" />
+            <path d="M 813 72 L 1372 72 C 1462 72, 1532 145, 1572 145" stroke="#00d2ff" stroke-width="4.5" fill="none" />
+            <path d="M 813 175 L 1560 175" stroke="#00a2ff" stroke-width="3.5" fill="none" />
 
             <path d="M 1535 135 C 1505 135, 1465 90, 1415 90 L 1375 90 C 1435 90, 1485 135, 1535 135 Z" fill="#002244" opacity="0.85" />
-            <ellipse cx="1550" cy="145" rx="16" ry="6" fill="#00d2ff" filter="url(#neonBlue)" />
+            <ellipse cx="1550" cy="145" rx="16" ry="6" fill="#00d2ff" />
 
+            <!-- Pure vector stacked text layers for sharp crisp text outlines without filters -->
             <g transform="translate(425, 148)">
-              <text x="4" y="4" font-family="'Montserrat', sans-serif" font-size="75" font-weight="900" font-style="italic" text-anchor="middle" fill="#000e1a">BULLET</text>
-              <text x="0" y="0" font-family="'Montserrat', sans-serif" font-size="75" font-weight="900" font-style="italic" text-anchor="middle" fill="url(#chromeText)" stroke="#004477" stroke-width="2" filter="url(#neonBlue)">BULLET</text>
+              <text x="0" y="0" font-family="'Montserrat', sans-serif" font-size="75" font-weight="900" font-style="italic" text-anchor="middle" fill="#000e1a" stroke="#000e1a" stroke-width="6">BULLET</text>
+              <text x="0" y="0" font-family="'Montserrat', sans-serif" font-size="75" font-weight="900" font-style="italic" text-anchor="middle" fill="url(#chromeText)" stroke="#004477" stroke-width="2">BULLET</text>
             </g>
 
             <g transform="translate(1125, 150)">
-              <text x="5" y="5" font-family="'Montserrat', sans-serif" font-size="80" font-weight="900" text-anchor="middle" fill="#001a33">LINE</text>
-              <text x="0" y="0" font-family="'Montserrat', sans-serif" font-size="80" font-weight="900" text-anchor="middle" fill="url(#chromeText)" stroke="#004477" stroke-width="2.5" filter="url(#neonBlue)">LINE</text>
+              <text x="0" y="0" font-family="'Montserrat', sans-serif" font-size="80" font-weight="900" text-anchor="middle" fill="#001a33" stroke="#001a33" stroke-width="6">LINE</text>
+              <text x="0" y="0" font-family="'Montserrat', sans-serif" font-size="80" font-weight="900" text-anchor="middle" fill="url(#chromeText)" stroke="#004477" stroke-width="2.5">LINE</text>
             </g>
           </g>
         </svg>
@@ -1092,9 +1074,7 @@
       <div><span id="logo-subtitle" class="logo-subtitle">The Bullet Line: Scripture Pursuit — 400 Q BANK (KJV)</span></div>
     </div>
 
-    <!-- Main Game Layout -->
     <div class="main-game-layout">
-      <!-- Left Box: Game Controls, Board, and Questions -->
       <div class="card-container">
         <div class="status-bar">
           <div>TREASURY: <span id="bank-val" class="bank-text">0 Shekels</span></div>
@@ -1148,7 +1128,6 @@
           <div id="chase-options" class="options-grid hidden"></div>
         </div>
 
-        <!-- STICKY BOTTOM ACTION BAR -->
         <div id="sticky-bottom-bar" class="sticky-bottom-actions hidden">
           <div class="sticky-actions-row">
             <button class="btn-restart-sticky" onclick="resetGame()">RESTART GAME</button>
@@ -1159,7 +1138,6 @@
         </div>
       </div>
 
-      <!-- Right Box: Big Dedicated Scripture Panel -->
       <div id="verse-container" class="verse-side-panel hidden">
         <div class="verse-label">📖 King James Bible (KJV)</div>
         <div id="verse-ref" class="verse-ref">--</div>
@@ -1170,9 +1148,7 @@
   </div>
 
   <script>
-    // --- BALANCED 400 Q BANK (200 OLD TESTAMENT + 200 NEW TESTAMENT) ---
     const pdfRawQuestions = [
-      // === OLD TESTAMENT QUESTIONS (200) ===
       { q: "How many days did it take God to create the heavens and the earth?", a: "Seven", d: ["Six", "Forty"], ref: "Genesis 2:2", text: "And on the seventh day God ended his work which he had made; and he rested on the seventh day from all his work which he had made.", testament: "OT" },
       { q: "What did God create on the first day?", a: "Light", d: ["Atmosphere", "Sun and Moon"], ref: "Genesis 1:3", text: "And God said, Let there be light: and there was light.", testament: "OT" },
       { q: "What did God create on the fourth day?", a: "The sun, moon, and stars", d: ["Birds/Sea animals", "Light"], ref: "Genesis 1:16", text: "And God made two great lights; the greater light to rule the day, and the lesser light to rule the night: he made the stars also.", testament: "OT" },
@@ -1349,8 +1325,6 @@
       { q: "Who was the wife of Jacob whom he loved more than Leah?", a: "Rachel", d: ["Rebekah", "Bilhah"], ref: "Genesis 29:30", text: "...and he loved also Rachel more than Leah...", testament: "OT" },
       { q: "What was the name of the garden planted by God where He placed the first man?", a: "Garden of Eden", d: ["Gethsemane", "Paradise"], ref: "Genesis 2:8", text: "And the Lord God planted a garden eastward in Eden; and there he put the man whom he had formed.", testament: "OT" },
       { q: "What was the name of the feast celebrated to remember God delivering Israel from Egyptian bondage?", a: "Passover", d: ["Pentecost", "Feast of Tabernacles"], ref: "Exodus 12:11", text: "...it is the Lord's passover.", testament: "OT" },
-
-      // === NEW TESTAMENT QUESTIONS (200) ===
       { q: "Where was Jesus born?", a: "Bethlehem", d: ["Nazareth", "Jerusalem"], ref: "Micah 5:2", text: "But thou, Bethlehem Ephratah, though thou be little among the thousands of Judah, yet out of thee shall he come forth unto me...", testament: "NT" },
       { q: "How many books are in the New Testament?", a: "27", d: ["39", "66"], ref: "Canon of Scripture", text: "Comprising twenty-seven inspired historical, epistle, and prophetic books of the New Covenant.", testament: "NT" },
       { q: "Paul was shipwrecked on what island?", a: "Malta", d: ["Patmos", "Cyprus"], ref: "Acts 28:1", text: "And when they were escaped, then they knew that the island was called Melita.", testament: "NT" },
@@ -1484,7 +1458,6 @@
       { q: "What is the shortest chapter in the Bible?", a: "Psalm 117", d: ["Psalm 23", "Psalm 150"], ref: "Psalm 117:1-2", text: "O praise the Lord, all ye nations: praise him, all ye people. For his merciful kindness is great toward us...", testament: "OT" }
     ];
 
-    // --- IDLE FLOATING VERSES DATA LIST ---
     const idleVersesList = [
       { ref: "2 Timothy 2:15", text: "Study to shew thyself approved unto God, a workman that needeth not to be ashamed, rightly dividing the word of truth.", anim: "anim-left" },
       { ref: "Joshua 1:8", text: "This book of the law shall not depart out of thy mouth; but thou shalt meditate therein day and night...", anim: "anim-right" },
@@ -1501,7 +1474,6 @@
     function startIdleVerses() {
       const overlay = document.getElementById('idle-verse-overlay');
       if (!overlay) return;
-
       showNextIdleVerse();
       idleVerseTimer = setInterval(showNextIdleVerse, 10000);
     }
@@ -1510,10 +1482,8 @@
       if (gameHasStarted) return;
       const overlay = document.getElementById('idle-verse-overlay');
       if (!overlay) return;
-
       overlay.innerHTML = '';
       const v = idleVersesList[idleVerseIndex];
-
       const card = document.createElement('div');
       card.className = `floating-verse-card ${v.anim}`;
       card.innerHTML = `
@@ -1521,7 +1491,6 @@
         <div class="f-ref">${v.ref}</div>
         <div class="f-text">“${v.text}”</div>
       `;
-
       overlay.appendChild(card);
       idleVerseIndex = (idleVerseIndex + 1) % idleVersesList.length;
     }
@@ -1535,7 +1504,6 @@
     let audioCtx = null;
     let soundEnabled = false;
     let verseTimerInterval = null;
-
     let gamesPlayed = 0;
     let gamesWon = 0;
     let gamesLost = 0;
@@ -1553,20 +1521,15 @@
       if (audioCtx.state === 'suspended') {
         audioCtx.resume();
       }
-
       try {
         const buffer = audioCtx.createBuffer(1, 1, 22050);
         const source = audioCtx.createBufferSource();
         source.buffer = buffer;
         source.connect(audioCtx.destination);
         source.start(0);
-      } catch (err) {
-        console.log("Audio unlock buffer execution:", err);
-      }
-
+      } catch (err) {}
       soundEnabled = true;
       playTrainSound();
-
       window.removeEventListener('pointerdown', globalUnlockAudio);
       window.removeEventListener('keydown', globalUnlockAudio);
     }
@@ -1576,12 +1539,10 @@
 
     function playSound(type) {
       if (!soundEnabled || !audioCtx) return;
-
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
       osc.connect(gain);
       gain.connect(audioCtx.destination);
-
       const now = audioCtx.currentTime;
 
       if (type === 'correct') {
@@ -1638,7 +1599,6 @@
 
     function playTrainSound() {
       if (!soundEnabled || !audioCtx) return;
-
       const now = audioCtx.currentTime;
       const bufferSize = audioCtx.sampleRate * 2.0;
       const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
@@ -1646,32 +1606,26 @@
       for (let i = 0; i < bufferSize; i++) {
         data[i] = Math.random() * 2 - 1;
       }
-
       const noise = audioCtx.createBufferSource();
       noise.buffer = buffer;
-
       const filter = audioCtx.createBiquadFilter();
       filter.type = 'lowpass';
       filter.frequency.setValueAtTime(180, now);
       filter.frequency.linearRampToValueAtTime(700, now + 0.9);
       filter.frequency.linearRampToValueAtTime(150, now + 1.8);
-
       const gain = audioCtx.createGain();
       gain.gain.setValueAtTime(0.001, now);
       gain.gain.linearRampToValueAtTime(0.06, now + 0.9);
       gain.gain.linearRampToValueAtTime(0.001, now + 1.8);
-
       noise.connect(filter);
       filter.connect(gain);
       gain.connect(audioCtx.destination);
-
       noise.start(now);
       noise.stop(now + 1.8);
     }
 
     const canvas = document.getElementById('fog-canvas');
     const ctx = canvas.getContext('2d');
-
     let fogParticles = [];
     const particleCount = 45;
 
@@ -1686,22 +1640,18 @@
       constructor() {
         this.reset(true);
       }
-
       reset(initial = false) {
         this.x = initial ? Math.random() * canvas.width : -350;
         this.y = Math.random() * canvas.height;
         this.baseRadius = Math.random() * 220 + 160;
         this.radius = this.baseRadius;
-        
         this.vx = Math.random() * 0.35 + 0.12;
         this.sineOffset = Math.random() * Math.PI * 2;
         this.sineSpeed = Math.random() * 0.005 + 0.002;
-        
         this.baseAlpha = Math.random() * 0.08 + 0.02;
         this.alpha = this.baseAlpha;
         this.pulseSpeed = Math.random() * 0.01 + 0.003;
         this.pulseAngle = Math.random() * Math.PI * 2;
-
         const bluePicker = Math.random();
         if (bluePicker < 0.4) {
           this.color = { r: 0, g: 162, b: 232 };
@@ -1711,34 +1661,28 @@
           this.color = { r: 0, g: 102, b: 204 };
         }
       }
-
       update() {
         this.x += this.vx;
         this.sineOffset += this.sineSpeed;
         this.y += Math.sin(this.sineOffset) * 0.18;
-
         this.pulseAngle += this.pulseSpeed;
         this.alpha = this.baseAlpha + Math.sin(this.pulseAngle) * 0.015;
         this.radius = this.baseRadius + Math.cos(this.pulseAngle) * 15;
-
         if (this.x - this.radius > canvas.width) {
           this.reset(false);
         }
       }
-
       draw() {
         ctx.beginPath();
         const gradient = ctx.createRadialGradient(
           this.x, this.y, 0,
           this.x, this.y, this.radius
         );
-
         const a = Math.max(0, this.alpha);
         gradient.addColorStop(0, `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, ${a})`);
         gradient.addColorStop(0.3, `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, ${a * 0.7})`);
         gradient.addColorStop(0.7, `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, ${a * 0.25})`);
         gradient.addColorStop(1, `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, 0)`);
-
         ctx.fillStyle = gradient;
         ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
         ctx.fill();
@@ -1786,16 +1730,13 @@
     function getNextUniqueQuestion() {
       if (currentActiveDeck.length === 0) {
         let availableQuestions = masterPDFDeck.filter(item => !usedQuestionIndices.has(item.id));
-        
         if (availableQuestions.length === 0) {
           usedQuestionIndices.clear();
           availableQuestions = [...masterPDFDeck];
           showShuffleModal();
         }
-
         currentActiveDeck = shuffleArray(availableQuestions);
       }
-
       const q = currentActiveDeck.pop();
       usedQuestionIndices.add(q.id);
       return q;
@@ -1839,7 +1780,6 @@
       triggerTitleRun();
     }, 6500);
 
-    // Initialize Idle Floating Verses on Load
     startIdleVerses();
 
     let currentBank = 0;
@@ -1887,7 +1827,6 @@
         let remainingVerseTime = 10;
         verseTimerInterval = setInterval(() => {
           remainingVerseTime--;
-          
           if (remainingVerseTime <= 3 && remainingVerseTime > 0) {
             verseTimerBadge.textContent = `${remainingVerseTime}`;
             verseTimerBadge.classList.remove('hidden');
@@ -1897,7 +1836,6 @@
             verseTimerBadge.classList.add('hidden');
           }
         }, 1000);
-
       } else {
         verseContainer.classList.add('hidden');
       }
@@ -1954,12 +1892,10 @@
     function beginCashBuilderRound() {
       builderOptions.classList.remove('hidden');
       timerWrap.classList.remove('hidden');
-
       currentBank = 0;
       timer = 60;
       bankVal.textContent = `0 Shekels`;
       timerVal.textContent = timer;
-
       showBuilderQ();
 
       if (timerInterval) clearInterval(timerInterval);
@@ -1976,7 +1912,6 @@
     function showBuilderQ() {
       if (timer <= 0) return;
       activeQuestion = getNextUniqueQuestion();
-
       qDisplay.textContent = activeQuestion.q;
       hideVersePanel();
       builderOptions.innerHTML = '';
@@ -1992,7 +1927,6 @@
 
     function handleBuilderChoice(choice) {
       const isCorrect = (choice === activeQuestion.ans);
-
       playSound(isCorrect ? 'correct' : 'wrong');
 
       const buttons = builderOptions.querySelectorAll('.option-btn');
@@ -2043,7 +1977,6 @@
 
     function showOffers() {
       offersWrap.classList.remove('hidden');
-
       const low = Math.floor(currentBank / 2);
       const high = currentBank * 3;
 
@@ -2210,7 +2143,6 @@
 
     function handleChaseChoice(choice) {
       const playerCorrect = (choice === activeQuestion.ans);
-
       if (playerCorrect) {
         playSound('correct');
       } else {
@@ -2269,7 +2201,6 @@
       }
 
       qDisplay.textContent = feedback;
-
       const isMobile = window.innerWidth < 768;
 
       if (isWon) {
@@ -2286,32 +2217,21 @@
       }
 
       if (isMobile) {
-        setTimeout(() => {
-          showVersePanel(activeQuestion);
-        }, 3000);
-
-        setTimeout(() => {
-          nextChaseStep();
-        }, 13000);
+        setTimeout(() => { showVersePanel(activeQuestion); }, 3000);
+        setTimeout(() => { nextChaseStep(); }, 13000);
       } else {
         showVersePanel(activeQuestion);
-        setTimeout(() => {
-          nextChaseStep();
-        }, 10000);
+        setTimeout(() => { nextChaseStep(); }, 10000);
       }
     }
 
     function renderSummaryReport(isWin) {
       summaryList.innerHTML = '';
-      
       const totalAsked = askedQuestionsLog.length;
       if (totalAsked === 0) {
         summaryScoreBanner.textContent = "No questions answered.";
         summaryList.innerHTML = `<div style="text-align:center; color:#7a8ba3; padding: 20px;">No questions answered.</div>`;
       } else {
-        const totalCorrect = askedQuestionsLog.filter(item => item.isCorrect).length;
-        const percentage = Math.round((totalCorrect / totalAsked) * 100);
-
         let bannerHTML = "";
         if (isWin) {
           bannerHTML = `🎉 You arrived at the Train Station safely and earned <strong>${currentBank.toLocaleString()} Shekels of Silver</strong>!<br><span style="font-size: 0.85rem; color: #f7e7a1; font-weight: 700; display: block; margin-top: 6px;">Fantastic job! Why not play another round to test yourself with even more Bible questions?</span>`;
@@ -2325,7 +2245,6 @@
           const div = document.createElement('div');
           const itemClass = item.isCorrect ? 'item-correct' : 'item-wrong';
           div.className = `summary-item ${itemClass}`;
-          
           const statusClass = item.isCorrect ? 'status-correct' : 'status-wrong';
           const statusText = item.isCorrect ? '✓ CORRECT' : '✗ INCORRECT';
 
@@ -2399,10 +2318,8 @@
       qDisplay.className = "";
       qDisplay.textContent = "Welcome to The Bullet Line: Scripture Pursuit (400 Q Bank - KJV)! Press START GAME below to begin.";
 
-      // Restart Idle Floating Verses
       idleVerseIndex = 0;
       startIdleVerses();
-
       titleAnimationTimer = setTimeout(triggerTitleRun, 6500);
     }
   </script>
