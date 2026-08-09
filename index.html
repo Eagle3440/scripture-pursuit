@@ -738,6 +738,39 @@
       text-align: center;
       text-transform: uppercase;
       text-shadow: 0 0 6px rgba(0, 210, 255, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .sound-toggle-btn {
+      background: rgba(0, 210, 255, 0.08);
+      border: 1px solid rgba(0, 210, 255, 0.4);
+      color: #00d2ff;
+      border-radius: 6px;
+      width: 30px;
+      height: 30px;
+      font-size: 1rem;
+      line-height: 1;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .sound-toggle-btn:hover {
+      background: rgba(0, 210, 255, 0.25);
+      box-shadow: 0 0 10px rgba(0, 210, 255, 0.4);
+    }
+
+    .sound-toggle-btn.muted {
+      color: #ff2a4b;
+      border-color: rgba(255, 42, 75, 0.5);
+      background: rgba(255, 42, 75, 0.08);
     }
 
     .sticky-bottom-actions {
@@ -1368,7 +1401,10 @@
 
         <div class="controls">
           <button id="start-game-btn" class="btn-cyan">START GAME</button>
-          <div id="audio-hint" class="audio-hint-text">Touch anywhere to hear the bullet train (Shinkansen).</div>
+          <div id="audio-hint" class="audio-hint-text">
+            <span>Touch anywhere to hear the bullet train (Shinkansen).</span>
+            <button id="sound-toggle-btn" class="sound-toggle-btn" type="button" aria-label="Toggle train sounds" title="Toggle train sounds">🔊</button>
+          </div>
           <div id="builder-options" class="options-grid hidden"></div>
 
           <div id="offers-wrap" class="offers-row hidden">
@@ -1803,6 +1839,7 @@
 
     let audioCtx = null;
     let soundEnabled = false;
+    let soundMuted = false;
     let verseTimerInterval = null;
 
     let gamesPlayed = 0;
@@ -1853,7 +1890,7 @@
     window.addEventListener('keydown', globalUnlockAudio);
 
     function playSound(type) {
-      if (!soundEnabled || !audioCtx) return;
+      if (!soundEnabled || !audioCtx || soundMuted) return;
 
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
@@ -1911,11 +1948,32 @@
         gain.gain.exponentialRampToValueAtTime(0.001, now + 0.8);
         osc.start(now);
         osc.stop(now + 0.8);
+      } else if (type === 'door-chime') {
+        // Two-tone bell "ding-dong", evocative of a train door-closing chime
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(880, now);
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.linearRampToValueAtTime(0.28, now + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.55);
+        osc.start(now);
+        osc.stop(now + 0.55);
+
+        const osc2 = audioCtx.createOscillator();
+        const gain2 = audioCtx.createGain();
+        osc2.connect(gain2);
+        gain2.connect(audioCtx.destination);
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(659.25, now + 0.3);
+        gain2.gain.setValueAtTime(0.001, now + 0.3);
+        gain2.gain.linearRampToValueAtTime(0.28, now + 0.32);
+        gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.95);
+        osc2.start(now + 0.3);
+        osc2.stop(now + 0.95);
       }
     }
 
     function playTrainSound() {
-      if (!soundEnabled || !audioCtx) return;
+      if (!soundEnabled || !audioCtx || soundMuted) return;
 
       const now = audioCtx.currentTime;
       const bufferSize = audioCtx.sampleRate * 2.0;
@@ -2102,6 +2160,7 @@
     const stickyBottomBar = document.getElementById('sticky-bottom-bar');
     const disclaimerFooter = document.getElementById('disclaimer-footer');
     let titleAnimationTimer = null;
+    let doorChimeTimer = null;
     let gameHasStarted = false;
 
     function triggerTitleRun() {
@@ -2110,6 +2169,12 @@
       void titleElement.offsetWidth;
       titleElement.classList.add('run-chase');
       playTrainSound();
+
+      if (doorChimeTimer) clearTimeout(doorChimeTimer);
+      doorChimeTimer = setTimeout(() => {
+        if (!gameHasStarted) playSound('door-chime');
+      }, 6800); // fires as the doors begin sliding shut (~82% of the 8.3s cycle)
+
       titleAnimationTimer = setTimeout(triggerTitleRun, 8300);
     }
     
@@ -2135,6 +2200,7 @@
     const verseTimerBadge = document.getElementById('verse-timer-badge');
     const startGameBtn = document.getElementById('start-game-btn');
     const audioHint = document.getElementById('audio-hint');
+    const soundToggleBtn = document.getElementById('sound-toggle-btn');
     const builderOptions = document.getElementById('builder-options');
     const bankVal = document.getElementById('bank-val');
     const timerWrap = document.getElementById('timer-wrap');
@@ -2183,11 +2249,22 @@
 
     startGameBtn.addEventListener('click', startCountdownSequence);
 
+    soundToggleBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      soundMuted = !soundMuted;
+      soundToggleBtn.textContent = soundMuted ? '🔇' : '🔊';
+      soundToggleBtn.classList.toggle('muted', soundMuted);
+      if (!soundMuted) {
+        playSound('countdown-tick');
+      }
+    });
+
     function startCountdownSequence() {
       gameHasStarted = true;
       stopIdleVerses();
 
       if (titleAnimationTimer) clearTimeout(titleAnimationTimer);
+      if (doorChimeTimer) clearTimeout(doorChimeTimer);
       titleElement.classList.remove('run-chase');
       subtitleElement.classList.add('active-game');
 
@@ -2645,6 +2722,7 @@
     function resetGame() {
       if (timerInterval) clearInterval(timerInterval);
       if (titleAnimationTimer) clearTimeout(titleAnimationTimer);
+      if (doorChimeTimer) clearTimeout(doorChimeTimer);
       gameHasStarted = false;
 
       logoHeaderBox.classList.remove('hidden');
