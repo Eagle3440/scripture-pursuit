@@ -407,7 +407,7 @@
       backdrop-filter: blur(20px);
       border: 1.5px solid rgba(212, 175, 55, 0.45);
       border-radius: 16px;
-      padding: 32px 26px;
+      padding: 32px 26px 48px 26px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -490,6 +490,7 @@
       font-weight: 400;
       position: relative;
       padding: 0 10px;
+      margin-bottom: 12px;
     }
 
     .status-bar {
@@ -1457,6 +1458,9 @@
         <div class="verse-label">📖 King James Bible (KJV)</div>
         <div id="verse-ref" class="verse-ref">--</div>
         <div id="verse-text" class="verse-text">--</div>
+        <div class="verse-control-row" style="position: absolute; bottom: 12px; left: 0; width: 100%;">
+          <button class="verse-ctrl-btn" id="verse-chase-pause-btn" onclick="toggleChaseVersePause()">Pause</button>
+        </div>
         <div id="verse-timer-badge" class="verse-timer-badge hidden">3</div>
       </div>
     </div>
@@ -1802,6 +1806,10 @@
     let gamesWon = 0;
     let gamesLost = 0;
 
+    let isChaseVersePaused = false;
+    let chaseVerseRemainingTime = 10;
+    let chaseVerseTimeout = null;
+
     function updateStatsDisplay() {
       document.getElementById('stat-played').textContent = gamesPlayed;
       document.getElementById('stat-won').textContent = gamesWon;
@@ -2114,8 +2122,54 @@
 
     function hideVersePanel() {
       if (verseTimerInterval) clearInterval(verseTimerInterval);
+      if (chaseVerseTimeout) clearTimeout(chaseVerseTimeout);
+      isChaseVersePaused = false;
+      const pauseBtn = document.getElementById('verse-chase-pause-btn');
+      if (pauseBtn) pauseBtn.textContent = 'Pause';
       verseTimerBadge.classList.add('hidden');
       verseContainer.classList.add('hidden');
+    }
+
+    function toggleChaseVersePause() {
+      isChaseVersePaused = !isChaseVersePaused;
+      const pauseBtn = document.getElementById('verse-chase-pause-btn');
+      if (isChaseVersePaused) {
+        if (pauseBtn) pauseBtn.textContent = 'Play';
+        if (verseTimerInterval) clearInterval(verseTimerInterval);
+        if (chaseVerseTimeout) clearTimeout(chaseVerseTimeout);
+        verseTimerBadge.classList.add('hidden');
+      } else {
+        if (pauseBtn) pauseBtn.textContent = 'Pause';
+        startChaseVerseCountdown(chaseVerseRemainingTime);
+      }
+    }
+
+    function startChaseVerseCountdown(durationSeconds) {
+      chaseVerseRemainingTime = durationSeconds;
+      if (verseTimerInterval) clearInterval(verseTimerInterval);
+      if (chaseVerseTimeout) clearTimeout(chaseVerseTimeout);
+
+      verseTimerInterval = setInterval(() => {
+        if (!isChaseVersePaused) {
+          chaseVerseRemainingTime--;
+          if (chaseVerseRemainingTime <= 3 && chaseVerseRemainingTime > 0) {
+            verseTimerBadge.textContent = `${chaseVerseRemainingTime}`;
+            verseTimerBadge.classList.remove('hidden');
+            playSound('countdown-tick');
+          } else if (chaseVerseRemainingTime <= 0) {
+            clearInterval(verseTimerInterval);
+            verseTimerBadge.classList.add('hidden');
+          }
+        }
+      }, 1000);
+
+      chaseVerseTimeout = setTimeout(() => {
+        if (!isChaseVersePaused) {
+          if (verseTimerInterval) clearInterval(verseTimerInterval);
+          verseTimerBadge.classList.add('hidden');
+          nextChaseStep();
+        }
+      }, durationSeconds * 1000);
     }
 
     function showVersePanel(questionObj) {
@@ -2123,22 +2177,14 @@
         verseRefEl.textContent = questionObj.ref ? `${questionObj.ref} (KJV)` : "--";
         verseTextEl.textContent = questionObj.text ? `“${questionObj.text}”` : "--";
         verseContainer.classList.remove('hidden');
-        if (verseTimerInterval) clearInterval(verseTimerInterval);
-        verseTimerBadge.classList.add('hidden');
+        
+        isChaseVersePaused = false;
+        const pauseBtn = document.getElementById('verse-chase-pause-btn');
+        if (pauseBtn) pauseBtn.textContent = 'Pause';
 
-        // Total time = 10 seconds (7 seconds reading time + 3 seconds countdown)
-        let remainingVerseTime = 10;
-        verseTimerInterval = setInterval(() => {
-          remainingVerseTime--;
-          if (remainingVerseTime <= 3 && remainingVerseTime > 0) {
-            verseTimerBadge.textContent = `${remainingVerseTime}`;
-            verseTimerBadge.classList.remove('hidden');
-            playSound('countdown-tick');
-          } else if (remainingVerseTime <= 0) {
-            clearInterval(verseTimerInterval);
-            verseTimerBadge.classList.add('hidden');
-          }
-        }, 1000);
+        const isMobile = window.innerWidth < 768;
+        const totalDuration = isMobile ? 13 : 10;
+        startChaseVerseCountdown(totalDuration);
       } else {
         verseContainer.classList.add('hidden');
       }
@@ -2433,7 +2479,6 @@
       else feedback += "Both missed! The tracks remain tense!";
 
       qDisplay.textContent = feedback;
-      const isMobile = window.innerWidth < 768;
 
       if (isWon) {
         playSound('victory');
@@ -2447,13 +2492,7 @@
         return;
       }
 
-      if (isMobile) {
-        setTimeout(() => showVersePanel(activeQuestion), 3000);
-        setTimeout(() => nextChaseStep(), 13000);
-      } else {
-        showVersePanel(activeQuestion);
-        setTimeout(() => nextChaseStep(), 10000);
-      }
+      showVersePanel(activeQuestion);
     }
 
     function renderSummaryReport(isWin) {
