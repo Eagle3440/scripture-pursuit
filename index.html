@@ -108,6 +108,7 @@
       box-shadow: 0 25px 60px rgba(0,0,0,0.88), inset 0 0 30px rgba(212, 175, 55, 0.15);
       opacity: 0;
       will-change: transform, opacity;
+      pointer-events: auto;
     }
 
     .floating-verse-card .f-label {
@@ -135,6 +136,34 @@
       color: #f0f4f8;
       font-style: italic;
       font-weight: 400;
+    }
+
+    .verse-control-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    .verse-ctrl-btn {
+      background: rgba(212, 175, 55, 0.12);
+      border: 1px solid rgba(212, 175, 55, 0.5);
+      color: #f7e7a1;
+      padding: 5px 14px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 1px;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: all 0.2s ease;
+    }
+
+    .verse-ctrl-btn:hover {
+      background: rgba(212, 175, 55, 0.3);
+      box-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
+      color: #ffffff;
     }
 
     @media (max-width: 768px) {
@@ -178,6 +207,7 @@
     .anim-right { animation: floatFromRight 18s ease-in-out forwards; }
     .anim-top { animation: floatFromTop 18s ease-in-out forwards; }
     .anim-zoom { animation: floatZoomIn 18s ease-in-out forwards; }
+    .paused-animation { animation-play-state: paused !important; opacity: 1 !important; transform: none !important; }
 
     #disclaimer-footer {
       position: fixed;
@@ -1711,12 +1741,16 @@
 
     let idleVerseIndex = 0;
     let idleVerseTimer = null;
+    let isIdleVersePaused = false;
+    let activeCardElement = null;
 
     function startIdleVerses() {
       const overlay = document.getElementById('idle-verse-overlay');
       if (!overlay) return;
       showNextIdleVerse();
-      idleVerseTimer = setInterval(showNextIdleVerse, 18000);
+      idleVerseTimer = setInterval(() => {
+        if (!isIdleVersePaused) showNextIdleVerse();
+      }, 18000);
     }
 
     function showNextIdleVerse() {
@@ -1724,12 +1758,34 @@
       const overlay = document.getElementById('idle-verse-overlay');
       if (!overlay) return;
       overlay.innerHTML = '';
+      isIdleVersePaused = false;
       const v = idleVersesList[idleVerseIndex];
       const card = document.createElement('div');
+      activeCardElement = card;
       card.className = `floating-verse-card ${v.anim}`;
-      card.innerHTML = `<div class="f-label">📖 King James Bible (KJV)</div><div class="f-ref">${v.ref}</div><div class="f-text">“${v.text}”</div>`;
+      card.innerHTML = `
+        <div class="f-label">📖 King James Bible (KJV)</div>
+        <div class="f-ref">${v.ref}</div>
+        <div class="f-text">“${v.text}”</div>
+        <div class="verse-control-row">
+          <button class="verse-ctrl-btn" id="verse-pause-btn" onclick="toggleIdleVersePause()">Pause</button>
+        </div>
+      `;
       overlay.appendChild(card);
       idleVerseIndex = (idleVerseIndex + 1) % idleVersesList.length;
+    }
+
+    function toggleIdleVersePause() {
+      if (!activeCardElement) return;
+      isIdleVersePaused = !isIdleVersePaused;
+      const btn = document.getElementById('verse-pause-btn');
+      if (isIdleVersePaused) {
+        activeCardElement.classList.add('paused-animation');
+        if (btn) btn.textContent = 'Play';
+      } else {
+        activeCardElement.classList.remove('paused-animation');
+        if (btn) btn.textContent = 'Pause';
+      }
     }
 
     function stopIdleVerses() {
@@ -2391,7 +2447,6 @@
         return;
       }
 
-      // Total delay updated to 10 seconds (7s display + 3s countdown)
       if (isMobile) {
         setTimeout(() => showVersePanel(activeQuestion), 3000);
         setTimeout(() => nextChaseStep(), 13000);
@@ -2467,6 +2522,7 @@
       qDisplay.textContent = "Welcome to The Bullet Line: Scripture Pursuit (400 Q Bank - KJV)! Press START GAME below to begin.";
 
       idleVerseIndex = 0;
+      isIdleVersePaused = false;
       startIdleVerses();
       titleAnimationTimer = setTimeout(triggerTitleRun, 6500);
     }
