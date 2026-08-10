@@ -1743,8 +1743,8 @@
       { ref: "2 Timothy 3:16–17", text: "All scripture is given by inspiration of God, and is profitable for doctrine, for reproof, for correction, for instruction in righteousness: That the man of God may be perfect, thoroughly furnished unto all good works.", anim: "anim-top" }
     ];
 
-    // Array of 11 rotating encouraging comments for Game Over / Loss
-    const gameOverMessages = [
+    // Master lists of encouraging comments
+    const masterGameOverMessages = [
       "Game Over! The Derailment caught you, but don't stop here. Keep playing to build your Bible knowledge and conquer the tracks next time!",
       "Off the tracks this time, but every stumble is just a lesson for the journey. Dust yourself off and try the rails again!",
       "Even the best conductors hit a roadblock. Review your map, brush up on the Word, and jump right back into the driver's seat!",
@@ -1757,10 +1757,8 @@
       "A temporary derailment can't stop a dedicated explorer. Re-fuel your engine, dive back into the trivia, and keep moving forward!",
       "You're getting closer to mastering the route with every single run. Keep your eyes on the rails and let's try it again!"
     ];
-    let gameOverMessageIndex = 0;
 
-    // Array of 11 rotating encouraging comments for Victory / Wins
-    const victoryMessages = [
+    const masterVictoryMessages = [
       "You arrived at the Train Station safely and earned <strong>{SHEKELS}</strong> Shekels of Silver! Fantastic job! Why not play another round to test yourself with even more Bible questions?",
       "Terminal reached! You navigated the tracks with precision and wisdom, securing <strong>{SHEKELS}</strong> Shekels of Silver. Ready to chart a brand new course?",
       "Smooth sailing down the final stretch! Your deep knowledge of the Word brought home <strong>{SHEKELS}</strong> Shekels of Silver and successfully steered you to victory.",
@@ -1773,7 +1771,25 @@
       "All aboard for another victory lap! Your hard work, study, and <strong>{SHEKELS}</strong> Shekels of Silver have truly paid off on the tracks today.",
       "You steered your way through every twist and turn to claim ultimate success and bank <strong>{SHEKELS}</strong> Shekels of Silver. Ready to prove your skills all over again?"
     ];
-    let victoryMessageIndex = 0;
+
+    // Active shuffled queues
+    let activeGameOverDeck = [];
+    let activeVictoryDeck = [];
+
+    function getNextGameOverMessage() {
+      if (activeGameOverDeck.length === 0) {
+        activeGameOverDeck = [...masterGameOverMessages].sort(() => Math.random() - 0.5);
+      }
+      return activeGameOverDeck.pop();
+    }
+
+    function getNextVictoryMessage(shekelsAmount) {
+      if (activeVictoryDeck.length === 0) {
+        activeVictoryDeck = [...masterVictoryMessages].sort(() => Math.random() - 0.5);
+      }
+      const template = activeVictoryDeck.pop();
+      return template.replace("{SHEKELS}", shekelsAmount.toLocaleString());
+    }
 
     let idleVerseIndex = 0;
     let idleVerseTimer = null;
@@ -1781,11 +1797,12 @@
     let activeCardElement = null;
 
     function startIdleVerses() {
+      if (gameHasStarted) return;
       const overlay = document.getElementById('idle-verse-overlay');
       if (!overlay) return;
       showNextIdleVerse();
       idleVerseTimer = setInterval(() => {
-        if (!isIdleVersePaused) showNextIdleVerse();
+        if (!isIdleVersePaused && !gameHasStarted) showNextIdleVerse();
       }, 18000);
     }
 
@@ -1826,6 +1843,7 @@
 
     function stopIdleVerses() {
       if (idleVerseTimer) clearInterval(idleVerseTimer);
+      idleVerseTimer = null;
       const overlay = document.getElementById('idle-verse-overlay');
       if (overlay) overlay.innerHTML = '';
     }
@@ -2534,16 +2552,9 @@
         summaryList.innerHTML = `<div style="text-align:center; color:#7a8ba3; padding: 20px;">No questions answered.</div>`;
       } else {
         if (isWin) {
-          const currentWinMessage = victoryMessages[victoryMessageIndex]
-            .replace("{SHEKELS}", currentBank.toLocaleString());
-          victoryMessageIndex = (victoryMessageIndex + 1) % victoryMessages.length;
-          
-          summaryScoreBanner.innerHTML = currentWinMessage;
+          summaryScoreBanner.innerHTML = getNextVictoryMessage(currentBank);
         } else {
-          const currentLossMessage = gameOverMessages[gameOverMessageIndex];
-          gameOverMessageIndex = (gameOverMessageIndex + 1) % gameOverMessages.length;
-          
-          summaryScoreBanner.innerHTML = currentLossMessage;
+          summaryScoreBanner.innerHTML = getNextGameOverMessage();
         }
 
         askedQuestionsLog.forEach((item, index) => {
@@ -2574,6 +2585,7 @@
       if (titleAnimationTimer) clearTimeout(titleAnimationTimer);
       if (doorChimeTimer) clearTimeout(doorChimeTimer);
       gameHasStarted = false;
+      stopIdleVerses();
 
       logoHeaderBox.classList.remove('hidden');
       subtitleElement.classList.remove('active-game');
@@ -2603,7 +2615,7 @@
 
       idleVerseIndex = 0;
       isIdleVersePaused = false;
-      startIdleVerses();
+      // Do not restart idle verses on restart as requested ("not come back when the game restarts")
       titleAnimationTimer = setTimeout(triggerTitleRun, 6500);
     }
   </script>
