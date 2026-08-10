@@ -1743,6 +1743,38 @@
       { ref: "2 Timothy 3:16–17", text: "All scripture is given by inspiration of God, and is profitable for doctrine, for reproof, for correction, for instruction in righteousness: That the man of God may be perfect, thoroughly furnished unto all good works.", anim: "anim-top" }
     ];
 
+    // Array of 11 rotating encouraging comments for Game Over / Loss
+    const gameOverMessages = [
+      "Game Over! The Derailment caught you, but don't stop here. Keep playing to build your Bible knowledge and conquer the tracks next time!",
+      "Off the tracks this time, but every stumble is just a lesson for the journey. Dust yourself off and try the rails again!",
+      "Even the best conductors hit a roadblock. Review your map, brush up on the Word, and jump right back into the driver's seat!",
+      "That curve came out of nowhere! Don't let one derailment stop your momentum—let's get this train rolling again.",
+      "The tracks can be tricky, but your knowledge is growing with every mile. Ready to steer clear of trouble this time?",
+      "It’s not about how many times you derail, but how fast you get back on track. Give it another go and beat your high score!",
+      "Wisdom takes practice to build, and every round makes you sharper. Fire up the engine and let's try that stretch once more!",
+      "Looks like you hit a dead end, but your journey of learning doesn't end here. Steam ahead and tackle the tracks again!",
+      "Detours happen on every great adventure. Learn from the switchbacks and show those tracks who's boss next time!",
+      "A temporary derailment can't stop a dedicated explorer. Re-fuel your engine, dive back into the trivia, and keep moving forward!",
+      "You're getting closer to mastering the route with every single run. Keep your eyes on the rails and let's try it again!"
+    ];
+    let gameOverMessageIndex = 0;
+
+    // Array of 11 rotating encouraging comments for Victory / Wins
+    const victoryMessages = [
+      "You arrived at the Train Station safely and earned <strong>{SHEKELS}</strong> Shekels of Silver! Fantastic job! Why not play another round to test yourself with even more Bible questions?",
+      "Terminal reached! You navigated the tracks with precision and wisdom, securing <strong>{SHEKELS}</strong> Shekels of Silver. Ready to chart a brand new course?",
+      "Smooth sailing down the final stretch! Your deep knowledge of the Word brought home <strong>{SHEKELS}</strong> Shekels of Silver and successfully steered you to victory.",
+      "Green lights all the way to the station! You collected <strong>{SHEKELS}</strong> Shekels of Silver and conquered the tracks like a true master conductor.",
+      "Absolute perfection on the rails! You avoided every detour and claimed <strong>{SHEKELS}</strong> Shekels of Silver at your rightful destination. Let's keep that momentum going!",
+      "You stayed on track and crossed the finish line in style with <strong>{SHEKELS}</strong> Shekels of Silver! Your dedication to learning is shining brighter than ever.",
+      "Destination achieved! No derailment could stop your progress today, and you're walking away with <strong>{SHEKELS}</strong> Shekels of Silver. Time to celebrate and take another ride!",
+      "From start to finish, you mastered the route with brilliance and earned <strong>{SHEKELS}</strong> Shekels of Silver. Sound the whistle—you've earned this triumph!",
+      "You kept your eyes on the rails, secured <strong>{SHEKELS}</strong> Shekels of Silver, and navigated every challenge with grace. Another glorious victory for your Bible journey!",
+      "All aboard for another victory lap! Your hard work, study, and <strong>{SHEKELS}</strong> Shekels of Silver have truly paid off on the tracks today.",
+      "You steered your way through every twist and turn to claim ultimate success and bank <strong>{SHEKELS}</strong> Shekels of Silver. Ready to prove your skills all over again?"
+    ];
+    let victoryMessageIndex = 0;
+
     let idleVerseIndex = 0;
     let idleVerseTimer = null;
     let isIdleVersePaused = false;
@@ -2501,9 +2533,18 @@
         summaryScoreBanner.textContent = "No questions answered.";
         summaryList.innerHTML = `<div style="text-align:center; color:#7a8ba3; padding: 20px;">No questions answered.</div>`;
       } else {
-        summaryScoreBanner.innerHTML = isWin 
-          ? `You arrived at the Train Station safely and earned <strong>${currentBank.toLocaleString()} Shekels of Silver</strong>!<br><span style="font-size: 0.9rem; font-weight: normal; color: #cfd8e3; margin-top: 6px; display: inline-block;">Fantastic job! Why not play another round to test yourself with even more Bible questions?</span>`
-          : `💥 Game Over! The Derailment caught you, but don't stop here. Keep playing to build your Bible knowledge and conquer the tracks next time!`;
+        if (isWin) {
+          const currentWinMessage = victoryMessages[victoryMessageIndex]
+            .replace("{SHEKELS}", currentBank.toLocaleString());
+          victoryMessageIndex = (victoryMessageIndex + 1) % victoryMessages.length;
+          
+          summaryScoreBanner.innerHTML = currentWinMessage;
+        } else {
+          const currentLossMessage = gameOverMessages[gameOverMessageIndex];
+          gameOverMessageIndex = (gameOverMessageIndex + 1) % gameOverMessages.length;
+          
+          summaryScoreBanner.innerHTML = currentLossMessage;
+        }
 
         askedQuestionsLog.forEach((item, index) => {
           const div = document.createElement('div');
