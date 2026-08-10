@@ -1214,7 +1214,6 @@
     <a id="feedback-link" onclick="openFeedbackModal()">FEEDBACK</a>
   </div>
 
-  <!-- FIXED AJAX FEEDBACK MODAL (Submits background fetch to FormSubmit safely) -->
   <div id="feedback-modal" class="modal-overlay hidden">
     <div class="feedback-modal-box">
       <h3>💬 Send Feedback</h3>
@@ -1729,7 +1728,7 @@
       { q: "How many letters are attributed to Paul in the New Testament?", a: "13", d: ["7", "21"], ref: "New Testament Canon", text: "The Pauline epistles comprising Romans through Philemon.", testament: "NT" },
       { q: "Which book comes right after Acts in the New Testament?", a: "Romans", d: ["1 Corinthians", "Galatians"], ref: "New Testament Canon", text: "The Epistle of Paul the Apostle to the Romans.", testament: "OT" },
       { q: "Which book is the final book of the New Testament?", a: "Revelation", d: ["Jude", "3 John"], ref: "Revelation 1:1", text: "The Revelation of Jesus Christ, which God gave unto him...", testament: "NT" },
-      { q: "What is the middle book of the Old Testament?", a: "Proverbs", d: ["Psalms", "Job"], ref: "Old Testament Canon", text: "The central book structured within the historical/poetic canon layout.", testament: "OT" },
+      { q: "What is the middle book of the Old Testament?", a: "Proverbs", d: ["Job", "Psalms"], ref: "Old Testament Canon", text: "The central book structured within the historical/poetic canon layout.", testament: "OT" },
       { q: "How many major prophets are there in the Old Testament?", a: "5", d: ["4", "12"], ref: "Old Testament Canon", text: "Isaiah, Jeremiah, Lamentations, Ezekiel, and Daniel.", testament: "OT" },
       { q: "How many minor prophets are there in the Old Testament?", a: "12", d: ["5", "9"], ref: "Old Testament Canon", text: "Hosea through Malachi.", testament: "OT" },
       { q: "What is the shortest chapter in the Bible?", a: "Psalm 117", d: ["Psalm 23", "Psalm 150"], ref: "Psalm 117:1-2", text: "O praise the Lord, all ye nations: praise him, all ye people. For his merciful kindness is great toward us...", testament: "OT" }
@@ -1807,7 +1806,6 @@
       }
     }
 
-    // FIXED AJAX Feedback Submission so it never goes to a dead address bar page
     function submitFeedbackAjax(event) {
       event.preventDefault();
       const form = document.getElementById('feedback-form');
@@ -1830,7 +1828,6 @@
         closeFeedbackModal();
       })
       .catch(error => {
-        // Fallback if network blocks ajax: use standard mailto window
         const name = document.getElementById('fb-name').value;
         const msg = document.getElementById('fb-message').value;
         window.location.href = `mailto:billpmonti@gmail.com?subject=Feedback&body=${encodeURIComponent(msg)}`;
@@ -2351,7 +2348,7 @@
       if (playerPos === 0) {
         playSound('victory');
         renderBoard(false, true);
-        qDisplay.textContent = `🎉 You arrived at the Train Station safely and earned ${currentBank.toLocaleString()} Shekels of Silver!`;
+        qDisplay.textContent = "";
         showGameOverState(true);
         return;
       }
@@ -2359,7 +2356,7 @@
         chaserPos = playerPos;
         playSound('swallow');
         renderBoard(true, false);
-        qDisplay.textContent = `CRASH! The Derailment caught up with your Bullet Train! Game over!`;
+        qDisplay.textContent = "";
         showGameOverState(false);
         return;
       }
@@ -2418,12 +2415,12 @@
 
       if (isWon) {
         playSound('victory');
-        qDisplay.textContent = `🎉 You arrived at the Train Station safely and earned ${currentBank.toLocaleString()} Shekels of Silver!`;
+        qDisplay.textContent = "";
         showGameOverState(true);
         return;
       }
       if (isCaught) {
-        qDisplay.textContent = `CRASH! The Derailment caught up with your Bullet Train! Game over!`;
+        qDisplay.textContent = "";
         showGameOverState(false);
         return;
       }
@@ -2444,8 +2441,8 @@
         summaryList.innerHTML = `<div style="text-align:center; color:#7a8ba3; padding: 20px;">No questions answered.</div>`;
       } else {
         summaryScoreBanner.innerHTML = isWin 
-          ? `🎉 You arrived at the Train Station safely and earned <strong>${currentBank.toLocaleString()} Shekels of Silver</strong>!`
-          : `💥 Game Over! The Derailment caught you.`;
+          ? `You arrived at the Train Station safely and earned <strong>${currentBank.toLocaleString()} Shekels of Silver</strong>!<br><span style="font-size: 0.9rem; font-weight: normal; color: #cfd8e3; margin-top: 6px; display: inline-block;">Fantastic job! Why not play another round to test yourself with even more Bible questions?</span>`
+          : `💥 Game Over! The Derailment caught you, but don't stop here. Keep playing to build your Bible knowledge and conquer the tracks next time!`;
 
         askedQuestionsLog.forEach((item, index) => {
           const div = document.createElement('div');
