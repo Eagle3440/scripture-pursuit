@@ -1788,8 +1788,24 @@
       document.getElementById('stat-lost').textContent = gamesLost;
     }
 
-    function openFeedbackModal() { document.getElementById('feedback-modal').classList.remove('hidden'); }
-    function closeFeedbackModal() { document.getElementById('feedback-modal').classList.add('hidden'); }
+    let soundMutedBeforeFeedback = false;
+    function openFeedbackModal() {
+      soundMutedBeforeFeedback = soundMuted;
+      soundMuted = true;
+      if (soundToggleBtn) {
+        soundToggleBtn.textContent = '🔇';
+        soundToggleBtn.classList.add('muted');
+      }
+      document.getElementById('feedback-modal').classList.remove('hidden');
+    }
+    function closeFeedbackModal() {
+      document.getElementById('feedback-modal').classList.add('hidden');
+      soundMuted = soundMutedBeforeFeedback;
+      if (soundToggleBtn) {
+        soundToggleBtn.textContent = soundMuted ? '🔇' : '🔊';
+        soundToggleBtn.classList.toggle('muted', soundMuted);
+      }
+    }
 
     // FIXED AJAX Feedback Submission so it never goes to a dead address bar page
     function submitFeedbackAjax(event) {
