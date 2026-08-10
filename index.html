@@ -98,6 +98,7 @@
       box-shadow: 0 25px 60px rgba(0,0,0,0.88), inset 0 0 30px rgba(212, 175, 55, 0.15);
       opacity: 0;
       will-change: transform, opacity;
+      pointer-events: auto;
     }
 
     .floating-verse-card .f-label {
@@ -125,6 +126,37 @@
       color: #f0f4f8;
       font-style: italic;
       font-weight: 400;
+    }
+
+    .floating-verse-controls {
+      margin-top: 14px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .btn-pause-verse {
+      background: rgba(212, 175, 55, 0.12);
+      border: 1px solid rgba(212, 175, 55, 0.5);
+      color: #f7e7a1;
+      padding: 6px 16px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-pause-verse:hover {
+      background: rgba(212, 175, 55, 0.3);
+      border-color: #d4af37;
+      box-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
+    }
+
+    .floating-verse-card.is-paused {
+      animation-play-state: paused !important;
     }
 
     @media (max-width: 768px) {
@@ -164,10 +196,10 @@
       100% { transform: scale(1.3); opacity: 0; }
     }
 
-    .anim-left { animation: floatFromLeft 18s ease-in-out forwards; }
-    .anim-right { animation: floatFromRight 18s ease-in-out forwards; }
-    .anim-top { animation: floatFromTop 18s ease-in-out forwards; }
-    .anim-zoom { animation: floatZoomIn 18s ease-in-out forwards; }
+    .anim-left { animation: floatFromLeft 12s ease-in-out forwards; }
+    .anim-right { animation: floatFromRight 12s ease-in-out forwards; }
+    .anim-top { animation: floatFromTop 12s ease-in-out forwards; }
+    .anim-zoom { animation: floatZoomIn 12s ease-in-out forwards; }
 
     #disclaimer-footer {
       position: fixed;
@@ -1746,25 +1778,49 @@
 
     let idleVerseIndex = 0;
     let idleVerseTimer = null;
+    let isVersePaused = false;
 
     function startIdleVerses() {
       const overlay = document.getElementById('idle-verse-overlay');
       if (!overlay) return;
+      isVersePaused = false;
       showNextIdleVerse();
-      idleVerseTimer = setInterval(showNextIdleVerse, 18000);
+      idleVerseTimer = setInterval(showNextIdleVerse, 12000);
     }
 
     function showNextIdleVerse() {
-      if (gameHasStarted) return;
+      if (gameHasStarted || isVersePaused) return;
       const overlay = document.getElementById('idle-verse-overlay');
       if (!overlay) return;
       overlay.innerHTML = '';
       const v = idleVersesList[idleVerseIndex];
       const card = document.createElement('div');
       card.className = `floating-verse-card ${v.anim}`;
-      card.innerHTML = `<div class="f-label">📖 King James Bible (KJV)</div><div class="f-ref">${v.ref}</div><div class="f-text">“${v.text}”</div>`;
+      card.innerHTML = `
+        <div class="f-label">📖 King James Bible (KJV)</div>
+        <div class="f-ref">${v.ref}</div>
+        <div class="f-text">“${v.text}”</div>
+        <div class="floating-verse-controls">
+          <button class="btn-pause-verse" onclick="toggleVersePause(this)">⏸ Pause</button>
+        </div>
+      `;
       overlay.appendChild(card);
       idleVerseIndex = (idleVerseIndex + 1) % idleVersesList.length;
+    }
+
+    function toggleVersePause(btn) {
+      isVersePaused = !isVersePaused;
+      const card = btn.closest('.floating-verse-card');
+      
+      if (isVersePaused) {
+        card.classList.add('is-paused');
+        btn.textContent = '▶ Resume';
+        if (idleVerseTimer) clearInterval(idleVerseTimer);
+      } else {
+        card.classList.remove('is-paused');
+        btn.textContent = '⏸ Pause';
+        idleVerseTimer = setInterval(showNextIdleVerse, 12000);
+      }
     }
 
     function stopIdleVerses() {
@@ -2105,7 +2161,7 @@
         if (verseTimerInterval) clearInterval(verseTimerInterval);
         verseTimerBadge.classList.add('hidden');
 
-        let remainingVerseTime = 10;
+        let remainingVerseTime = 5;
         verseTimerInterval = setInterval(() => {
           remainingVerseTime--;
           if (remainingVerseTime <= 3 && remainingVerseTime > 0) {
@@ -2426,11 +2482,11 @@
       }
 
       if (isMobile) {
-        setTimeout(() => showVersePanel(activeQuestion), 3000);
-        setTimeout(() => nextChaseStep(), 13000);
+        setTimeout(() => showVersePanel(activeQuestion), 1500);
+        setTimeout(() => nextChaseStep(), 7000);
       } else {
         showVersePanel(activeQuestion);
-        setTimeout(() => nextChaseStep(), 10000);
+        setTimeout(() => nextChaseStep(), 5000);
       }
     }
 
