@@ -33,7 +33,7 @@
       justify-content: flex-start;
       min-height: 100vh;
       width: 100vw;
-      padding: 20px 15px 90px 15px;
+      padding: 20px 15px 150px 15px;
       overflow-x: hidden;
       overflow-y: auto;
       position: relative;
@@ -81,148 +81,20 @@
       100% { transform: translateX(-8%) scale(1.15); }
     }
 
-    #idle-verse-overlay {
-      position: fixed;
-      top: 58vh;
-      left: 0;
-      width: 100vw;
-      height: 40vh;
-      pointer-events: none;
-      z-index: 2;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-    }
-
-    .floating-verse-card {
-      position: absolute;
-      width: 95%;
-      max-width: 860px;
-      background: rgba(12, 22, 36, 0.92);
-      backdrop-filter: blur(15px);
-      border: 2px solid rgba(212, 175, 55, 0.55);
-      border-radius: 18px;
-      padding: 34px 42px;
-      text-align: center;
-      box-shadow: 0 25px 60px rgba(0,0,0,0.88), inset 0 0 30px rgba(212, 175, 55, 0.15);
-      opacity: 0;
-      will-change: transform, opacity;
-      pointer-events: auto;
-    }
-
-    .floating-verse-card .f-label {
-      font-size: 0.95rem;
-      font-weight: 800;
-      letter-spacing: 4px;
-      color: #d4af37;
-      text-transform: uppercase;
-      margin-bottom: 12px;
-    }
-
-    .floating-verse-card .f-ref {
-      font-family: 'Playfair Display', serif;
-      font-size: 2.1rem;
-      font-weight: 700;
-      color: #f7e7a1;
-      margin-bottom: 16px;
-      text-shadow: 0 0 18px rgba(212, 175, 55, 0.5);
-    }
-
-    .floating-verse-card .f-text {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.25rem;
-      line-height: 1.6;
-      color: #f0f4f8;
-      font-style: italic;
-      font-weight: 400;
-    }
-
-    .verse-control-row {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 14px;
-      margin-top: 16px;
-    }
-
-    .verse-ctrl-btn {
-      background: rgba(212, 175, 55, 0.12);
-      border: 1px solid rgba(212, 175, 55, 0.5);
-      color: #f7e7a1;
-      padding: 5px 14px;
-      border-radius: 6px;
-      font-size: 0.78rem;
-      font-weight: 800;
-      letter-spacing: 1px;
-      cursor: pointer;
-      text-transform: uppercase;
-      transition: all 0.2s ease;
-    }
-
-    .verse-ctrl-btn:hover {
-      background: rgba(212, 175, 55, 0.3);
-      box-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
-      color: #ffffff;
-    }
-
-    @media (max-width: 768px) {
-      .floating-verse-card {
-        max-width: 92%;
-        padding: 24px 26px;
-      }
-      .floating-verse-card .f-ref { font-size: 1.4rem; }
-      .floating-verse-card .f-text { font-size: 1rem; line-height: 1.5; }
-    }
-
-    @keyframes floatFromLeft {
-      0% { transform: translateX(-110vw) translateY(20px) rotate(-5deg); opacity: 0; }
-      11.1% { transform: translateX(0) translateY(0) rotate(0deg); opacity: 1; }
-      88.9% { transform: translateX(0) translateY(0) rotate(0deg); opacity: 1; }
-      100% { transform: translateX(110vw) translateY(-20px) rotate(5deg); opacity: 0; }
-    }
-
-    @keyframes floatFromRight {
-      0% { transform: translateX(110vw) translateY(-20px) rotate(5deg); opacity: 0; }
-      11.1% { transform: translateX(0) translateY(0) rotate(0deg); opacity: 1; }
-      88.9% { transform: translateX(0) translateY(0) rotate(0deg); opacity: 1; }
-      100% { transform: translateX(-110vw) translateY(20px) rotate(-5deg); opacity: 0; }
-    }
-
-    @keyframes floatFromTop {
-      0% { transform: translateY(-60vh) scale(0.8); opacity: 0; }
-      11.1% { transform: translateY(0) scale(1); opacity: 1; }
-      88.9% { transform: translateY(0) scale(1); opacity: 1; }
-      100% { transform: translateY(60vh) scale(0.8); opacity: 0; }
-    }
-
-    @keyframes floatZoomIn {
-      0% { transform: scale(0.6); opacity: 0; }
-      11.1% { transform: scale(1); opacity: 1; }
-      88.9% { transform: scale(1); opacity: 1; }
-      100% { transform: scale(1.3); opacity: 0; }
-    }
-
-    .anim-left { animation: floatFromLeft 18s ease-in-out forwards; }
-    .anim-right { animation: floatFromRight 18s ease-in-out forwards; }
-    .anim-top { animation: floatFromTop 18s ease-in-out forwards; }
-    .anim-zoom { animation: floatZoomIn 18s ease-in-out forwards; }
-    .paused-animation { animation-play-state: paused !important; opacity: 1 !important; transform: none !important; }
-
     #disclaimer-footer {
       position: fixed;
       bottom: 0;
       left: 0;
       width: 100vw;
-      background: rgba(4, 10, 20, 0.94);
+      background: rgba(4, 10, 20, 0.96);
       backdrop-filter: blur(10px);
       border-top: 1px solid rgba(212, 175, 55, 0.3);
       padding: 10px 15px;
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
-      gap: 16px;
-      flex-wrap: wrap;
+      gap: 6px;
       font-size: 0.78rem;
       font-weight: 700;
       color: #f7e7a1;
@@ -230,6 +102,15 @@
       z-index: 999;
       text-shadow: 0 0 8px rgba(212, 175, 55, 0.3);
       transition: opacity 0.3s ease;
+      text-align: center;
+    }
+
+    .footer-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
     }
 
     #disclaimer-footer a {
@@ -258,6 +139,7 @@
       flex-direction: column;
       align-items: center;
       z-index: 3;
+      margin-bottom: 60px;
     }
 
     .logo-container {
@@ -397,7 +279,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      margin-bottom: 45px;
+      margin-bottom: 25px;
       transition: flex 0.3s ease;
     }
 
@@ -414,7 +296,7 @@
       justify-content: center;
       text-align: center;
       box-shadow: 0 20px 50px rgba(0,0,0,0.9), inset 0 0 25px rgba(212, 175, 55, 0.1);
-      margin-bottom: 45px;
+      margin-bottom: 25px;
       min-height: 320px;
       position: relative;
     }
@@ -440,13 +322,43 @@
       transition: opacity 0.3s ease;
     }
 
+    .verse-control-row {
+      margin-top: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+    }
+
+    .verse-ctrl-btn {
+      background: rgba(212, 175, 55, 0.12);
+      border: 1px solid rgba(212, 175, 55, 0.5);
+      color: #f7e7a1;
+      padding: 6px 18px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 0 10px rgba(212, 175, 55, 0.2);
+    }
+
+    .verse-ctrl-btn:hover {
+      background: rgba(212, 175, 55, 0.3);
+      border-color: #f7e7a1;
+      box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+      color: #ffffff;
+    }
+
     @media (max-width: 767px) {
       .verse-side-panel {
         position: fixed;
-        bottom: 40px;
+        bottom: 75px;
         left: 0;
         width: 100vw;
-        max-height: 75vh;
+        max-height: 70vh;
         z-index: 999;
         margin: 0;
         border-radius: 20px 20px 0 0;
@@ -1248,11 +1160,23 @@
   <div class="fog-layer-1"></div>
   <div class="fog-layer-2"></div>
 
-  <div id="idle-verse-overlay"></div>
-
   <div id="disclaimer-footer">
-    <span>This bible quiz game is not a substitute for reading your King James BIBLE.</span>
-    <a id="feedback-link" onclick="openFeedbackModal()">FEEDBACK</a>
+    <div class="footer-row">
+      <span>This bible quiz game is not a substitute for reading your King James BIBLE.</span>
+      <a id="feedback-link" onclick="openFeedbackModal()">FEEDBACK</a>
+    </div>
+    <div style="margin-top: 2px;">
+      <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" rel="license noopener" style="display: inline-flex; align-items: center; justify-content: center; gap: 4px; text-decoration: none; border: none; background: transparent; padding: 0;">
+        <img src="https://mirrors.creativecommons.org/presskit/icons/cc.svg" alt="CC" style="height: 15px;" />
+        <img src="https://mirrors.creativecommons.org/presskit/icons/by.svg" alt="BY" style="height: 15px;" />
+        <img src="https://mirrors.creativecommons.org/presskit/icons/nc.svg" alt="NC" style="height: 15px;" />
+        <img src="https://mirrors.creativecommons.org/presskit/icons/nd.svg" alt="ND" style="height: 15px;" />
+      </a>
+      <span style="font-size: 0.75rem; color: #8da4c4; margin-left: 6px;">
+        © 2026 William Monti. Licensed under 
+        <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" rel="license noopener" style="color: #00d2ff; text-decoration: underline; border: none; background: transparent; padding: 0;">CC BY-NC-ND 4.0</a>
+      </span>
+    </div>
   </div>
 
   <div id="feedback-modal" class="modal-overlay hidden">
@@ -1458,7 +1382,7 @@
         <div class="verse-label">📖 King James Bible (KJV)</div>
         <div id="verse-ref" class="verse-ref">--</div>
         <div id="verse-text" class="verse-text">--</div>
-        <div class="verse-control-row" style="position: absolute; bottom: 12px; left: 0; width: 100%;">
+        <div class="verse-control-row">
           <button class="verse-ctrl-btn" id="verse-chase-pause-btn" onclick="toggleChaseVersePause()">Pause</button>
         </div>
         <div id="verse-timer-badge" class="verse-timer-badge hidden">3</div>
@@ -1733,16 +1657,6 @@
       { q: "Who was the sister of Mary and Lazarus who was busy preparing food while Mary listened to Jesus?", a: "Martha", d: ["Salome", "Joanna"], ref: "Luke 10:40", text: "And the disciple... was busy preparing food.", testament: "NT" }
     ];
 
-    const idleVersesList = [
-      { ref: "2 Timothy 2:15", text: "Study to shew thyself approved unto God, a workman that needeth not to be ashamed, rightly dividing the word of truth.", anim: "anim-left" },
-      { ref: "Joshua 1:8", text: "This book of the law shall not depart out of thy mouth; but thou shalt meditate therein day and night, that thou mayest observe to do according to all that is written therein: for then thou shalt make thy way prosperous, and then thou shalt have good success.", anim: "anim-right" },
-      { ref: "Psalm 119:11", text: "Thy word have I hid in mine heart, that I might not sin against thee.", anim: "anim-top" },
-      { ref: "Psalm 119:105", text: "Thy word is a lamp unto my feet, and a light unto my path.", anim: "anim-zoom" },
-      { ref: "Colossians 3:16", text: "Let the word of Christ dwell in you richly in all wisdom; teaching and admonishing one another in psalms and hymns and spiritual songs, singing with grace in your hearts to the Lord.", anim: "anim-left" },
-      { ref: "Romans 15:4", text: "For whatsoever things were written aforetime were written for our learning, that we through patience and comfort of the scriptures might have hope.", anim: "anim-right" },
-      { ref: "2 Timothy 3:16–17", text: "All scripture is given by inspiration of God, and is profitable for doctrine, for reproof, for correction, for instruction in righteousness: That the man of God may be perfect, thoroughly furnished unto all good works.", anim: "anim-top" }
-    ];
-
     // Master lists of encouraging comments
     const masterGameOverMessages = [
       "Game Over! The Derailment caught you, but don't stop here. Keep playing to build your Bible knowledge and conquer the tracks next time!",
@@ -1767,7 +1681,7 @@
       "You stayed on track and crossed the finish line in style with <strong>{SHEKELS}</strong> Shekels of Silver! Your dedication to learning is shining brighter than ever.",
       "Destination achieved! No derailment could stop your progress today, and you're walking away with <strong>{SHEKELS}</strong> Shekels of Silver. Time to celebrate and take another ride!",
       "From start to finish, you mastered the route with brilliance and earned <strong>{SHEKELS}</strong> Shekels of Silver. Sound the whistle—you've earned this triumph!",
-      "You kept your eyes on the rails, secured <strong>{SHEKELS}</strong> Shekels of Silver, and navigated every challenge with grace. Another glorious victory for your Bible journey!",
+      "You stayed your way through every twist and turn to claim ultimate success and bank <strong>{SHEKELS}</strong> Shekels of Silver. Another glorious victory for your Bible journey!",
       "All aboard for another victory lap! Your hard work, study, and <strong>{SHEKELS}</strong> Shekels of Silver have truly paid off on the tracks today.",
       "You steered your way through every twist and turn to claim ultimate success and bank <strong>{SHEKELS}</strong> Shekels of Silver. Ready to prove your skills all over again?"
     ];
@@ -1789,63 +1703,6 @@
       }
       const template = activeVictoryDeck.pop();
       return template.replace("{SHEKELS}", shekelsAmount.toLocaleString());
-    }
-
-    let idleVerseIndex = 0;
-    let idleVerseTimer = null;
-    let isIdleVersePaused = false;
-    let activeCardElement = null;
-
-    function startIdleVerses() {
-      if (gameHasStarted) return;
-      const overlay = document.getElementById('idle-verse-overlay');
-      if (!overlay) return;
-      showNextIdleVerse();
-      idleVerseTimer = setInterval(() => {
-        if (!isIdleVersePaused && !gameHasStarted) showNextIdleVerse();
-      }, 18000);
-    }
-
-    function showNextIdleVerse() {
-      if (gameHasStarted) return;
-      const overlay = document.getElementById('idle-verse-overlay');
-      if (!overlay) return;
-      overlay.innerHTML = '';
-      isIdleVersePaused = false;
-      const v = idleVersesList[idleVerseIndex];
-      const card = document.createElement('div');
-      activeCardElement = card;
-      card.className = `floating-verse-card ${v.anim}`;
-      card.innerHTML = `
-        <div class="f-label">📖 King James Bible (KJV)</div>
-        <div class="f-ref">${v.ref}</div>
-        <div class="f-text">“${v.text}”</div>
-        <div class="verse-control-row">
-          <button class="verse-ctrl-btn" id="verse-pause-btn" onclick="toggleIdleVersePause()">Pause</button>
-        </div>
-      `;
-      overlay.appendChild(card);
-      idleVerseIndex = (idleVerseIndex + 1) % idleVersesList.length;
-    }
-
-    function toggleIdleVersePause() {
-      if (!activeCardElement) return;
-      isIdleVersePaused = !isIdleVersePaused;
-      const btn = document.getElementById('verse-pause-btn');
-      if (isIdleVersePaused) {
-        activeCardElement.classList.add('paused-animation');
-        if (btn) btn.textContent = 'Play';
-      } else {
-        activeCardElement.classList.remove('paused-animation');
-        if (btn) btn.textContent = 'Pause';
-      }
-    }
-
-    function stopIdleVerses() {
-      if (idleVerseTimer) clearInterval(idleVerseTimer);
-      idleVerseTimer = null;
-      const overlay = document.getElementById('idle-verse-overlay');
-      if (overlay) overlay.innerHTML = '';
     }
 
     let audioCtx = null;
@@ -2145,7 +2002,6 @@
     }
     
     titleAnimationTimer = setTimeout(triggerTitleRun, 6500);
-    startIdleVerses();
 
     let currentBank = 0, timer = 60, timerInterval = null, playerPos = 5, chaserPos = 7, activeQuestion = null;
     let askedQuestionsLog = [];
@@ -2252,7 +2108,6 @@
 
     function startCountdownSequence() {
       gameHasStarted = true;
-      stopIdleVerses();
       if (titleAnimationTimer) clearTimeout(titleAnimationTimer);
       if (doorChimeTimer) clearTimeout(doorChimeTimer);
       titleElement.classList.remove('run-chase');
@@ -2585,7 +2440,6 @@
       if (titleAnimationTimer) clearTimeout(titleAnimationTimer);
       if (doorChimeTimer) clearTimeout(doorChimeTimer);
       gameHasStarted = false;
-      stopIdleVerses();
 
       logoHeaderBox.classList.remove('hidden');
       subtitleElement.classList.remove('active-game');
@@ -2613,9 +2467,6 @@
       qDisplay.className = "";
       qDisplay.textContent = "Welcome to The Bullet Line: Scripture Pursuit (400 Q Bank - KJV)! Press START GAME below to begin.";
 
-      idleVerseIndex = 0;
-      isIdleVersePaused = false;
-      // Do not restart idle verses on restart as requested ("not come back when the game restarts")
       titleAnimationTimer = setTimeout(triggerTitleRun, 6500);
     }
   </script>
