@@ -686,6 +686,28 @@
       box-shadow: 0 0 25px rgba(0, 210, 255, 0.7);
     }
 
+    .btn-reshuffle {
+      background: rgba(122, 139, 163, 0.12);
+      color: #a8b8cc;
+      border: 1px solid rgba(122, 139, 163, 0.35);
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      width: 100%;
+      max-width: 220px;
+    }
+
+    .btn-reshuffle:hover {
+      background: rgba(122, 139, 163, 0.22);
+      border-color: rgba(122, 139, 163, 0.55);
+      color: #c5d2e0;
+    }
+
     .audio-hint-text {
       margin-top: 10px;
       font-size: 0.78rem;
@@ -1395,6 +1417,7 @@
 
         <div class="controls">
           <button id="start-game-btn" class="btn-cyan">START GAME</button>
+          <button id="reshuffle-btn" class="btn-reshuffle" type="button" title="Reshuffle the question deck">🔀 Reshuffle Deck</button>
           <div id="audio-hint" class="audio-hint-text">
             <span>Touch anywhere to hear the bullet train.</span>
             <button id="sound-toggle-btn" class="sound-toggle-btn" type="button" aria-label="Toggle train sounds" title="Toggle train sounds">🔊</button>
@@ -2250,6 +2273,7 @@
     const verseTextEl = document.getElementById('verse-text');
     const verseTimerBadge = document.getElementById('verse-timer-badge');
     const startGameBtn = document.getElementById('start-game-btn');
+    const reshuffleBtn = document.getElementById('reshuffle-btn');
     const audioHint = document.getElementById('audio-hint');
     const soundToggleBtn = document.getElementById('sound-toggle-btn');
     const builderOptions = document.getElementById('builder-options');
@@ -2337,6 +2361,19 @@
 
     startGameBtn.addEventListener('click', startCountdownSequence);
 
+    reshuffleBtn.addEventListener('click', () => {
+      usedQuestionIndices.clear();
+      saveUsedQuestionIds();
+      currentActiveDeck = [];
+      const originalLabel = reshuffleBtn.textContent;
+      reshuffleBtn.textContent = 'Deck Reshuffled!';
+      reshuffleBtn.disabled = true;
+      setTimeout(() => {
+        reshuffleBtn.textContent = originalLabel;
+        reshuffleBtn.disabled = false;
+      }, 1200);
+    });
+
     soundToggleBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       soundMuted = !soundMuted;
@@ -2358,6 +2395,7 @@
       currentActiveDeck = [];
       askedQuestionsLog = [];
       startGameBtn.classList.add('hidden');
+      reshuffleBtn.classList.add('hidden');
       audioHint.classList.add('hidden');
       stickyBottomBar.classList.add('hidden');
       summaryWrap.classList.add('hidden');
@@ -2707,6 +2745,7 @@
       stickyBottomBar.classList.add('hidden');
 
       startGameBtn.classList.remove('hidden');
+      reshuffleBtn.classList.remove('hidden');
       audioHint.classList.remove('hidden');
       qDisplay.className = "";
       qDisplay.innerHTML = "Welcome to The Bullet Line: Scripture Pursuit (KJV)<br>Press START GAME below to begin.";
