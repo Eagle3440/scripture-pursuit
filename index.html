@@ -11,92 +11,6 @@
     gtag('config', 'G-0NYTRH8V3D');
   </script>
 
-  <!-- GameAnalytics Direct HTTP Implementation -->
-  <script>
-    const GA_CONFIG = {
-      key: "19547c6664b819b7b600f3022d023850",
-      secret: "e367116e2d17556fbab135239e21864887acbd92",
-      baseUrl: "https://api.gameanalytics.com/v1"
-    };
-
-    window.GameAnalytics = {
-      initialize: function(key, secret) {
-        console.log('✓ GameAnalytics initialized with key:', key.substring(0, 8) + '...');
-        return true;
-      },
-
-      addProgressionEvent: function(status, progression01, progression02, progression03, value) {
-        const data = {
-          event_id: "5518aac6ce3bfb18950959a7",
-          status: status,
-          progression01: progression01,
-          progression02: progression02 || null,
-          progression03: progression03 || null,
-          value: value || null
-        };
-        return this._sendEvent(data);
-      },
-
-      addDesignEvent: function(eventId, value) {
-        const data = {
-          event_id: eventId,
-          value: value || null
-        };
-        return this._sendEvent(data);
-      },
-
-      _sendEvent: function(data) {
-        const timestamp = Math.floor(Date.now() / 1000);
-        const payload = {
-          ...data,
-          user_id: this.getUserId(),
-          session_id: this.getSessionId(),
-          timestamp: timestamp,
-          v: 2
-        };
-
-        // Create proper auth header (base64 encode key:secret)
-        const authString = GA_CONFIG.key + ':' + GA_CONFIG.secret;
-        const encodedAuth = btoa(authString);
-
-        // Send using fetch
-        fetch(`${GA_CONFIG.baseUrl}/events`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Basic ${encodedAuth}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(payload)
-        }).then(r => {
-          console.log('📤 GA Event response:', r.status, data.event_id || data);
-          if (!r.ok) {
-            return r.text().then(t => console.warn('Response text:', t));
-          }
-        }).catch(e => console.error('❌ GA Event error:', e));
-      },
-
-      getUserId: function() {
-        let uid = localStorage.getItem('ga_user_id');
-        if (!uid) {
-          uid = 'user_' + Math.random().toString(36).substr(2, 9);
-          localStorage.setItem('ga_user_id', uid);
-        }
-        return uid;
-      },
-
-      getSessionId: function() {
-        let sid = sessionStorage.getItem('ga_session_id');
-        if (!sid) {
-          sid = 'session_' + Math.random().toString(36).substr(2, 9);
-          sessionStorage.setItem('ga_session_id', sid);
-        }
-        return sid;
-      }
-    };
-
-    console.log('✓ GameAnalytics custom implementation loaded');
-  </script>
-
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="keywords" content="bible game, trivia bible game, kjv bible quiz, scripture pursuit">
@@ -2733,24 +2647,6 @@
       updateStatsDisplay();
 
       const isNewHighScore = checkAndUpdateHighScore(currentBank);
-      
-      // Track game outcome to GameAnalytics
-      if (typeof GameAnalytics !== 'undefined') {
-        try {
-          if (isWin) {
-            GameAnalytics.addProgressionEvent("Complete", "ScripturePursuit", "Chase", null, currentBank);
-            GameAnalytics.addDesignEvent("shekels_earned", currentBank);
-            if (isNewHighScore) {
-              GameAnalytics.addDesignEvent("new_high_score", currentBank);
-            }
-          } else {
-            GameAnalytics.addProgressionEvent("Fail", "ScripturePursuit", "Chase", null, 0);
-          }
-          console.log('📊 Game outcome sent to GameAnalytics:', { isWin, currentBank });
-        } catch (e) {
-          console.error('GameAnalytics event error:', e);
-        }
-      }
       
       renderSummaryReport(isWin, isNewHighScore);
       stickyBottomBar.classList.remove('hidden');
