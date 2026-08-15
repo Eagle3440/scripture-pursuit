@@ -1963,6 +1963,15 @@
       }
     }
 
+    function loadTotalTreasuryAccount() {
+      try {
+        const stored = localStorage.getItem('totalTreasuryAccount');
+        totalTreasuryAccount = stored ? parseInt(stored, 10) : 0;
+      } catch (e) {
+        totalTreasuryAccount = 0;
+      }
+    }
+
     function updateHighScoreDisplay() {
       if (highScoreVal) {
         highScoreVal.textContent = `${treasuryHighScore.toLocaleString()} Shekels`;
@@ -1972,6 +1981,14 @@
     function saveTreasuryHighScore() {
       try {
         localStorage.setItem('treasuryHighScore', treasuryHighScore.toString());
+      } catch (e) {
+        // localStorage unavailable
+      }
+    }
+
+    function saveTotalTreasuryAccount() {
+      try {
+        localStorage.setItem('totalTreasuryAccount', totalTreasuryAccount.toString());
       } catch (e) {
         // localStorage unavailable
       }
@@ -2339,6 +2356,7 @@
     const diffIndicator = document.getElementById('difficulty-indicator');
 
     loadTreasuryHighScore();
+    loadTotalTreasuryAccount();
 
     function hideVersePanel() {
       if (verseTimerInterval) clearInterval(verseTimerInterval);
@@ -2638,6 +2656,7 @@
       if (isWin) {
         totalTreasuryAccount += currentBank;
         totalBankVal.textContent = `${totalTreasuryAccount.toLocaleString()} Shekels`;
+        saveTotalTreasuryAccount();
       } else {
         bankVal.textContent = `0 Shekels (Crashed)`;
       }
