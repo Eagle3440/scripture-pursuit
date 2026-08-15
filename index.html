@@ -1394,6 +1394,7 @@
         </div>
 
         <div id="board-container" class="board-container hidden">
+          <div id="high-score-display" style="text-align: center; margin-bottom: 20px; font-weight: 900; color: #d4af37; text-shadow: 0 0 8px rgba(212, 175, 55, 0.5); letter-spacing: 0.5px; font-size: 1.1rem;">🏆 HIGH SCORE: <span id="high-score-val" class="bank-text">0 Shekels</span></div>
           <div class="step" data-step="7" id="step-7"><span>Step <span class="step-num">7</span></span><div class="token-space" id="slot-7"></div></div>
           <div class="step" data-step="6" id="step-6"><span>Step <span class="step-num">6</span></span><div class="token-space" id="slot-6"></div></div>
           <div class="step" data-step="5" id="step-5"><span>Step <span class="step-num">5</span></span><div class="token-space" id="slot-5"></div></div>
@@ -1929,6 +1930,7 @@
     let gamesWon = 0;
     let gamesLost = 0;
     let totalTreasuryAccount = 0;
+    let treasuryHighScore = 0;
 
     let isChaseVersePaused = false;
     let chaseVerseRemainingTime = 10;
@@ -1938,6 +1940,41 @@
       document.getElementById('stat-played').textContent = gamesPlayed;
       document.getElementById('stat-won').textContent = gamesWon;
       document.getElementById('stat-lost').textContent = gamesLost;
+    }
+
+    function loadTreasuryHighScore() {
+      try {
+        const stored = localStorage.getItem('treasuryHighScore');
+        treasuryHighScore = stored ? parseInt(stored, 10) : 0;
+        updateHighScoreDisplay();
+      } catch (e) {
+        treasuryHighScore = 0;
+        updateHighScoreDisplay();
+      }
+    }
+
+    function updateHighScoreDisplay() {
+      if (highScoreVal) {
+        highScoreVal.textContent = `${treasuryHighScore.toLocaleString()} Shekels`;
+      }
+    }
+
+    function saveTreasuryHighScore() {
+      try {
+        localStorage.setItem('treasuryHighScore', treasuryHighScore.toString());
+      } catch (e) {
+        // localStorage unavailable
+      }
+    }
+
+    function checkAndUpdateHighScore(finalBankAmount) {
+      if (finalBankAmount > treasuryHighScore) {
+        treasuryHighScore = finalBankAmount;
+        saveTreasuryHighScore();
+        updateHighScoreDisplay();
+        return true; // high score was beaten
+      }
+      return false; // high score was not beaten
     }
 
     let soundMutedBeforeFeedback = false;
@@ -2280,6 +2317,7 @@
     const builderOptions = document.getElementById('builder-options');
     const bankVal = document.getElementById('bank-val');
     const totalBankVal = document.getElementById('total-bank-val');
+    const highScoreVal = document.getElementById('high-score-val');
     const timerWrap = document.getElementById('timer-wrap');
     const timerVal = document.getElementById('timer-val');
     const boardContainer = document.getElementById('board-container');
@@ -2289,6 +2327,8 @@
     const summaryList = document.getElementById('summary-list');
     const summaryScoreBanner = document.getElementById('summary-score-banner');
     const diffIndicator = document.getElementById('difficulty-indicator');
+
+    loadTreasuryHighScore();
 
     function hideVersePanel() {
       if (verseTimerInterval) clearInterval(verseTimerInterval);
@@ -2596,7 +2636,8 @@
       if (isWin) gamesWon++; else gamesLost++;
       updateStatsDisplay();
 
-      renderSummaryReport(isWin);
+      const isNewHighScore = checkAndUpdateHighScore(currentBank);
+      renderSummaryReport(isWin, isNewHighScore);
       stickyBottomBar.classList.remove('hidden');
     }
 
@@ -2683,17 +2724,27 @@
       showVersePanel(activeQuestion);
     }
 
-    function renderSummaryReport(isWin) {
+    function renderSummaryReport(isWin, isNewHighScore = false) {
       summaryList.innerHTML = '';
       if (askedQuestionsLog.length === 0) {
         summaryScoreBanner.textContent = "No questions answered.";
         summaryList.innerHTML = `<div style="text-align:center; color:#7a8ba3; padding: 20px;">No questions answered.</div>`;
       } else {
+        let bannerContent = '';
         if (isWin) {
-          summaryScoreBanner.innerHTML = getNextVictoryMessage(currentBank);
+          bannerContent = getNextVictoryMessage(currentBank);
         } else {
-          summaryScoreBanner.innerHTML = getNextGameOverMessage();
+          bannerContent = getNextGameOverMessage();
         }
+        
+        if (isNewHighScore) {
+          bannerContent += `<div style="margin-top: 12px; padding: 10px; background: rgba(212, 175, 55, 0.15); border: 2px solid #d4af37; border-radius: 6px; color: #d4af37; font-weight: 900; text-shadow: 0 0 8px rgba(212, 175, 55, 0.5); text-align: center;">🏆 NEW HIGH SCORE! 🏆<br>${currentBank.toLocaleString()} Shekels</div>`;
+        } else if (currentBank > 0) {
+          const shekelsUntilHighScore = treasuryHighScore - currentBank;
+          bannerContent += `<div style="margin-top: 12px; padding: 10px; background: rgba(0, 210, 255, 0.1); border: 1px solid rgba(0, 210, 255, 0.4); border-radius: 6px; color: #cfd8e3; font-size: 0.9rem; text-align: center;">Your Score: <strong style="color: #00ffaa;">${currentBank.toLocaleString()} Shekels</strong><br>High Score to Beat: <strong style="color: #d4af37;">${treasuryHighScore.toLocaleString()} Shekels</strong><br><span style="color: #8da4c4;">${shekelsUntilHighScore > 0 ? `${shekelsUntilHighScore.toLocaleString()} Shekels away from High Score` : 'You tied the High Score!'}</span></div>`;
+        }
+        
+        summaryScoreBanner.innerHTML = bannerContent;
 
         askedQuestionsLog.forEach((item, index) => {
           const div = document.createElement('div');
@@ -2731,6 +2782,7 @@
 
       currentBank = 0; timer = 60; askedQuestionsLog = [];
       bankVal.textContent = `0 Shekels`; timerVal.textContent = `60`;
+      updateHighScoreDisplay();
 
       timerWrap.classList.add('hidden');
       boardContainer.classList.add('hidden');
