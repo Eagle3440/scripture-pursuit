@@ -2665,7 +2665,10 @@
       if (isWin) gamesWon++; else gamesLost++;
       updateStatsDisplay();
 
-      const isNewHighScore = checkAndUpdateHighScore(currentBank);
+      let isNewHighScore = false;
+      if (isWin) {
+        isNewHighScore = checkAndUpdateHighScore(currentBank);
+      }
       
       renderSummaryReport(isWin, isNewHighScore);
       stickyBottomBar.classList.remove('hidden');
