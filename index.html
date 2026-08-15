@@ -1221,6 +1221,7 @@
 
     .hidden { display: none !important; }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/gameanalytics@4.0.0/umd/gameanalytics.min.js"></script>
 </head>
 <body>
 
@@ -1471,6 +1472,15 @@
   </div>
 
   <script>
+    // Wait for GameAnalytics to load from CDN before initializing
+    function initializeGameAnalytics() {
+      if (typeof GameAnalytics !== 'undefined') {
+        GameAnalytics.initialize("19547c6664b819b7b600f3022d023850", "e367116e2d17556fbab135239e21864887acbd92");
+      }
+    }
+    // Try to initialize immediately, or wait a bit if not loaded yet
+    setTimeout(initializeGameAnalytics, 100);
+
     const pdfRawQuestions = [
       { q: "What was the name of Jesus’ mother?", a: "Mary", d: ["Martha", "Elizabeth", "Sarah"], ref: "Luke 1:26–27", text: "And in the sixth month the angel Gabriel was sent from God unto a city of Galilee, named Nazareth, To a virgin espoused to a man whose name was Joseph, of the house of David; and the virgin’s name was Mary.", testament: "NT" },
       { q: "What was the name of the garden where Adam and Eve lived?", a: "Garden of Eden", d: ["Garden of Gethsemane", "Garden of Babylon", "Garden of Carmel"], ref: "Genesis 2:8", text: "And the LORD God planted a garden eastward in Eden; and there he put the man whom he had formed.", testament: "OT" },
@@ -2637,6 +2647,20 @@
       updateStatsDisplay();
 
       const isNewHighScore = checkAndUpdateHighScore(currentBank);
+      
+      // Track game outcome to GameAnalytics (if loaded)
+      if (typeof GameAnalytics !== 'undefined') {
+        if (isWin) {
+          GameAnalytics.addProgressionEvent(1, "win", null);
+          GameAnalytics.addDesignEvent("shekels_earned", {value: currentBank});
+          if (isNewHighScore) {
+            GameAnalytics.addDesignEvent("new_high_score", {value: currentBank});
+          }
+        } else {
+          GameAnalytics.addProgressionEvent(1, "lose", null);
+        }
+      }
+      
       renderSummaryReport(isWin, isNewHighScore);
       stickyBottomBar.classList.remove('hidden');
     }
