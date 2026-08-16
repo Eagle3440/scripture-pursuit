@@ -193,43 +193,47 @@
     }
 
     .train-logo-wrapper.run-chase #door-left {
-      animation: doorSlideLeft 8.3s ease-in-out forwards;
+      animation: doorSlideLeft 3.5s ease-in-out forwards;
+      animation-delay: 2.5s;
     }
 
     .train-logo-wrapper.run-chase #door-right {
-      animation: doorSlideRight 8.3s ease-in-out forwards;
+      animation: doorSlideRight 3.5s ease-in-out forwards;
+      animation-delay: 2.5s;
     }
 
     .train-logo-wrapper.run-chase #door-left-2 {
-      animation: doorSlideLeft2 8.3s ease-in-out forwards;
+      animation: doorSlideLeft2 3.5s ease-in-out forwards;
+      animation-delay: 2.5s;
     }
 
     .train-logo-wrapper.run-chase #door-right-2 {
-      animation: doorSlideRight2 8.3s ease-in-out forwards;
+      animation: doorSlideRight2 3.5s ease-in-out forwards;
+      animation-delay: 2.5s;
     }
 
     @keyframes doorSlideLeft {
-      0%, 24% { transform: translateX(0); }
-      32%, 82% { transform: translateX(-27px); }
-      92%, 100% { transform: translateX(0); }
+      0%, 10% { transform: translateX(0); }
+      25%, 75% { transform: translateX(-27px); }
+      90%, 100% { transform: translateX(0); }
     }
 
     @keyframes doorSlideRight {
-      0%, 24% { transform: translateX(0); }
-      32%, 82% { transform: translateX(27px); }
-      92%, 100% { transform: translateX(0); }
+      0%, 10% { transform: translateX(0); }
+      25%, 75% { transform: translateX(27px); }
+      90%, 100% { transform: translateX(0); }
     }
 
     @keyframes doorSlideLeft2 {
-      0%, 24% { transform: translateX(0); }
-      32%, 82% { transform: translateX(-27px); }
-      92%, 100% { transform: translateX(0); }
+      0%, 10% { transform: translateX(0); }
+      25%, 75% { transform: translateX(-27px); }
+      90%, 100% { transform: translateX(0); }
     }
 
     @keyframes doorSlideRight2 {
-      0%, 24% { transform: translateX(0); }
-      32%, 82% { transform: translateX(27px); }
-      92%, 100% { transform: translateX(0); }
+      0%, 10% { transform: translateX(0); }
+      25%, 75% { transform: translateX(27px); }
+      90%, 100% { transform: translateX(0); }
     }
 
     .logo-subtitle {
@@ -2347,9 +2351,9 @@
       if (doorChimeTimer) clearTimeout(doorChimeTimer);
       doorChimeTimer = setTimeout(() => {
         if (!gameHasStarted) playSound('door-chime');
-      }, 6800);
+      }, 4200);
 
-      titleAnimationTimer = setTimeout(triggerTitleRun, 8300);
+      titleAnimationTimer = setTimeout(triggerTitleRun, 6500);
     }
     
     titleAnimationTimer = setTimeout(triggerTitleRun, 6500);
