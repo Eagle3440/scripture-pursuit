@@ -170,18 +170,20 @@
       will-change: transform, opacity;
       filter: drop-shadow(0 0 25px rgba(0, 210, 255, 0.45));
       position: relative;
+      transform: translateZ(0);
+      -webkit-transform: translateZ(0);
     }
 
     .train-logo-wrapper.run-chase {
-      animation: trainArrival 1.8s cubic-bezier(0.05, 0.7, 0.1, 1) forwards;
+      animation: trainArrival 1.8s ease-out forwards;
     }
 
     @keyframes trainArrival {
-      0% { transform: translateX(0) scale(1); opacity: 1; }
-      20% { transform: translateX(120vw) skewX(-20deg) scale(0.9); opacity: 0.9; }
-      21% { transform: translateX(-120vw) skewX(-20deg) scale(0.9); opacity: 0; }
+      0% { transform: translate3d(0, 0, 0) scale(1); opacity: 1; }
+      20% { transform: translate3d(120vw, 0, 0) scale(0.9); opacity: 0.9; }
+      21% { transform: translate3d(-120vw, 0, 0) scale(0.9); opacity: 0; }
       25% { opacity: 1; }
-      100% { transform: translateX(0) scale(1); opacity: 1; }
+      100% { transform: translate3d(0, 0, 0) scale(1); opacity: 1; }
     }
 
     #door-left, #door-right, #door-left-2, #door-right-2 {
@@ -1345,13 +1347,11 @@
           </defs>
 
           <path d="M 10 185 L 1590 185" stroke="url(#speedGlow)" stroke-width="4.5" filter="url(#neonBlue)" />
-          <path d="M 40 198 L 1560 198" stroke="#00d2ff" stroke-width="2" opacity="0.6" />
-          <path d="M 100 208 L 1500 208" stroke="#00a2ff" stroke-width="2.5" opacity="0.75" filter="url(#neonBlue)" />
 
           <g transform="skewX(-16) translate(10, 10)">
             <path d="M 30 145 C 70 145, 140 70, 230 70 L 785 70 C 792 70, 795 145, 795 145 C 795 175, 780 175, 230 175 C 140 175, 60 170, 30 145 Z" fill="url(#trainHull)" opacity="0.38" />
             <path d="M 28 145 C 68 145, 138 72, 228 72 L 787 72" stroke="#00d2ff" stroke-width="4.5" fill="none" filter="url(#neonBlue)" />
-            <path d="M 40 175 L 787 175" stroke="#00a2ff" stroke-width="3.5" fill="none" filter="url(#neonBlue)" />
+            <path d="M 40 175 L 1560 175" stroke="#00a2ff" stroke-width="3.5" fill="none" filter="url(#neonBlue)" />
 
             <path d="M 65 135 C 95 135, 135 90, 185 90 L 225 90 C 165 90, 115 135, 65 135 Z" fill="#002244" opacity="0.85" />
             <ellipse cx="50" cy="145" rx="16" ry="6" fill="#ffffff" filter="url(#neonBlue)" />
@@ -1368,7 +1368,6 @@
 
             <path d="M 805 145 C 805 70, 808 70, 815 70 L 1370 70 C 1460 70, 1530 145, 1570 145 C 1540 170, 1460 175, 1370 175 L 815 175 C 808 175, 805 145, 805 145 Z" fill="url(#trainHull)" opacity="0.38" />
             <path d="M 813 72 L 1372 72 C 1462 72, 1532 145, 1572 145" stroke="#00d2ff" stroke-width="4.5" fill="none" filter="url(#neonBlue)" />
-            <path d="M 813 175 L 1560 175" stroke="#00a2ff" stroke-width="3.5" fill="none" filter="url(#neonBlue)" />
 
             <g id="line-windows">
               <rect x="850" y="95" width="42" height="52" rx="6" fill="#0a2a44" opacity="0.9" stroke="#00d2ff" stroke-width="2" filter="url(#neonBlue)" />
