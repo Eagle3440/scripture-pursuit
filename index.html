@@ -168,10 +168,11 @@
       max-width: 720px;
       height: auto;
       will-change: transform, opacity;
-      filter: drop-shadow(0 0 25px rgba(0, 210, 255, 0.45));
       position: relative;
       transform: translateZ(0);
       -webkit-transform: translateZ(0);
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
     }
 
     .train-logo-wrapper.run-chase {
@@ -1351,7 +1352,6 @@
           <g transform="skewX(-16) translate(10, 10)">
             <path d="M 30 145 C 70 145, 140 70, 230 70 L 785 70 C 792 70, 795 145, 795 145 C 795 175, 780 175, 230 175 C 140 175, 60 170, 30 145 Z" fill="url(#trainHull)" opacity="0.38" />
             <path d="M 28 145 C 68 145, 138 72, 228 72 L 787 72" stroke="#00d2ff" stroke-width="4.5" fill="none" filter="url(#neonBlue)" />
-            <path d="M 40 175 L 1560 175" stroke="#00a2ff" stroke-width="3.5" fill="none" filter="url(#neonBlue)" />
 
             <path d="M 65 135 C 95 135, 135 90, 185 90 L 225 90 C 165 90, 115 135, 65 135 Z" fill="#002244" opacity="0.85" />
             <ellipse cx="50" cy="145" rx="16" ry="6" fill="#ffffff" filter="url(#neonBlue)" />
@@ -2947,6 +2947,23 @@
       qDisplay.innerHTML = "Welcome to The Bullet Line: Scripture Pursuit (KJV)<br>Press START GAME below to begin.";
 
       titleAnimationTimer = setTimeout(triggerTitleRun, 6500);
+    }
+  </script>
+
+  <script>
+    // Firefox-specific SVG filter optimization
+    const isFirefox = typeof InstallTrigger !== 'undefined';
+    if (isFirefox) {
+      window.addEventListener('DOMContentLoaded', function() {
+        // Reduce blur intensity in Firefox for better animation performance
+        const neonBlueFilter = document.getElementById('neonBlue');
+        if (neonBlueFilter) {
+          const blurElement = neonBlueFilter.querySelector('feGaussianBlur');
+          if (blurElement) {
+            blurElement.setAttribute('stdDeviation', '2');
+          }
+        }
+      });
     }
   </script>
 </body>
