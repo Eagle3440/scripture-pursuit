@@ -4,6 +4,12 @@
   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-0NYTRH8V3D"></script>
   <script>
+    // Firefox detection for styling
+    const isFirefox = typeof InstallTrigger !== 'undefined';
+    if (isFirefox) {
+      document.documentElement.setAttribute('data-browser', 'firefox');
+    }
+
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
@@ -179,6 +185,10 @@
       animation: trainArrival 2.5s ease-out forwards;
     }
 
+    html[data-browser="firefox"] .train-logo-wrapper.run-chase {
+      animation: trainArrivalFirefox 2.5s ease-out forwards;
+    }
+
     @keyframes trainArrival {
       0% { transform: translate3d(0, 0, 0) scale(1); opacity: 1; }
       20% { transform: translate3d(120vw, 0, 0) scale(0.9); opacity: 0.9; }
@@ -187,9 +197,20 @@
       100% { transform: translate3d(0, 0, 0) scale(1); opacity: 1; }
     }
 
+    @keyframes trainArrivalFirefox {
+      0% { transform: translate3d(0, 0, 0) scale(1); opacity: 1; }
+      20% { transform: translate3d(120vw, 0, 0) scale(0.9); opacity: 0.9; }
+      21% { transform: translate3d(-120vw, 0, 0) scale(0.9); opacity: 0; }
+      25% { transform: translate3d(-85vw, 0, 0) scale(1); opacity: 1; }
+      65% { transform: translate3d(-5vw, 0, 0) scale(1); opacity: 1; }
+      100% { transform: translate3d(0, 0, 0) scale(1); opacity: 1; }
+    }
+
     #door-left, #door-right, #door-left-2, #door-right-2 {
       transform-box: fill-box;
       transform-origin: center;
+      will-change: transform;
+      backface-visibility: hidden;
     }
 
     .train-logo-wrapper.run-chase #door-left {
@@ -1252,6 +1273,12 @@
     }
 
     .hidden { display: none !important; }
+
+    /* Firefox-only: disable door and door-frame filters for performance */
+    html[data-browser="firefox"] #train-door rect,
+    html[data-browser="firefox"] #train-door-2 rect {
+      filter: none !important;
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/gameanalytics@4.0.0/umd/gameanalytics.min.js"></script>
 </head>
