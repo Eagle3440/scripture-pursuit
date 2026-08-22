@@ -30,7 +30,7 @@
   <meta property="og:url" content="https://eagle3440.github.io/scripture-pursuit/" />
   <meta property="og:type" content="website" />
 
-  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="styles.css">
   <script src="https://cdn.jsdelivr.net/npm/gameanalytics@4.0.0/umd/gameanalytics.min.js"></script>
 </head>
 <body>
@@ -749,7 +749,7 @@
     // Load the question bank from questions.json (previously an inline array).
     // Start Game stays disabled until the fetch resolves and masterPDFDeck is built.
     startGameBtn.disabled = true;
-    fetch('js/questions.json')
+    fetch('questions.json')
       .then(response => response.json())
       .then(data => {
         pdfRawQuestions = data;
@@ -1364,4 +1364,3 @@
   </script>
 </body>
 </html>
-
