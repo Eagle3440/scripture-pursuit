@@ -378,11 +378,18 @@
       } catch (e) {
         totalTreasuryAccount = 0;
       }
+      updateTotalTreasuryDisplay();
     }
 
     function updateHighScoreDisplay() {
       if (highScoreVal) {
         highScoreVal.textContent = `${treasuryHighScore.toLocaleString()} Shekels`;
+      }
+    }
+
+    function updateTotalTreasuryDisplay() {
+      if (totalBankVal) {
+        totalBankVal.textContent = `${totalTreasuryAccount.toLocaleString()} Shekels`;
       }
     }
 
@@ -1077,7 +1084,7 @@
       
       if (isWin) {
         totalTreasuryAccount += currentBank;
-        totalBankVal.textContent = `${totalTreasuryAccount.toLocaleString()} Shekels`;
+        updateTotalTreasuryDisplay();
         saveTotalTreasuryAccount();
       } else {
         bankVal.textContent = `0 Shekels (Crashed)`;
@@ -1348,7 +1355,6 @@
 
   <script>
     // Firefox-specific SVG filter optimization
-    const isFirefox = typeof InstallTrigger !== 'undefined';
     if (isFirefox) {
       window.addEventListener('DOMContentLoaded', function() {
         // Reduce blur intensity in Firefox for better animation performance
@@ -1364,4 +1370,3 @@
   </script>
 </body>
 </html>
-
