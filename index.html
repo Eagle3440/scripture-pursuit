@@ -31,7 +31,7 @@
   <meta property="og:url" content="https://eagle3440.github.io/scripture-pursuit/" />
   <meta property="og:type" content="website" />
 
-  <link rel="stylesheet" href="styles.css?v=97">
+  <link rel="stylesheet" href="styles.css?v=98">
   <script src="https://cdn.jsdelivr.net/npm/gameanalytics@4.4.7/dist/GameAnalytics.min.js"></script>
 </head>
 <body>
@@ -267,6 +267,10 @@
         </div>
 
         <div class="controls">
+          <div id="ff-notice" class="ff-notice hidden" role="note">
+            <span class="ff-notice-text">You're riding in <strong>Firefox</strong> — the Bullet Line runs smoothest in <strong>Chrome</strong> or <strong>Brave</strong>. You're welcome aboard here, but if the ride feels choppy, one of those browsers gives you the full journey.</span>
+            <button id="ff-notice-close" class="ff-notice-close" type="button" aria-label="Dismiss browser notice">✕</button>
+          </div>
           <div id="start-row" class="start-row">
             <button id="start-game-btn" class="btn-category" style="--cat-rgb: 0, 210, 255;">START GAME</button>
             <button id="sound-toggle-btn" class="sound-toggle-btn" type="button" aria-label="Toggle train sounds" title="Toggle train sounds">
@@ -3941,6 +3945,33 @@
         }
       });
     }
+  </script>
+
+  <script>
+    // --- Firefox rider notice (2026-10-18, Bill's call): Firefox and
+    // Floorp riders see a one-time heads-up above START GAME that the
+    // Bullet Line runs smoothest in Chrome or Brave. The ✕ dismisses
+    // it for good in that browser (bulletline_ff_notice_dismissed);
+    // pressing START GAME hides it for the rest of the visit. Every
+    // other browser skips this entirely.
+    (function () {
+      if (!/Firefox\//.test(navigator.userAgent || '')) return;
+      var dismissed = false;
+      try { dismissed = localStorage.getItem('bulletline_ff_notice_dismissed') === '1'; } catch (e) {}
+      if (dismissed) return;
+      var notice = document.getElementById('ff-notice');
+      if (!notice) return;
+      notice.classList.remove('hidden');
+      var closeBtn = document.getElementById('ff-notice-close');
+      if (closeBtn) closeBtn.addEventListener('click', function () {
+        notice.classList.add('hidden');
+        try { localStorage.setItem('bulletline_ff_notice_dismissed', '1'); } catch (e) {}
+      });
+      var startBtn = document.getElementById('start-game-btn');
+      if (startBtn) startBtn.addEventListener('click', function () {
+        notice.classList.add('hidden');
+      });
+    })();
   </script>
 
   <script>

@@ -2147,6 +2147,40 @@
     .station-plate:hover svg, .station-plate:focus-visible svg {
       filter: brightness(1.18) drop-shadow(0 0 3px rgba(255, 233, 168, 0.9));
     }
+
+    /* Firefox rider notice (2026-10-18, Bill's call): Firefox/Floorp
+       visitors get one dismissible heads-up above the START row —
+       the game paints heaviest in Firefox, and riders deserve to know
+       Chrome/Brave give the smoothest ride. Hidden by default (the
+       .hidden rule); the notice script removes .hidden only for
+       Firefox-family browsers that haven't dismissed it before.
+       Chrome/Brave never see it. Start-screen life only: it hides
+       when START GAME is pressed. */
+    .ff-notice {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      background: linear-gradient(180deg, #101c33, #0a1322);
+      border: 1px solid rgba(255, 201, 76, 0.55);
+      border-left: 4px solid #ffc94c;
+      border-radius: 8px;
+      color: #f2ecd8;
+      font-size: 13.5px;
+      line-height: 1.45;
+      padding: 10px 12px;
+      margin: 0 0 12px;
+    }
+    .ff-notice strong { color: #ffd977; }
+    .ff-notice-close {
+      flex: none;
+      background: none;
+      border: none;
+      color: #ffd977;
+      font-size: 15px;
+      line-height: 1;
+      cursor: pointer;
+      padding: 1px 2px;
+    }
     .station-plate-text { display: flex; flex-direction: column; align-items: center; }
     .station-plate-sub {
       font-size: 7.5px;
