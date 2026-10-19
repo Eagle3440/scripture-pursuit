@@ -4517,7 +4517,24 @@
         phoneClockEl.textContent = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
       });
       stationClock._emit(new Date());
-      setInterval(() => stationClock._emit(new Date()), 1000);
+      // The heartbeat lands ON the wall-clock second (2026-10-18 fix for
+      // Bill's report: at every departure the board flipped to EN ROUTE
+      // instantly while the CURRENT TIME flap finished changing 1-2s
+      // behind it). The old free-running setInterval ticked at whatever
+      // fraction of a second the page happened to load at, so the clock
+      // only heard about a new minute up to a second late, plus its
+      // ~0.6s flap fall. Each tick now schedules the next for just past
+      // the top of the coming second, so the clock, the board and the
+      // departures all turn on the same instant. Every onTick subscriber
+      // (flip clock, phone readout, board minute render, the departure
+      // watchdog) rides this same aligned beat.
+      (function stationHeartbeat() {
+        const now = Date.now();
+        setTimeout(() => {
+          stationClock._emit(new Date());
+          stationHeartbeat();
+        }, 1000 - (now % 1000) + 2);
+      })();
     })();
   </script>
 </body>
