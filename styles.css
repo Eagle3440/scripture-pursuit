@@ -2123,7 +2123,7 @@
       border: 2px solid #e9e2c8;
       border-radius: 6px;
       padding: 6px 18px 7px;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6), inset 0 0 0 3px #083324, inset 0 0 0 4px rgba(233, 226, 200, 0.5), 0 0 8px rgba(255, 205, 100, 0.28);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6), inset 0 0 0 3px #083324, inset 0 0 0 4px rgba(233, 226, 200, 0.5);
       color: #f2ecd8;
       font-family: Arial, Helvetica, sans-serif;
       font-weight: 700;
@@ -2132,9 +2132,9 @@
       transition: box-shadow 0.25s ease, color 0.25s ease, border-color 0.25s ease;
     }
     /* The sign is a link (2026-10-18, Bill: it needs to LOOK like one):
-       the faint warm gold halo in the resting box-shadow above sits
-       around the plate at all times; on hover (or keyboard focus) the
-       sign lights up — halo flares, border and letters brighten, the
+       at rest the plate is quiet — the resting halo came off 2026-10-19
+       (Bill's call: no halo); on hover (or keyboard focus) the sign
+       lights up — halo flares, border and letters brighten, the
        emblem's wedge of light warms. Glow only: no size, position, or
        layout change in any state. */
     .station-plate:hover, .station-plate:focus-visible {

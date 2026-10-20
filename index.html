@@ -31,7 +31,7 @@
   <meta property="og:url" content="https://eagle3440.github.io/scripture-pursuit/" />
   <meta property="og:type" content="website" />
 
-  <link rel="stylesheet" href="styles.css?v=98">
+  <link rel="stylesheet" href="styles.css?v=99">
   <script src="https://cdn.jsdelivr.net/npm/gameanalytics@4.4.7/dist/GameAnalytics.min.js"></script>
 </head>
 <body>
@@ -4225,15 +4225,23 @@
       tickerBuildBoard();
 
       function tickerFlipCell(cellObj, target, delayMs, color) {
+        // Generation guard (2026-10-19): an instant set (tickerSetCell)
+        // bumps the generation, so flip steps already in flight for this
+        // cell abandon ship instead of stomping the instant value with
+        // shuffle characters after the fact.
+        const gen = (cellObj.gen = (cellObj.gen || 0) + 1);
         setTimeout(() => {
+          if (cellObj.gen !== gen) return;
           const steps = [tickerRandChar(), tickerRandChar(), target];
           let i = 0;
           function step() {
+            if (cellObj.gen !== gen) return;
             const el = cellObj.el;
             el.style.transition = "transform 0.08s linear";
             el.style.transform = "rotateX(-90deg)";
             tickerPlayClack();
             setTimeout(() => {
+              if (cellObj.gen !== gen) return;
               cellObj.span.textContent = steps[i];
               cellObj.span.style.color = color || "#e0e6ed";
               el.style.transform = "rotateX(0deg)";
@@ -4244,6 +4252,23 @@
           }
           step();
         }, delayMs);
+      }
+
+      // Instant cell set (2026-10-19, the departure-queue fix, Bill's
+      // approval): during a live departure the Bullet Line row is train
+      // information, not decoration — it takes its new state NOW, with
+      // no 3-step shuffle timers and no per-step clacks. The old way
+      // burst ~58 cells of timed steps into the exact second the train
+      // left, and everything else timer-driven that second — including
+      // the station clock's flap settle — queued behind the pile and
+      // smeared 1-3 seconds late on a modest machine.
+      function tickerSetCell(cellObj, target, color) {
+        cellObj.gen = (cellObj.gen || 0) + 1;
+        cellObj.span.textContent = target;
+        cellObj.span.style.color = color || "#e0e6ed";
+        cellObj.el.style.transition = "none";
+        cellObj.el.style.transform = "rotateX(0deg)";
+        cellObj.cur = target;
       }
 
       let tickerFirstRender = true;
@@ -4371,7 +4396,12 @@
           const str = bullet[f.key];
           const color = f.color || bullet.statusColor;
           for (let i = 0; i < f.len; i++) {
-            tickerFlipCell(target[f.key][i], str[i], colOffset * 7, color);
+            // Live departure: the row sets instantly (see tickerSetCell).
+            // Not live (a phone between-minutes refresh): it flips as
+            // it always has — the flourish is fine when no train is
+            // leaving this second.
+            if (bulletDepartureLive) tickerSetCell(target[f.key][i], str[i], color);
+            else tickerFlipCell(target[f.key][i], str[i], colOffset * 7, color);
             colOffset++;
           }
         });
@@ -4483,22 +4513,55 @@
           return false;
         }
         card.flipping = true;
+        card._pendingDigit = digit;
+        card._topSwapped = false;
         card.leafTop.textContent = card.value;
         card.leafBottom.textContent = digit;
         card.bottom.textContent = digit;
         card.el.classList.remove("flipping");
         void card.el.offsetWidth;
         card.el.classList.add("flipping");
-        setTimeout(() => {
-          card.top.textContent = digit;
-          card.el.classList.remove("flipping");
-          card.flipping = false;
-        }, 560);
+        // Backstop only (2026-10-19): the settle now normally rides the
+        // flap's own animationend (see the listener wired under
+        // buildFlipClock), which runs on the browser's animation clock
+        // and cannot queue behind JavaScript work the way this timer
+        // did — at a departure the 560ms timer was landing 1-3 seconds
+        // late on a modest machine, so the CURRENT TIME flap finished
+        // changing well after the board showed EN ROUTE (Bill's report,
+        // measured in a real Chromium). The timer stays in case an
+        // animationend is ever missed; settleFlipCard runs once either
+        // way.
+        setTimeout(() => settleFlipCard(card), 560);
         card.value = digit;
         return true;
       }
 
-      function flipClockRender(d) {
+      // The moment the top leaf finishes falling, the card's top half
+      // shows the new digit — a real Solari does exactly this.
+      function flipTopSwap(card) {
+        if (!card.flipping || card._topSwapped) return;
+        card._topSwapped = true;
+        card.top.textContent = card._pendingDigit;
+      }
+
+      function settleFlipCard(card) {
+        if (!card.flipping) return;
+        flipTopSwap(card);
+        card.el.classList.remove("flipping");
+        card.flipping = false;
+      }
+
+      // The flap animation clock drives the settle (2026-10-19):
+      // flipLeafTop ends -> swap the top half; flipLeafBottom ends ->
+      // the flip is done, tidy up.
+      flipCards.forEach(card => {
+        card.el.addEventListener("animationend", (e) => {
+          if (e.animationName === "flipLeafTop") flipTopSwap(card);
+          else if (e.animationName === "flipLeafBottom") settleFlipCard(card);
+        });
+      });
+
+      function flipClockDigits(d) {
         const hh = String(d.getHours()).padStart(2, "0");
         const mm = String(d.getMinutes()).padStart(2, "0");
         let flipped = false;
@@ -4506,7 +4569,51 @@
         flipped = flipCardTo(flipCards[1], hh[1]) || flipped;
         flipped = flipCardTo(flipCards[2], mm[0]) || flipped;
         flipped = flipCardTo(flipCards[3], mm[1]) || flipped;
-        if (flipped && !window.matchMedia('(max-width: 767px)').matches) tickerPlayClack();
+        return flipped;
+      }
+      // CLOCK plan part 2 (2026-10-19, Bill: "still off by one sec" on
+      // the part-1 build): the board changes instantly at :00 but the
+      // flap needs its 520ms fall (0.26s leaf + 0.26s leaf in the CSS),
+      // so CURRENT TIME still FINISHED about a second after EN ROUTE on
+      // his machine. The flip now starts early: on the :59 tick a timer
+      // is set for boundary-minus-520ms, so the falling leaf LANDS on
+      // :00, the same instant the board turns. The clack stays on the
+      // :00 tick, so the sound lands with the board too. If the early
+      // timer is ever missed (sleeping tab, a jam at :59), the :00
+      // render flips exactly as it did under part 1 — never worse.
+      const FLIP_FALL_MS = 520;
+      let preflipTimer = null;
+      let preflipClackKey = null;
+      function flipClockRender(d) {
+        const flipped = flipClockDigits(d);
+        const key = String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
+        // CLOCK plan part 3 (2026-10-19, "JP time"): if this minute was
+        // pre-flipped, any card still falling when the :00 tick arrives
+        // is settled ON this tick — the same tick that fires the Bullet
+        // Line and flips the board — so a slow machine can no longer
+        // drag the flap's finish past the boundary, and a fast one is
+        // untouched (its cards already settled on their own, and this
+        // finds nothing to do). The snap can only ever pull a lagging
+        // card UP TO the tick; it can never fire before it.
+        if (preflipClackKey === key) {
+          flipCards.forEach(card => { if (card.flipping) settleFlipCard(card); });
+        }
+        if (!window.matchMedia('(max-width: 767px)').matches) {
+          if (flipped) tickerPlayClack();
+          else if (preflipClackKey === key) tickerPlayClack();
+        }
+        if (preflipClackKey === key) preflipClackKey = null;
+        if (d.getSeconds() === 59) {
+          if (preflipTimer) clearTimeout(preflipTimer);
+          const boundary = d.getTime() - d.getMilliseconds() + 1000;
+          const next = new Date(boundary);
+          const nextKey = String(next.getHours()).padStart(2, "0") + ":" + String(next.getMinutes()).padStart(2, "0");
+          preflipTimer = setTimeout(() => {
+            preflipTimer = null;
+            if (Date.now() > boundary + 1200) return; // slept through it — the :00 path handled it
+            if (flipClockDigits(next)) preflipClackKey = nextKey;
+          }, Math.max(0, boundary - FLIP_FALL_MS - Date.now()));
+        }
       }
       stationClock.onTick(flipClockRender);
       // The phone's plain time readout (Bill, 2026-10-17): the old clock,
