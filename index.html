@@ -568,6 +568,9 @@
     let titleDoorsOpen = false;
     let titleDoorsInit = false;
     let titleDoorsFadeTimer = null;
+    let titleDoorsVeilTimer = null;
+    const TITLE_DOORS_FADE_IN_MS = 230;  // doors dip to black (FASTER DOORS)
+    const TITLE_DOORS_FADE_OUT_MS = 280; // and back up — about half a second total
     (function () { const p = new Image(); p.src = TITLE_DOORS_OPEN_FILE; })(); // preload, so the first swap never waits on the network
     function titleDoorsWantOpen() {
       const pub = window.bulletlineDeparture;
@@ -613,17 +616,17 @@
       try {
         const now = audioCtx.currentTime;
         if (opening) {
-          doorsNoiseHit(now, 0.35, 'bandpass', 2600, 1800, 0.20);        // seal breaks: air hiss (levels up, Bill 2026-10-20)
-          doorsNoiseHit(now + 0.12, 0.6, 'lowpass', 420, 240, 0.18);     // panels slide and park
+          doorsNoiseHit(now, 0.35, 'bandpass', 2600, 1800, 0.30);        // seal breaks: air hiss (DOORS LOUDER, Bill 2026-10-21)
+          doorsNoiseHit(now + 0.12, 0.6, 'lowpass', 700, 380, 0.28);     // panels slide and park (brighter, so a phone speaker can present it)
         } else {
-          doorsNoiseHit(now, 0.5, 'lowpass', 260, 420, 0.18);            // panels slide home
+          doorsNoiseHit(now, 0.5, 'lowpass', 380, 650, 0.28);            // panels slide home
           const osc = audioCtx.createOscillator();                       // cushioned thunk as they meet
           const og = audioCtx.createGain();
           osc.type = 'sine';
           osc.frequency.setValueAtTime(82, now + 0.42);
           osc.frequency.exponentialRampToValueAtTime(48, now + 0.6);
           og.gain.setValueAtTime(0.001, now + 0.42);
-          og.gain.exponentialRampToValueAtTime(0.30, now + 0.47);
+          og.gain.exponentialRampToValueAtTime(0.40, now + 0.47);
           og.gain.exponentialRampToValueAtTime(0.001, now + 0.68);
           osc.connect(og); og.connect(audioCtx.destination);
           osc.start(now + 0.42); osc.stop(now + 0.7);
@@ -648,19 +651,30 @@
         // Covered, hidden or first paint: set the picture directly and
         // cancel any doors fade still in flight.
         if (titleDoorsFadeTimer) { clearTimeout(titleDoorsFadeTimer); titleDoorsFadeTimer = null; snapTitleVeil(); }
+        if (titleDoorsVeilTimer) { clearTimeout(titleDoorsVeilTimer); titleDoorsVeilTimer = null; }
         img.src = target;
         return;
       }
       // Fade through black: veil up, swap under the black, veil back down.
-      // The doors sound starts with the dip (DOORS SOUND plan).
+      // The doors sound starts with the dip (DOORS SOUND plan). The doors
+      // carry their OWN faster timing (FASTER DOORS plan, Bill 2026-10-21):
+      // the veil's transition is sped up just for this swap and restored
+      // afterwards, so the video fades keep their slower timing.
       if (titleDoorsFadeTimer) clearTimeout(titleDoorsFadeTimer);
+      if (titleDoorsVeilTimer) clearTimeout(titleDoorsVeilTimer);
       playDoorsSound(want);
+      veil.style.transition = 'opacity ' + TITLE_DOORS_FADE_IN_MS + 'ms ease';
       veil.style.opacity = '1';
       titleDoorsFadeTimer = setTimeout(() => {
         titleDoorsFadeTimer = null;
         img.src = target;
+        veil.style.transition = 'opacity ' + TITLE_DOORS_FADE_OUT_MS + 'ms ease';
         veil.style.opacity = '0';
-      }, TITLE_FADE_IN_MS);
+        titleDoorsVeilTimer = setTimeout(() => {
+          titleDoorsVeilTimer = null;
+          veil.style.transition = '';
+        }, TITLE_DOORS_FADE_OUT_MS + 60);
+      }, TITLE_DOORS_FADE_IN_MS);
     }
     window.titleDoorsTick = function () { titleDoorsApply(false); };
     // Cut the weather music while a title video (and its warning) is happening.
