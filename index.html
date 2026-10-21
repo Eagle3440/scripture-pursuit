@@ -31,7 +31,7 @@
   <meta property="og:url" content="https://eagle3440.github.io/scripture-pursuit/" />
   <meta property="og:type" content="website" />
 
-  <link rel="stylesheet" href="styles.css?v=100">
+  <link rel="stylesheet" href="styles.css?v=101">
   <script src="https://cdn.jsdelivr.net/npm/gameanalytics@4.4.7/dist/GameAnalytics.min.js"></script>
 </head>
 <body>
@@ -144,7 +144,7 @@
   <div id="app-container">
     <div id="logo-header-box" class="logo-container">
       <div id="main-title" class="train-logo-wrapper">
-        <img id="title-train-img" src="title-train.png" alt="The Bullet Line" class="train-title-image">
+        <img id="title-train-img" src="title-train-closed.jpg" alt="The Bullet Line" class="train-title-image">
         <video id="title-intro-video" class="title-intro-video" src="title-intro.mp4" muted playsinline preload="auto" aria-label="Title intro video"></video>
         <div id="title-fade-veil" class="title-fade-veil" aria-hidden="true"></div>
         <button id="title-intro-replay" class="title-intro-replay" type="button" aria-label="Replay intro video" title="Replay intro video">&#8635;</button>
@@ -548,7 +548,121 @@
         departAt: departAt, mode: mode
       };
       if (window.stationEvents) window.stationEvents.emit('departure-changed', window.bulletlineDeparture);
+      titleDoorsApply();
     }
+    // ---- Title train doors (Bill, 2026-10-20, TITLE DOORS plan) ----
+    // The title picture is a matched pair: doors CLOSED at rest, doors OPEN
+    // while the Bullet Line is boarding. The swap reads the same published
+    // departure the board's Bullet Line row reads (window.bulletlineDeparture),
+    // so the doors, the row, the LED and the clock can never disagree:
+    // doors open when BOARDING NOW begins (120s out) and close again 30s
+    // before launch, giving the train room to close before it leaves.
+    // Swaps fade through black on the shared title-fade veil, the same
+    // pattern showTitlePicture uses for the videos. Evaluated on every
+    // publish (above) and once per station-clock tick (wired in the clock
+    // script via window.titleDoorsTick).
+    const TITLE_DOORS_OPEN_FILE = 'title-train-open.jpg';
+    const TITLE_DOORS_CLOSED_FILE = 'title-train-closed.jpg';
+    const TITLE_DOORS_BOARDING_S = 120; // open from BOARDING NOW (2 board-minutes out)
+    const TITLE_DOORS_CLOSE_LEAD_S = 30; // closed again 30s before launch
+    let titleDoorsOpen = false;
+    let titleDoorsInit = false;
+    let titleDoorsFadeTimer = null;
+    (function () { const p = new Image(); p.src = TITLE_DOORS_OPEN_FILE; })(); // preload, so the first swap never waits on the network
+    function titleDoorsWantOpen() {
+      const pub = window.bulletlineDeparture;
+      if (!pub || pub.mode !== 'scheduled' || !pub.departAt) return false;
+      const s = (pub.departAt - Date.now()) / 1000;
+      return s > TITLE_DOORS_CLOSE_LEAD_S && s <= TITLE_DOORS_BOARDING_S;
+    }
+    // ---- Doors sounds (DOORS SOUND plan, Bill 2026-10-20) ----
+    // Procedural Web Audio like every other effect in the game; guarded by
+    // the same switches (soundEnabled / audioCtx / soundMuted), so the
+    // toggle, the touch-unlock and the feedback-modal hush all apply.
+    // Opening: the seal breaks with a soft air hiss, then the panels slide
+    // and park. Closing: the panels slide home, a cushioned thunk lands,
+    // and a short hiss tail seats the seal. Played only on the visible
+    // fade swap (titleDoorsApply's fade branch) — never for a swap that
+    // happens covered or hidden.
+    let doorsNoiseBuf = null;
+    function doorsNoiseSource() {
+      if (!doorsNoiseBuf) {
+        doorsNoiseBuf = audioCtx.createBuffer(1, Math.floor(audioCtx.sampleRate * 1), audioCtx.sampleRate);
+        const d = doorsNoiseBuf.getChannelData(0);
+        for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+      }
+      const src = audioCtx.createBufferSource();
+      src.buffer = doorsNoiseBuf;
+      return src;
+    }
+    function doorsNoiseHit(t0, dur, filterType, freqFrom, freqTo, peak) {
+      const src = doorsNoiseSource();
+      const flt = audioCtx.createBiquadFilter();
+      flt.type = filterType;
+      flt.frequency.setValueAtTime(freqFrom, t0);
+      if (freqTo) flt.frequency.exponentialRampToValueAtTime(freqTo, t0 + dur);
+      const g = audioCtx.createGain();
+      g.gain.setValueAtTime(0.001, t0);
+      g.gain.exponentialRampToValueAtTime(peak, t0 + 0.05);
+      g.gain.exponentialRampToValueAtTime(0.001, t0 + dur);
+      src.connect(flt); flt.connect(g); g.connect(audioCtx.destination);
+      src.start(t0); src.stop(t0 + dur + 0.05);
+    }
+    function playDoorsSound(opening) {
+      if (!soundEnabled || !audioCtx || soundMuted) return;
+      try {
+        const now = audioCtx.currentTime;
+        if (opening) {
+          doorsNoiseHit(now, 0.35, 'bandpass', 2600, 1800, 0.11);        // seal breaks: air hiss
+          doorsNoiseHit(now + 0.12, 0.6, 'lowpass', 420, 240, 0.10);     // panels slide and park
+        } else {
+          doorsNoiseHit(now, 0.5, 'lowpass', 260, 420, 0.10);            // panels slide home
+          const osc = audioCtx.createOscillator();                       // cushioned thunk as they meet
+          const og = audioCtx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(82, now + 0.42);
+          osc.frequency.exponentialRampToValueAtTime(48, now + 0.6);
+          og.gain.setValueAtTime(0.001, now + 0.42);
+          og.gain.exponentialRampToValueAtTime(0.22, now + 0.47);
+          og.gain.exponentialRampToValueAtTime(0.001, now + 0.68);
+          osc.connect(og); og.connect(audioCtx.destination);
+          osc.start(now + 0.42); osc.stop(now + 0.7);
+          doorsNoiseHit(now + 0.55, 0.18, 'bandpass', 2000, 1500, 0.05); // seal seats: hiss tail
+        }
+      } catch (e) {}
+    }
+    function titleDoorsApply(forceInstant) {
+      const want = titleDoorsWantOpen();
+      const instant = !!forceInstant || !titleDoorsInit;
+      if (titleDoorsInit && want === titleDoorsOpen) return;
+      titleDoorsOpen = want;
+      titleDoorsInit = true;
+      const img = document.getElementById('title-train-img');
+      if (!img) return;
+      const target = want ? TITLE_DOORS_OPEN_FILE : TITLE_DOORS_CLOSED_FILE;
+      if (img.getAttribute('src') === target) return;
+      const iv = document.getElementById('title-intro-video');
+      const veil = document.getElementById('title-fade-veil');
+      const pictureShowing = iv && iv.classList.contains('hidden') && !img.classList.contains('hidden');
+      if (instant || !pictureShowing || !veil) {
+        // Covered, hidden or first paint: set the picture directly and
+        // cancel any doors fade still in flight.
+        if (titleDoorsFadeTimer) { clearTimeout(titleDoorsFadeTimer); titleDoorsFadeTimer = null; snapTitleVeil(); }
+        img.src = target;
+        return;
+      }
+      // Fade through black: veil up, swap under the black, veil back down.
+      // The doors sound starts with the dip (DOORS SOUND plan).
+      if (titleDoorsFadeTimer) clearTimeout(titleDoorsFadeTimer);
+      playDoorsSound(want);
+      veil.style.opacity = '1';
+      titleDoorsFadeTimer = setTimeout(() => {
+        titleDoorsFadeTimer = null;
+        img.src = target;
+        veil.style.opacity = '0';
+      }, TITLE_FADE_IN_MS);
+    }
+    window.titleDoorsTick = function () { titleDoorsApply(false); };
     // Cut the weather music while a title video (and its warning) is happening.
     // Direct DOM access on purpose: safe to call even before the ticker exists.
     function cutTitleWeatherMusic() {
@@ -708,6 +822,7 @@
       const iv = document.getElementById('title-intro-video');
       const veil = document.getElementById('title-fade-veil');
       const videoVisible = iv && !iv.classList.contains('hidden');
+      titleDoorsApply(true); // TITLE DOORS: the revealed picture is the current doors state
       restoreTickerLine1();
       scheduleTitleIntroReplay();
       if (!videoVisible || !veil) {
@@ -4616,6 +4731,8 @@
         }
       }
       stationClock.onTick(flipClockRender);
+      // Title train doors ride the same heartbeat (TITLE DOORS plan).
+      stationClock.onTick(function () { if (window.titleDoorsTick) window.titleDoorsTick(); });
       // The phone's plain time readout (Bill, 2026-10-17): the old clock,
       // back in its old spot — same station clock source, so it can never
       // disagree with the board or the desktop flip clock.

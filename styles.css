@@ -306,6 +306,11 @@
       display: block;
       width: 100%;
       height: auto;
+      /* TITLE DOORS (2026-10-20): the closed and open pictures share one
+         fixed frame (the closed picture's shape) so a doors swap never
+         shifts the layout; cover crops the open picture's extra sliver. */
+      aspect-ratio: 2512 / 816;
+      object-fit: cover;
       border-radius: 8px;
     }
 
