@@ -445,7 +445,7 @@
     // The replay button replays the intro (restarts the rotation).
     const TITLE_PLAYLIST = ['title-intro.mp4'];
     (function shuffleTitlePlaylist() {
-      const rest = ['time-tunnel.mp4', 'valley-of-elah.mp4', 'destination-unknown.mp4', 'jerusalem-entry.mp4', 'pool-of-bethesda.mp4', 'bethany.mp4', 'jericho.mp4', 'mount-ararat.mp4', 'jerusalem-tomb.mp4'];
+      const rest = ['time-tunnel.mp4', 'valley-of-elah.mp4', 'destination-unknown.mp4', 'jerusalem-entry.mp4', 'pool-of-bethesda.mp4', 'bethany.mp4', 'jericho.mp4', 'mount-ararat.mp4'];
       for (let i = rest.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [rest[i], rest[j]] = [rest[j], rest[i]];
@@ -465,7 +465,6 @@
       'bethany.mp4':          { full: 'BETHANY',              short: 'BETHANY' },
       'jericho.mp4':          { full: 'JERICHO',              short: 'JERICHO' },
       "mount-ararat.mp4":     { full: "MOUNT ARARAT \u2014 NOAH'S ARK", short: "MOUNT ARARAT" },
-      'jerusalem-tomb.mp4':   { full: 'JERUSALEM \u2014 THE EMPTY TOMB', short: 'THE EMPTY TOMB' }
     };
     // Builds the launch-warning text for the upcoming video — titlePlaylistIdx
     // is already pointing at it when the warning shows.
@@ -619,18 +618,18 @@
           doorsNoiseHit(now, 0.35, 'bandpass', 2600, 1800, 0.30);        // seal breaks: air hiss (DOORS LOUDER, Bill 2026-10-21)
           doorsNoiseHit(now + 0.12, 0.6, 'lowpass', 700, 380, 0.28);     // panels slide and park (brighter, so a phone speaker can present it)
         } else {
-          doorsNoiseHit(now, 0.5, 'lowpass', 380, 650, 0.28);            // panels slide home
+          doorsNoiseHit(now, 0.5, 'lowpass', 380, 650, 0.36);            // panels slide home (CLOSE LOUDER, Bill 2026-10-21)
           const osc = audioCtx.createOscillator();                       // cushioned thunk as they meet
           const og = audioCtx.createGain();
           osc.type = 'sine';
           osc.frequency.setValueAtTime(82, now + 0.42);
           osc.frequency.exponentialRampToValueAtTime(48, now + 0.6);
           og.gain.setValueAtTime(0.001, now + 0.42);
-          og.gain.exponentialRampToValueAtTime(0.40, now + 0.47);
+          og.gain.exponentialRampToValueAtTime(0.50, now + 0.47);
           og.gain.exponentialRampToValueAtTime(0.001, now + 0.68);
           osc.connect(og); og.connect(audioCtx.destination);
           osc.start(now + 0.42); osc.stop(now + 0.7);
-          doorsNoiseHit(now + 0.55, 0.18, 'bandpass', 2000, 1500, 0.10); // seal seats: hiss tail
+          doorsNoiseHit(now + 0.55, 0.18, 'bandpass', 2000, 1500, 0.22); // seal seats: hiss tail
         }
       } catch (e) {}
     }
