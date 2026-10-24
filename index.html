@@ -445,7 +445,7 @@
     // The replay button replays the intro (restarts the rotation).
     const TITLE_PLAYLIST = ['title-intro.mp4'];
     (function shuffleTitlePlaylist() {
-      const rest = ['time-tunnel.mp4', 'valley-of-elah.mp4', 'destination-unknown.mp4', 'jerusalem-entry.mp4', 'pool-of-bethesda.mp4', 'bethany.mp4', 'jericho.mp4', 'mount-ararat.mp4'];
+      const rest = ['time-tunnel.mp4', 'valley-of-elah.mp4', 'destination-unknown.mp4', 'blast-off.mp4', 'mount-ararat.mp4'];
       for (let i = rest.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [rest[i], rest[j]] = [rest[j], rest[i]];
@@ -460,10 +460,7 @@
       'time-tunnel.mp4':      { full: 'THE TIME TUNNEL',      short: 'TIME TUNNEL' },
       'valley-of-elah.mp4':   { full: 'VALLEY OF ELAH', short: 'VALLEY OF ELAH' },
       'destination-unknown.mp4': { full: 'DESTINATION UNKNOWN', short: 'DESTINATION UNKNOWN' },
-      'jerusalem-entry.mp4':  { full: 'JERUSALEM',            short: 'JERUSALEM' },
-      'pool-of-bethesda.mp4': { full: 'THE POOL OF BETHESDA', short: 'POOL OF BETHESDA' },
-      'bethany.mp4':          { full: 'BETHANY',              short: 'BETHANY' },
-      'jericho.mp4':          { full: 'JERICHO',              short: 'JERICHO' },
+      'blast-off.mp4':        { full: 'BLAST OFF',            short: 'BLAST OFF' },
       "mount-ararat.mp4":     { full: "MOUNT ARARAT \u2014 NOAH'S ARK", short: "MOUNT ARARAT" },
     };
     // Builds the launch-warning text for the upcoming video — titlePlaylistIdx
@@ -2219,7 +2216,6 @@
       { text: "JERICHO — CITY WALLS COLLAPSE THIS MORNING AFTER SEVEN DAYS OF SILENT MARCHES AND A FINAL TRUMPET BLAST; ADVANCING FORCES REPORT NO STRUCTURE LEFT STANDING", label: "NEWS FLASH", source: "THE WILDERNESS WIRE" },
       { text: "SEA OF GALILEE — FISHERMEN DESCRIBE A MAN THEY CALL JESUS WALKING ACROSS OPEN WATER DURING LAST NIGHT'S STORM; ONE CREWMAN SAYS HE STEPPED OUT OF THE BOAT TO MEET HIM, WHOLE CREW NOW WORSHIPING HIM AS THE SON OF GOD", label: "BREAKING NEWS", source: "THE GALILEAN GAZETTE" },
       { text: "BETHANY — LAZARUS, FOUR DAYS ENTOMBED, HAS WALKED OUT OF HIS OWN GRAVE THIS AFTERNOON AFTER A MAN THEY CALL JESUS SUMMONED HIM FORTH; MOURNERS GATHERED FOR THE FUNERAL DESCRIBE THE SCENE AS PANDEMONIUM, MANY NOW CALLING HIM THE RESURRECTION AND THE LIFE", label: "BREAKING NEWS", source: "JERUSALEM HERALD" },
-      { text: "JERUSALEM — A GUARDED TOMB HAS BEEN FOUND EMPTY AT DAWN; EARLY VISITORS REPORT AN ANGELIC MESSAGE THAT A MAN THEY CALL JESUS, EXECUTED FRIDAY, HAS RISEN, FOLLOWERS NOW BOLDLY PROCLAIMING HIM THE CHRIST, SAVIOR OF THE WORLD, VICTORIOUS OVER DEATH", label: "BREAKING NEWS", source: "JERUSALEM HERALD" },
       { text: "EGYPT — THE NILE RIVER HAS TURNED TO BLOOD OVERNIGHT, KILLING FISH AND FOULING THE WATER SUPPLY; PALACE OFFICIALS BLAME A WARNING DELIVERED BY THE HEBREW LEADER MOSES", label: "NEWS FLASH", source: "THE NILE POST" },
       { text: "SHINAR — CONSTRUCTION ON A MASSIVE TOWER HALTS AS WORKERS SUDDENLY SPEAK IN MUTUALLY UNINTELLIGIBLE LANGUAGES; PROJECT ABANDONED, POPULATION SCATTERING", label: "SPECIAL REPORT", source: "BABYLON BEACON" },
       { text: "MOUNT HOREB — SHEPHERD MOSES ENCOUNTERS A BUSH ENGULFED IN FLAME THAT WILL NOT BURN; GOD SPEAKS TO HIM FROM WITHIN IT, AND MOSES ANSWERS, BEFORE BEING COMMISSIONED TO CONFRONT EGYPT'S PHARAOH", label: "BREAKING NEWS", source: "THE WILDERNESS WIRE" },
