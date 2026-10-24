@@ -2138,19 +2138,20 @@
     }
     /* The sign is a link (2026-10-18, Bill: it needs to LOOK like one):
        no halo in ANY state (Bill, 2026-10-19 — the resting halo and
-       then the hover flare both came off at his call). On hover (or
-       keyboard focus) only the border and letters brighten, so the
-       plate still reads as a link. No size, position, or layout
-       change in any state. */
+       then the hover flare both came off at his call). SIGN HOVER OFF
+       (Bill, 2026-10-24): the hover/focus brightening is gone too —
+       border, letters, and emblem stay exactly as at rest, so hovering
+       changes nothing. No size, position, or layout change in any
+       state. The plate is still a link. */
     .station-plate:hover, .station-plate:focus-visible {
-      color: #fffdf2;
-      border-color: #ffe9a8;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6), inset 0 0 0 3px #083324, inset 0 0 0 4px rgba(255, 233, 168, 0.8);
+      color: #f2ecd8;
+      border-color: #e9e2c8;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6), inset 0 0 0 3px #083324, inset 0 0 0 4px rgba(233, 226, 200, 0.5);
       outline: none;
     }
     .station-plate svg { width: 21px; height: 18px; flex: none; transition: filter 0.25s ease; }
     .station-plate:hover svg, .station-plate:focus-visible svg {
-      filter: brightness(1.18);
+      filter: none;
     }
 
     /* Firefox rider notice (2026-10-18, Bill's call): Firefox/Floorp
